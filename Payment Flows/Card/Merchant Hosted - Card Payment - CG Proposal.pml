@@ -12,8 +12,7 @@ note over Payee, Payer: HTTPS
 title Legacy Merchant Hosted Card Payment (CG Proposal)
 
 Payee->Payer: Basket Page with Pay Button
-
-
+Payer->Payer: Press Pay
 Payer->UA: Select Payment Instrument
 
 UA-\MPSP: Auth
