@@ -8,15 +8,17 @@ participant "Payer (Shopper) PSP" as CPSP
 
 note over MPSP, CPSP: HTTPS
 
-title Merchant PSP Intermediated Generic Push Payment (Current) 
+title Merchant PSP Intermediated PayPal Payment (Current)
 
 Payee->Payer: Basket Page with Pay Button
 
-Payer->Payer: Press Pay
+Payer->Payer: Press Pay with PayPal
 
 Payer-\Payee: Payment Page Request
 
 Payee-\MPSP: Payment Page Request
+
+MPSP<->CPSP: Create Payment
 
 MPSP-/Payee: HTTP Redirect
 
@@ -24,17 +26,7 @@ Payee-/Payer: HTTP Redirect
 
 Payer-\MPSP: Payment Request
 
-opt
 
-	MPSP-/Payer: Payment Choice Page
-
-	Payer->Payer: Select Payment Instrument
-
-	Payer-\MPSP: Payment Instrument Page Request
-
-	note right: This option is used where the merchant want to support many payment methods
-end
-	
 MPSP-/Payer: HTTP Redirect
 
 Payer-\CPSP: Payment Initiation
@@ -48,22 +40,25 @@ CPSP-/Payer: Payment Page
 
 opt
 	Payer<->CPSP: Instrument Choice
-	note right: For Wallets with multiple payment instruments
+	note right: Payer can change from default payment instrument
 end
 
-Payer->Payer: Agreement
+Payer->Payer: Approval
 
-Payer-\CPSP: Payment Confirmation
+Payer-\CPSP: Payment Approval
 
-CPSP-/Payer: Payment Response
+CPSP-/Payee: Payment Response Redirect
 
-Payer-\Payee: Payment Response
+Payer-\MPSP: Payment Response
 
-Payee-/Payer: Result Page
+MPSP<->CPSP: Execute Payment
+
+MPSP-/Payer: Result Page Redirect
+
+Payer<->Payee: Get Result Page
+
 
 ... asynchronous notification ...
-
-CPSP->MPSP: Payment Response
 
 MPSP->Payee: Payment Notification
 
