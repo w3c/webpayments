@@ -10,10 +10,10 @@ participant "Issuer Website" as CPSPW
 
 note over Payee, Payer: HTTPS
 
-title Legacy Merchant Hosted Card Payment (Google Proposal)
+title Legacy Merchant Hosted Card Payment with 3DS (Google Proposal)
 
 Payee->Payer: Basket Page with Pay Button
-
+Payer->Payer: Press Pay
 Payer->UA: Select Payment Instrument
 
 Opt
@@ -34,6 +34,19 @@ Else
 End
 
 Payee-\MPSP: Authenticate(Payment Instrument data)
+
+Opt
+	MPSP-/Payee: 3DS redirect
+	Payee->Payer: 3DS redirect
+	Payer->CPSPW: 3DS invoke
+	CPSPW-\Payer: 3DS challenge
+	Payer-/CPSPW: 3DS response
+	CPSPW->Payer: 3DS response
+	Payer->Payee: 3DS response
+	Payee-\MPSP: Authentication(3DS token)
+End
+
+
 MPSP-/Payee: Authentication Result
 
 Payee->Payer: Result Page
