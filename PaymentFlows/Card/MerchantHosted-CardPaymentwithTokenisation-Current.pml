@@ -11,7 +11,7 @@ participant "Payer (Shopper) PSP Wallet [aka Issuer Wallet]" as CPSP
 note over Payee, Payer: HTTPS
 
 title 
-<b>Legacy Merchant Hosted Card Payment with Tokenisation (Current)</b>
+<b>Merchant Hosted Card Payment with Tokenisation (Current)</b>
 
 <i>Tokenisation is used to reduce PCI compliance effort. Currently when tokenisation is used in this mode it only attract a level known as SAQ A-EP</i>
 end title
