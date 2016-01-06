@@ -4,7 +4,7 @@ Autonumber
 Participant "Payee (Merchant) PSP" as MPSP
 Participant "Payee (Merchant) Site" as Payee
 Actor "Payer (Shopper) Browser" as Payer
-participant "Payer (Shopper) PSP" as CPSP
+participant "Payer (Shopper) PSP (PayPal)" as CPSP
 
 note over MPSP, CPSP: HTTPS
 
@@ -47,7 +47,7 @@ Payer->Payer: Approval
 
 Payer-\CPSP: Payment Approval
 
-CPSP-/Payee: Payment Response Redirect
+CPSP-/Payer: Payment Response Redirect
 
 Payer-\MPSP: Payment Response
 
@@ -60,7 +60,13 @@ Payer<->Payee: Get Result Page
 
 ... asynchronous notification ...
 
+CPSP->Payer: Payment Notification (email)
+
 MPSP->Payee: Payment Notification
+
+Opt
+	Payee->Payer: Payment Notification (email)
+End
 
 Note right: Provides out of band confirmation to protect against failure/modification at browser
 
