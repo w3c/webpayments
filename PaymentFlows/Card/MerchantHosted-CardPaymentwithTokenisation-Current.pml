@@ -37,11 +37,11 @@ opt
 	note right: Merchant can store tokens for future use (a.k.a. Card on File)
 end
 
-Payee-\MPSP: Authenticate(Payment Details & Card Token)
+Payee-\MPSP: Authorise(Payment Details & Card Token)
 
 MPSP->MPSP: Detokenise Card
 
-MPSP-/Payee: Authentication Result
+MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 

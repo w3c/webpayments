@@ -33,7 +33,7 @@ Else
 	Note right: Custom code on merchant webpage can encrypt payload
 End
 
-Payee-\MPSP: Authenticate(Payment Instrument data)
+Payee-\MPSP: Authorise(Payment Instrument data)
 
 Opt
 	MPSP-/Payee: 3DS redirect
@@ -47,7 +47,7 @@ Opt
 End
 
 
-MPSP-/Payee: Authentication Result
+MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 

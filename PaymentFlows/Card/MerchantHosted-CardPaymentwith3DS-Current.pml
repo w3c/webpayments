@@ -33,7 +33,7 @@ opt
 	note right: Merchant can store card details apart from CVV (even if encrypted) for future use (a.k.a. Card on File)
 end
 
-Payee-\MPSP: Authenticate(payload)
+Payee-\MPSP: Authorise(payload)
 
 Opt
 	MPSP-/Payee: 3DS redirect
@@ -46,7 +46,7 @@ Opt
 	Payee-\MPSP: Authentication(3DS token)
 End
 
-MPSP-/Payee: Authenication Response
+MPSP-/Payee: Authorisation Response
 
 
 Payee->Payer: Result Page
