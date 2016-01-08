@@ -34,8 +34,8 @@ Else
 	Note right: Custom code on merchant webpage can encrypt payload
 End
 
-Payee-\MPSP: Authenticate(Payment Instrument data)
-MPSP-/Payee: Authentication Result
+Payee-\MPSP: Authorise(Payment Instrument data)
+MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 
