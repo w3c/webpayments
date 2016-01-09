@@ -8,7 +8,7 @@ participant "Payer (Shopper) PSP (PayPal)" as CPSP
 
 note over MPSP, CPSP: HTTPS
 
-title Merchant PSP Intermediated PayPal Payment (Current)
+title Merchant PSP Intermediated PayPal Payment (REST API) (Current)
 
 Payee->Payer: Basket Page with Pay Button
 
@@ -20,14 +20,19 @@ Payee-\MPSP: Payment Page Request
 
 MPSP<->CPSP: Create Payment
 
-MPSP-/Payee: HTTP Redirect
+MPSP-/Payee: HTTP Redirect information
+
+Note right: This data is information about the page to redirect to
 
 Payee-/Payer: HTTP Redirect
 
+Note right: The merchant site converts the info to a HTTP 301 to give the Merchant PSP control
+
 Payer-\MPSP: Payment Request
 
-
 MPSP-/Payer: HTTP Redirect
+
+Note right: HTTP Direct now send the shopper to the PayPal site
 
 Payer-\CPSP: Payment Initiation
 
