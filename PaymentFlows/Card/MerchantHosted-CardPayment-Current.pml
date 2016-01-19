@@ -33,8 +33,8 @@ opt
 	note right: Merchant can store card details (apart from CVV) (even if encrypted) for future use (a.k.a. Card on File)
 end
 
-Payee-\MPSP: Authenticate(payload)
-MPSP-/Payee: Authentication Result
+Payee-\MPSP: Authorise(payload)
+MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 
