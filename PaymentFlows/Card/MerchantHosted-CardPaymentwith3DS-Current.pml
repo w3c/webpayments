@@ -1,16 +1,17 @@
 @startuml
 Autonumber
 
-Participant "Payee (Merchant) PSP" as MPSP
+Participant "Payee (Merchant) PSP (Acquiring Bank)" as MPSP
 Participant "Payee (Merchant) Site" as Payee
 Actor "Payer (Shopper) Browser" as Payer
 participant "Browser Form Filler" as UA
-participant "Payer (Shopper) PSP Wallet [aka Issuer Wallet]" as CPSP
-participant "Issuer Website" as CPSPW
+participant "Card Scheme Directory" as CSD
+participant "Issuing Bank Website" as CPSPW
+participant "Issuing Bank" as CPSP
 
 note over Payee, Payer: HTTPS
 
-title Legacy Merchant Hosted Card Payment with 3DS (Current)
+title Legacy Merchant Hosted Card Payment with Acquirer Supported 3DS (Current)
 
 Payee->Payer: Basket Page with Pay Button
 Payer->Payer: Press Pay
@@ -34,21 +35,38 @@ opt
 end
 
 Payee-\MPSP: Authorise(payload)
-
+	
 Opt
-	MPSP-/Payee: 3DS redirect
-	Payee->Payer: 3DS redirect
+	MPSP –> CSD: BIN to URL lookup (VAReq message)
+	CSD -> CSD: Lookup URL from BIN
+	CSD –> CPSPW : “PING” 
+	note right: verify URL validity
+	CPSPW –> CSD: “PING” response
+	CSD –> MPSP: URL
+	
+	MPSP-/Payee: 3DS redirect (PAReq message)
+	Payee->Payer: 3DS redirect (PAReq message)
 	Payer->CPSPW: 3DS invoke
 	CPSPW-\Payer: 3DS challenge
-	Payer-/CPSPW: 3DS response
-	CPSPW->Payer: 3DS response
-	Payer->Payee: 3DS response
-	Payee-\MPSP: Authentication(3DS token)
+	Payer-/CPSPW: 3DS response (PARes message) 
+	CPSPW->Payer: 3DS response (PARes message)
+	Payer->Payee: 3DS response (PARes message)
+	Payee-\MPSP: 3DS response (PARes message)
+
+	MPSP->MPSP: Verification of PARes signature
 End
+	
+
+MPSP->CPSP: Authorisation Request
+CPSP->MPSP: Authorisation Response
 
 MPSP-/Payee: Authorisation Response
 
-
 Payee->Payer: Result Page
+
+== acquiring process (within some days) ==
+
+Payee -> MPSP : Capture
+MPSP->CPSP: Capture
 
 @enduml
