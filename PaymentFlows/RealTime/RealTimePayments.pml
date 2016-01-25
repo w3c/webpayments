@@ -1,31 +1,7 @@
 @startuml
+autonumber
 
-skinparam backgroundColor #EEEBDC
-
-skinparam noteBackgroundColor #A9DCDF
-skinparam noteBorderColor Blue
-
-skinparam sequence {
-ArrowColor DeepSkyBlue
-ArrowFontStyle bold
-ActorBorderColor DeepSkyBlue
-LifeLineBorderColor blue
-LifeLineBackgroundColor #A9DCDF
-ParticipantBorderColor DeepSkyBlue
-ParticipantBackgroundColor DodgerBlue
-ParticipantFontName Impact
-ParticipantFontSize 17
-ParticipantFontColor #A9DCDF
-ActorBackgroundColor aqua
-ActorFontColor DeepSkyBlue
-ActorFontSize 17
-ActorFontName Aapex
-DividerFontColor DodgerBlue
-DividerFontSize 15
-DividerFontStyle bold
-}
-hide footbox
-title Footer removed
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 title Real Time Payments Service flows\nBased on a distributed architecture service\nSingle currency settlement
 

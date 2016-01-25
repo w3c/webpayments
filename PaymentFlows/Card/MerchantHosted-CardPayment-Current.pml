@@ -1,11 +1,12 @@
 @startuml
+
 Autonumber
 
 Participant "Payee (Merchant) PSP [Beneficiary Agent]" as MPSP
 Participant "Payee (Merchant) Website [Beneficiary]" as Payee
 Actor "Payer (Shopper) Browser [Initiator]" as Payer
 participant "Browser Form Filler" as UA
-participant "Issuing Bank" as CPSP
+participant "Issuing Bank [Initiator Agent]" as CPSP
 
 note over Payee, Payer: HTTPS
 
@@ -42,7 +43,7 @@ MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 
-== acquiring process (within some days) ==
+== Acquiring process (within some days) ==
 
 Payee -> MPSP : Capture
 MPSP->CPSP: Capture
