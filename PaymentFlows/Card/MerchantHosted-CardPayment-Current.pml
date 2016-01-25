@@ -1,11 +1,11 @@
 @startuml
 Autonumber
 
-Participant "Payee (Merchant) PSP" as MPSP
-Participant "Payee (Merchant) Site" as Payee
-Actor "Payer (Shopper) Browser" as Payer
+Participant "Payee (Merchant) PSP [Beneficiary Agent]" as MPSP
+Participant "Payee (Merchant) Website [Beneficiary]" as Payee
+Actor "Payer (Shopper) Browser [Initiator]" as Payer
 participant "Browser Form Filler" as UA
-participant "Payer (Shopper) PSP Wallet [aka Issuer Wallet]" as CPSP
+participant "Issuing Bank" as CPSP
 
 note over Payee, Payer: HTTPS
 
@@ -33,9 +33,18 @@ opt
 	note right: Merchant can store card details (apart from CVV) (even if encrypted) for future use (a.k.a. Card on File)
 end
 
-Payee-\MPSP: Authorise(payload)
+Payee-\MPSP: Authorise (payload)
+
+MPSP-\CPSP: Authorisation Request
+CPSP-/MPSP: Authorisation Response
+
 MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
+
+== acquiring process (within some days) ==
+
+Payee -> MPSP : Capture
+MPSP->CPSP: Capture
 
 @enduml
