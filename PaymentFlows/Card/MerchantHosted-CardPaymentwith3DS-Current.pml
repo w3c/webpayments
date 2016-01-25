@@ -1,13 +1,13 @@
 @startuml
 Autonumber
 
-Participant "Payee (Merchant) PSP (Acquiring Bank)" as MPSP
-Participant "Payee (Merchant) Site" as Payee
-Actor "Payer (Shopper) Browser" as Payer
+Participant "Payee (Merchant) PSP (Acquiring Bank) [Beneficiary Agent]" as MPSP
+Participant "Payee (Merchant) Site [Beneficiary]" as Payee
+Actor "Payer (Shopper) Browser [Initiator]" as Payer
 participant "Browser Form Filler" as UA
 participant "Card Scheme Directory" as CSD
-participant "Issuing Bank Website" as CPSPW
-participant "Issuing Bank" as CPSP
+participant "Issuing Bank [Beneficiary Agent] Website " as CPSPW
+participant "Issuing Bank [Beneficiary Agent] " as CPSP
 
 note over Payee, Payer: HTTPS
 
@@ -57,8 +57,8 @@ Opt
 End
 	
 
-MPSP->CPSP: Authorisation Request
-CPSP->MPSP: Authorisation Response
+MPSP-\CPSP: Authorisation Request
+CPSP-/MPSP: Authorisation Response
 
 MPSP-/Payee: Authorisation Response
 
