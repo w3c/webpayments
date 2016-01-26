@@ -1,5 +1,5 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Participant "Payee (Merchant) PSP" as PSP
 Participant "Payee (Merchant) Site" as Payee

@@ -1,5 +1,5 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Participant "Payee (Merchant) PSP (Acquiring Bank) [Beneficiary Agent]" as MPSP
 Participant "Payee (Merchant) Site [Beneficiary]" as Payee
@@ -64,7 +64,7 @@ MPSP-/Payee: Authorisation Response
 
 Payee->Payer: Result Page
 
-== acquiring process (within some days) ==
+== Acquiring process (within some days) ==
 
 Payee -> MPSP : Capture
 MPSP->CPSP: Capture

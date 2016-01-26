@@ -1,12 +1,11 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
-
-Participant "Payee (Merchant) PSP" as MPSP
-Participant "Payee (Merchant) Site" as Payee
-Actor "Payer (Shopper) Browser" as Payer
+Participant "Payee (Merchant) PSP [Beneficiary Agent]" as MPSP
+Participant "Payee (Merchant) Website [Beneficiary]" as Payee
+Actor "Payer (Shopper) Browser [Initiator]" as Payer
 participant "Browser Form Filler" as UA
-participant "Payer (Shopper) PSP Wallet [aka Issuer Wallet]" as CPSP
+participant "Issuing Bank [Initiator Agent]" as CPSP
 
 note over Payee, Payer: HTTPS
 
@@ -44,5 +43,10 @@ MPSP->MPSP: Detokenise Card
 MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
+
+== Acquiring process (within some days) ==
+
+Payee -> MPSP : Capture
+MPSP->CPSP: Capture
 
 @enduml

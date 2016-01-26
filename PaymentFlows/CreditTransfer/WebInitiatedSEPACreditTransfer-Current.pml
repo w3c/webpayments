@@ -1,11 +1,11 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
-participant "Payee (Merchant) Bank" as MB
-Participant "Payee (Merchant) PSP" as MPSP
-Participant "Payee (Merchant) Site" as Payee
-Actor "Payer (Shopper) Browser" as Payer
-participant "Payer (Shopper) Bank" as CB
+participant "Payee (Merchant) Bank [Creditor Agent]" as MB
+Participant "Payee (Merchant) PSP [Intermediary]" as MPSP
+Participant "Payee (Merchant) Website [Creditor]" as Payee
+Actor "Payer (Shopper) Browser [Debtor]" as Payer
+participant "Payer (Shopper) Bank [Debtor Agent]" as CB
 
 
 note over MPSP, Payer: HTTPS
@@ -23,7 +23,7 @@ MPSP->Payer: Result Screen "Pending Transfer"
 
 MPSP-[#black]>Payee: Payment Notification (Pending)
 
-group ISO20022 SEPA Transfer
+group ISO20022/SEPA Credit Transfer
 	Payer -[#green]> CB: CustomerCreditTransferInitiation
 	CB -[#green]> Payer: CustomerPaymentStatusReport
 	CB -[#green]> MB : FIToFICustormerCreditTransfer
