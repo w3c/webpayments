@@ -1,6 +1,4 @@
 @startuml
-autonumber
-
 !includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 title Real Time Payments Service flows\nBased on a distributed architecture service\nSingle currency settlement
@@ -20,7 +18,7 @@ Debtor <---> Creditor: Establish Payment Obligation
 
 == Payment Initiation ==
 Hnote over Debtor
-The Debtor initiates a payment to its bank - the DebtorAgent
+The Debtor initiates a payment from its bank - the DebtorAgent
 end note
 Debtor -> DebtorAgent: CustomerCreditTransferInitiation
 activate DebtorAgent

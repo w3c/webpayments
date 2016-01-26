@@ -1,6 +1,5 @@
 @startuml
-
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Participant "Payee (Merchant) PSP [Beneficiary Agent]" as MPSP
 Participant "Payee (Merchant) Website [Beneficiary]" as Payee
