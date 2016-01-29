@@ -1,0 +1,42 @@
+@startuml
+
+Participant "Payee Webserver" as Webserver
+Participant "Checkout Page" as Webpage
+Participant "Payer Browser" as Browser
+Participant "Payer Payment App" as App
+Actor "Payer" as Payer
+
+title Using callbacks for payment app to payee comms
+
+Webserver->Browser: Checkout Page with Pay Button
+
+create Webpage
+Browser->Webpage : Render page
+
+
+Payer->Webpage: Press Pay
+
+Webpage->Browser: requestPayment(Payment Request)
+Browser->Webpage: Promise
+
+Browser->Payer: Get Payment App selection
+Payer->Browser: Select Payment App
+
+create App
+Browser->App: Payment Request
+
+group Payer interacts with app
+    App->Payer
+    Payer->App
+end
+
+opt User interaction prompts app to get updated payment details
+    App->Webserver: Get new payment request
+    Webserver->App: Updated payment request
+end
+
+App->Browser: Payment Response
+Browser->Webpage: Resolve Promise\n(Payment response)
+Webpage->Webserver: Payment Response
+
+@enduml
