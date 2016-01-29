@@ -32,7 +32,7 @@ CI->SPS: send token
 SPS->SPA: send token
 SPA->SPA: store card token into trust zone \nof Knox Sandbox\n (can be active or inactive)
 
-opt auth user (e.g. via OTP)/ activate token
+opt auth user (e.g. via OTP)
 CI->CI: generate activation code
 CI->B: activ code
 B->User: send token activation code
@@ -40,17 +40,12 @@ User->SPA: input code
 SPA->SPS:
 SPS->CI:
 CI->CI: validate activation code
+end
+
 CI->CI: activate token
 CI->SPS: notify token status change
 SPS->SPA: notify token status change
 
 end
-
-end
-
-
-
-
-
 
 @enduml
