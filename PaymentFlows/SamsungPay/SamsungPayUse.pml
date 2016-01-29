@@ -1,4 +1,5 @@
 @startuml
+
 title Using SamsungPay (unofficial)
 
 participant User as U
@@ -21,4 +22,5 @@ opt
 U->S: sign on receipt
 end
 S->U: deliver goods
+
 @enduml
