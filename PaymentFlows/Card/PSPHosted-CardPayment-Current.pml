@@ -1,11 +1,11 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
-Participant "Payee (Merchant) PSP" as MPSP
+Participant "Payee (Merchant) PSP [Acquirer & Acceptor]" as MPSP
 Participant "Payee (Merchant) Site" as Payee
-Actor "Payer (Shopper) Browser" as Payer
+Actor "Payer (Shopper/Customer) [Cardholder] Browser" as Payer
 participant "Browser Form Filler" as UA
-participant "Payer (Shopper) PSP Wallet [aka Issuer Wallet]" as CPSP
+participant "Payer (Shopper/Customer) PSP [Issuer] Wallet" as CPSP
 
 note over MPSP, Payer: HTTPS
 
