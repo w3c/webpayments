@@ -1,13 +1,13 @@
 @startuml
 !includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
-Participant "Payee (Merchant) PSP (Acquiring Bank) [Beneficiary Agent]" as MPSP
-Participant "Payee (Merchant) Site [Beneficiary]" as Payee
-Actor "Payer (Shopper) Browser [Initiator]" as Payer
+Participant "Payee (Merchant) PSP [Acquirer]" as MPSP
+Participant "Payee (Merchant) [Acceptor] Site " as Payee
+Actor "Payer (Shopper) [Cardholder] Browser" as Payer
 participant "Browser Form Filler" as UA
 participant "Card Scheme Directory" as CSD
-participant "Issuing Bank [Beneficiary Agent] Website " as CPSPW
-participant "Issuing Bank [Beneficiary Agent] " as CPSP
+participant "Issuing Bank [Issuer] Website" as CPSPW
+participant "Issuing Bank [Issuer]" as CPSP
 
 note over Payee, Payer: HTTPS
 
