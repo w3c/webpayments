@@ -1,5 +1,5 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Actor "Payee" as Payee
 Participant "Payee Bitcoin Node" as PayeeNode

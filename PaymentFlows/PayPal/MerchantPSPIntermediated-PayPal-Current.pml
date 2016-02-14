@@ -1,5 +1,5 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Participant "Payee (Merchant) PSP" as MPSP
 Participant "Payee (Merchant) Site" as Payee
@@ -10,9 +10,9 @@ note over MPSP, CPSP: HTTPS
 
 title Merchant PSP Intermediated PayPal Payment (REST API) (Current)
 
-Payee->Payer: Basket Page with Pay Button
+Payee->Payer: Present Checkout Page with Pay Button
 
-Payer->Payer: Press Pay with PayPal
+Payer->Payer: Select PayPal Payment Method
 
 Payer-\Payee: Payment Page Request
 
@@ -64,8 +64,9 @@ Payer<->Payee: Get Result Page
 
 
 ... asynchronous notification ...
-
-CPSP->Payer: Payment Notification (email)
+Opt
+	CPSP->Payer: Payment Notification (email)
+End
 
 MPSP->Payee: Payment Notification
 

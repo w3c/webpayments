@@ -1,5 +1,5 @@
 @startuml
-Autonumber
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
 
 Participant "Payee (Merchant) Site" as Payee
 Actor "Payer (Shopper) Browser" as Payer
@@ -9,9 +9,9 @@ note over MPSP, CPSP: HTTPS
 
 title PayPal Payment (REST API) (Current)
 
-Payee->Payer: Basket Page with Pay Button
+Payee->Payer: Present Checkout Page with Pay Button
 
-Payer->Payer: Press Pay with PayPal
+Payer->Payer: Select PayPal Payment Method
 
 Payer-\Payee: Payment Page Request
 

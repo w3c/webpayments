@@ -1,4 +1,6 @@
 @startuml
+!includeurl https://raw.githubusercontent.com/w3c/webpayments/gh-pages/PaymentFlows/skin.ipml
+
 title Escrow Payment (customer protection)
 
 participant "User Agent" as UA

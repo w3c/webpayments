@@ -13,11 +13,8 @@ Actor BOD as "Payer (Shopper) Browser [Debtor]"
 participant VSP as “ Payer (Shopper)\nValidation Service\nProvider”
 participant DB as "Payer (Shopper) Bank [Debtor Agent]"
 
-WOC -> BOD: Basket Page with Pay Button
-BOD -> WOC: Press Pay
-
-WOC -> BOD: Payment Method Choice Page
-BOD -> WOC: Select Direct Debit
+WOC -> BOD: Present Checkout Page with Pay Button
+BOD -> WOC: Select Direct Debit Payment Method
 Autonumber stop
 
 group ISO20022/SEPA Direct Debit
