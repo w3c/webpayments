@@ -13,6 +13,7 @@ note over Payee, Payer: HTTPS
 title Legacy Merchant Hosted Card Payment (Google Proposal)
 
 Payee->Payer: Basket Page with Pay Button
+Payer->Payer: Press Pay
 
 Payer->UA: Select Payment Instrument
 
@@ -33,8 +34,8 @@ Else
 	Note right: Custom code on merchant webpage can encrypt payload
 End
 
-Payee-\MPSP: Authenticate(Payment Instrument data)
-MPSP-/Payee: Authentication Result
+Payee-\MPSP: Authorise(Payment Instrument data)
+MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 

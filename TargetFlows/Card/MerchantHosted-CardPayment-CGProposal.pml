@@ -12,20 +12,19 @@ note over Payee, Payer: HTTPS
 title Legacy Merchant Hosted Card Payment (CG Proposal)
 
 Payee->Payer: Basket Page with Pay Button
-
-
+Payer->Payer: Press Pay
 Payer->UA: Select Payment Instrument
 
-UA-\MPSP: Auth
+UA-\MPSP: Authorise
 Note right 
 	Auth goes direct from Browser to Payee's nominated PSP (see
 	https://web-payments.org/specs/source/web-payments-api/#payment-flow-overview
 	6.1)
 End note
 
-MPSP-/UA: Auth Response
+MPSP-/UA: Authorisation Response
 
-UA->Payee: Auth Response
+UA->Payee: Authorisation Response
 Payee->Payer: Result Page
 
 @enduml
