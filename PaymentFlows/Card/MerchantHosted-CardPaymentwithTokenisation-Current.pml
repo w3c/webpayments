@@ -15,8 +15,8 @@ title
 <i>Tokenisation is used to reduce PCI compliance effort. Currently when tokenisation is used in this mode it only attract a level known as SAQ A-EP</i>
 end title
 
-Payee->Payer: Basket Page with Pay Button
-Payer->Payer: Press Pay
+Payee->Payer: Present Check-out page with Pay Button
+Payer->Payer: Select Card Payment Method
 
 Payer->Payer: Select Card Brand
 alt
@@ -44,9 +44,15 @@ MPSP-/Payee: Authorisation Result
 
 Payee->Payer: Result Page
 
-== Acquiring process (within some days) ==
+== Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
 
-Payee -> MPSP : Capture
+Alt
+	Payee -> MPSP : Capture
+	note right: Later Capture may be called, for example after good shipped or tickets pickedup
+Else
+	MPSP -> MPSP : Auto Capture in batch processing at end-of-day
+End	
+	
 MPSP->CPSP: Capture
 
 @enduml

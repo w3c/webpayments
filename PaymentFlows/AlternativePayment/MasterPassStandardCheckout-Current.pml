@@ -11,8 +11,8 @@ note over Payee, Payer: HTTPS
 
 title MasterPass-type Payment Flow [Simplified]
 
-Payee->Payer: Basket Page with "Pay with MasterPass" Button
-Payer->Payee: Press "Pay with MasterPass"
+Payee->Payer: Present Check-out page with Pay Button
+Payer->Payee: Select "Pay with MasterPass" Payment Method
 
 == MasterPass specific flow starts ==
 
@@ -48,12 +48,12 @@ MP-->Payee: Card Number & Shipping Address
 == MasterPass specific flow ends ==
 
 group opt
-  Payee->Payer: Capture CVV/CVC
-  Payer->Payee: CVV/CVC input
+  Payee->Payer: Capture CVV
+  Payer->Payee: CVV input
 end group
 
 Payee->Payer: Display order summary
-Payee->PSP: Submit Card Not Present\transaction with Card, CVV/CVC &\nAddress (if required)
+Payee->PSP: Submit Card Not Present Transaction with Card, CVV &\nAddress (if required)
 PSP-->Payee: Payment confirmation
 Payee->Payer: Display confirmation page
 

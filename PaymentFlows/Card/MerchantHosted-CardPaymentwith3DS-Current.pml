@@ -11,13 +11,17 @@ participant "Issuing Bank [Issuer]" as CPSP
 
 note over Payee, Payer: HTTPS
 
-title Legacy Merchant Hosted Card Payment with Acquirer Supported 3DS (Current)
+title 
+<b>Legacy Merchant Hosted Card Payment with Acquirer Supported 3DS (Current)</b>
 
-note over Payer: 3DS is used to add confidence that the payer is who they say they are and importantly in the event of a dispute liability shift to the Issuer
+<i>3DS is used to add confidence that the payer is who they say they are and importantly in the event of a dispute liability shift to the Issuer.</i>
+end title
 
-Payee->Payer: Checkout with Pay Button
-Payer->Payer: Press Pay
-Payer->Payer: Select Card Brand
+
+
+Payee->Payer: Present Check-out page with Pay Button
+Payer->Payer: Select Card Payment Method
+
 alt
 	UA->Payer: Form Fill
 	Note right: fields are PAN & Expiry Date with optional CVV, & Address, Also Card Valid Date and Issue Number are required for some Schemes
