@@ -29,4 +29,6 @@ CPSP->Payee: Notification
 
 Payer->Payee: Provide products or services
 
+@enduml
+
 
