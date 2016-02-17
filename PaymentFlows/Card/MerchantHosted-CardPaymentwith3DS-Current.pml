@@ -38,6 +38,8 @@ opt
 end
 
 Payee-\MPSP: Authorise
+
+Note over MPSP, Payee: At this point, the Merchant or Merchant's PSP can decide if it wishes to invoke 3DS. This might be based on transaction value (i.e. low value -> low risk) or other factors, e.g. if the Shopper is a repeat purchaser.
 	
 == 3DS part of flow ==
 

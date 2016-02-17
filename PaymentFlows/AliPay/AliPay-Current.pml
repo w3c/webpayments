@@ -27,7 +27,7 @@ CPSP->Payee: Notification
 
 == Fulfilment ==
 
-Payer->Payee: Provide products or services
+Payee->Payer: Provide products or services
 
 @enduml
 
