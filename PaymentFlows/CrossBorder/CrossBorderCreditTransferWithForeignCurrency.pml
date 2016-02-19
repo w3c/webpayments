@@ -62,7 +62,7 @@ Hnote over IGRA #DodgerBlue
 The InstructingReimbursementAgent has a direct account relationship
 with the InstructedReimbursementAgent in the settlement currency 
 (or through a additional ThirdReimbursementAgent - not illustrated here)
-through which the amount of money is transfered from the 
+through which the amount of money is transferred from the 
 InstructingReimbursementAgent to the InstructedReimbursementAgent.
 end note
 
@@ -70,7 +70,7 @@ opt
 Hnote over IGRA #DodgerBlue
 The InstructingReimbursementAgent confirms to the DebtorAgent 
 that the funds have been credited through a status message to
-indicate a successfull payment.
+indicate a successful payment.
 end note
 IGRA [#Blue]-> DA: FIToFIPaymentStatusReport (Accepted)
 end
@@ -89,7 +89,7 @@ opt
 Hnote over IDRA #DodgerBlue
 The InstructedReimbursementAgent confirms to the DebtorAgent 
 that the funds have been credited through a status message to
-indicate a successfull payment.
+indicate a successful payment.
 end note
 IDRA [#Blue]-> IGRA: FIToFIPaymentStatusReport (Accepted)
 end
