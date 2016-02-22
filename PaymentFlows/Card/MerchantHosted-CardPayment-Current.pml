@@ -3,28 +3,28 @@
 
 Participant "Payee (Merchant) PSP [Acquirer]" as MPSP
 Participant "Payee (Merchant) [Acceptor] Website" as Payee
-Actor "Payer (Shopper) [Cardholder] Browser" as Payer
-participant "Browser Form Filler" as UA
+participant "Payer's (Shopper's) Browser" as UA
+Actor "Payer [Cardholder]" as Payer
 participant "Issuing Bank [Issuer]" as CPSP
 
 note over Payee, Payer: HTTPS
 
 title Legacy Merchant Hosted Card Payment (Current)
 
-Payee->Payer: Present Check-out page with Pay Button
-Payer->Payer: Select Card Payment Method
+== Establish Payment Obligation ==
 
-Payer->Payer: Select Card Brand
-alt
-	UA->Payer: Form Fill; PAN, Expiry Date, [CVV], [AVS]
-else
-	Payer->Payer: User Fills Form
-End
+Payee->UA: Present Check-out page 
+Payer<-[#green]>UA: Select Checkout with Card
+Payer<-[#green]>UA: Select Card Brand
+Payer<-[#green]>UA: Payer Fills Form (PAN, Expiry, [Issue Number | Start Date], [CVV], [Billing Address])
+Note right: May be auto-filled from browser 
+
+== Card Payment Initiation ==
 
 Alt
-	Payer->Payee: payload
+	UA->Payee: payload
 Else
-	Payer->Payee: Encrypt(payload)
+	UA->Payee: Encrypt(payload)
 	Note right: Custom code on merchant webpage can encrypt payload to reduce PCI burden from SAQ D to SAQ A-EP
 End
 
@@ -40,7 +40,9 @@ CPSP-/MPSP: Authorisation Response
 
 MPSP-/Payee: Authorisation Result
 
-Payee->Payer: Result Page
+== Notification ==
+
+Payee->UA: Result Page
 
 == Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
 
@@ -52,5 +54,10 @@ Else
 End	
 	
 MPSP->CPSP: Capture
+
+== Fulfilment ==
+
+Payee->Payer: Provide products or services
+
 
 @enduml

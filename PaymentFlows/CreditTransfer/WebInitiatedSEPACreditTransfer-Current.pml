@@ -15,16 +15,16 @@ title PSP Mediated (SEPA) Credit Transfer (Current)
 
 == Establish Payment Obligation ==
 
-Payee->UA: Present Check-out page with Pay Button
-Payer-[#blue]>UA: Press Pay
+Payee->UA: Present Check-out page
+Payer<-[#blue]>UA: Choose Checkout
 UA->MPSP: Request Payment Choice Pay
 
 MPSP->UA: Payment Method Choice Page
-Payer-[#blue]>UA:  Select Credit Transfer Payment Method
+Payer<-[#blue]>UA:  Choose` Credit Transfer Payment Method
 UA->MPSP: Request Credit Transfer Payment Information
 MPSP->UA: Provide Credit Transfer Details (e.g. IBAN)
 note right: These details are needed by the Payer to manually invoke the Credit Transfer out-of-band
-Payer-[#blue]>UA: Press Agree
+Payer<-[#blue]>UA: Agree to Payment
 UA->MPSP: Payment Obligation Accepted
 MPSP->UA: Result Screen "Pending Transfer"
 

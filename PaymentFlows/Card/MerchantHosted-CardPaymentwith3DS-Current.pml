@@ -17,7 +17,7 @@ title
 <i>3DS is used to add confidence that the payer is who they say they are and importantly in the event of a dispute liability shift to the Issuer.</i>
 end title
 
-
+== Establish Payment Obligation ==
 
 Payee->Payer: Present Check-out page with Pay Button
 Payer->Payer: Select Card Payment Method
@@ -29,6 +29,8 @@ else
 	Payer->Payer: User Fills Form
 End
 
+== Card Payment Initiation ==
+
 Payer->Payee: Payment Initiation
 Note right: Custom code on merchant webpage can encrypt payload to reduce PCI burden from SAQ D to SAQ A-EP
 
@@ -39,10 +41,11 @@ end
 
 Payee-\MPSP: Authorise
 
-Note over MPSP, Payee: At this point, the Merchant or Merchant's PSP can decide if it wishes to invoke 3DS. This might be based on transaction value (i.e. low value -> low risk) or other factors, e.g. if the Shopper is a repeat purchaser.
-	
+
 == 3DS part of flow ==
 
+Note over MPSP, Payee: At this point, the Merchant or Merchant's PSP can decide if it wishes to invoke 3DS. This might be based on transaction value (i.e. low value -> low risk) or other factors, e.g. if the Shopper is a repeat purchaser.
+	
 	MPSP –> CSD: BIN to URL lookup (VAReq message)
 	CSD -> CSD: Lookup URL from BIN
 	CSD –> CPSPW : “PING” 
@@ -69,6 +72,8 @@ CPSP-/MPSP: Authorisation Response
 
 MPSP-/Payee: Authorisation Response
 
+== Notification ==
+
 Payee->Payer: Result Page
 
 == Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
@@ -81,5 +86,9 @@ Else
 End	
 	
 MPSP->CPSP: Capture
+
+== Fulfilment ==
+
+Payee->Payer: Provide products or services
 
 @enduml
