@@ -11,7 +11,7 @@ note over Payee, Payer: HTTPS
 
 title Legacy Merchant Hosted Card Payment (Current)
 
-== Establish Payment Obligation ==
+== Negotiation of Payment Terms  & Selection of Payment Instrument ==
 
 Payee->UA: Present Check-out page 
 Payer<-[#green]>UA: Select Checkout with Card
@@ -19,7 +19,7 @@ Payer<-[#green]>UA: Select Card Brand
 Payer<-[#green]>UA: Payer Fills Form (PAN, Expiry, [Issue Number | Start Date], [CVV], [Billing Address])
 Note right: May be auto-filled from browser 
 
-== Card Payment Initiation ==
+== Payment Processing ==
 
 Alt
 	UA->Payee: payload
@@ -44,7 +44,7 @@ MPSP-/Payee: Authorisation Result
 
 Payee->UA: Result Page
 
-== Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
+== Payment Processing Continued: Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
 
 Alt
 	Payee -> MPSP : Capture
@@ -55,7 +55,7 @@ End
 	
 MPSP->CPSP: Capture
 
-== Fulfilment ==
+== Delivery of Product ==
 
 Payee->Payer: Provide products or services
 
