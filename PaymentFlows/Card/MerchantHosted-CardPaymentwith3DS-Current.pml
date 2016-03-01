@@ -3,8 +3,8 @@
 
 Participant "Payee (Merchant) PSP [Acquirer]" as MPSP
 Participant "Payee (Merchant) [Acceptor] Site " as Payee
-Actor "Payer (Shopper) [Cardholder] Browser" as Payer
-participant "Browser Form Filler" as UA
+participant "Payer's (Shopper's) Browser" as UA
+Actor "Payer [Cardholder]" as Payer
 participant "Card Scheme Directory" as CSD
 participant "Issuing Bank [Issuer] Website" as CPSPW
 participant "Issuing Bank [Issuer]" as CPSP
@@ -17,19 +17,18 @@ title
 <i>3DS is used to add confidence that the payer is who they say they are and importantly in the event of a dispute liability shift to the Issuer.</i>
 end title
 
+== Negotiation of Payment Terms & Selection of Payment Instrument ==
+
+Payee->UA: Present Check-out page 
+Payer<-[#green]>UA: Select Checkout with Card
+Payer<-[#green]>UA: Select Card Brand
+Payer<-[#green]>UA: Payer Fills Form (PAN, Expiry, [CVV], [Billing Address])
+Note right: May be auto-filled from browser 
 
 
-Payee->Payer: Present Check-out page with Pay Button
-Payer->Payer: Select Card Payment Method
+== Payment Processing ==
 
-alt
-	UA->Payer: Form Fill
-	Note right: fields are PAN & Expiry Date with optional CVV, & Address, Also Card Valid Date and Issue Number are required for some Schemes
-else
-	Payer->Payer: User Fills Form
-End
-
-Payer->Payee: Payment Initiation
+UA->Payee: Payment Initiation
 Note right: Custom code on merchant webpage can encrypt payload to reduce PCI burden from SAQ D to SAQ A-EP
 
 opt
@@ -39,10 +38,11 @@ end
 
 Payee-\MPSP: Authorise
 
-Note over MPSP, Payee: At this point, the Merchant or Merchant's PSP can decide if it wishes to invoke 3DS. This might be based on transaction value (i.e. low value -> low risk) or other factors, e.g. if the Shopper is a repeat purchaser.
-	
-== 3DS part of flow ==
 
+== 3D Secure ==
+
+Note over UA: At this point, the Merchant or Merchant's PSP can decide if it wishes to invoke 3DS. This is often based upon dynamic factors, e.g. if the card has been used before or if shipping address different from billing address
+	
 	MPSP –> CSD: BIN to URL lookup (VAReq message)
 	CSD -> CSD: Lookup URL from BIN
 	CSD –> CPSPW : “PING” 
@@ -51,27 +51,30 @@ Note over MPSP, Payee: At this point, the Merchant or Merchant's PSP can decide 
 	CSD –> MPSP: URL
 	
 	MPSP-/Payee: 3DS redirect (PAReq message)
-	Payee->Payer: 3DS redirect (PAReq message)
-	Payer->CPSPW: 3DS invoke
-	CPSPW-\Payer: 3DS challenge
-	Payer-/CPSPW: 3DS response (PARes message) 
-	CPSPW->Payer: 3DS response (PARes message)
-	Payer->Payee: 3DS response (PARes message)
-	Payee-\MPSP: 3DS response (PARes message)
+	Payee->UA: 3DS redirect (PAReq message)
+	UA->CPSPW: 3DS invoke
+	CPSPW-\UA: 3DS challenge
+	Payer<-[#green]>UA: Enter 3D Secure credentials
+	UA-/CPSPW: 3DS response (PARes message) 
+	CPSPW->UA: 3DS response (PARes message)
+	UA->Payee: 3DS response (PARes message)
+	UA-\MPSP: 3DS response (PARes message)
 
 	MPSP->MPSP: Verification of PARes signature
 
-== End of 3DS ==
+== End of 3D Secure ==
 	
 
 MPSP-\CPSP: Authorisation Request
 CPSP-/MPSP: Authorisation Response
 
-MPSP-/Payee: Authorisation Response
+MPSP-/Payee: Authorisation Result
 
-Payee->Payer: Result Page
+== Notification ==
 
-== Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
+Payee->UA: Result Page
+
+== Payment Processing Continued: Request for Settlement process (could be immediate, batch (e.g. daily) or after some days) ==
 
 Alt
 	Payee -> MPSP : Capture
@@ -81,5 +84,9 @@ Else
 End	
 	
 MPSP->CPSP: Capture
+
+== Delivery of Product ==
+
+Payee->Payer: Provide products or services
 
 @enduml
