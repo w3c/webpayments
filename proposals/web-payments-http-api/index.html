@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Payments HTTP API 1.0</title>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+    <!--
+      === NOTA BENE ===
+      For the three scripts below, if your spec resides on dev.w3 you can check them
+      out in the same tree and use relative links so that they'll work offline,
+     -->
+    <link rel="stylesheet" href="spec.css">
+    <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
+    <script src='utils.js' async class='remove'></script>
+    <script type="text/javascript" class="remove">
+var respecConfig = {
+    // specification status (e.g. WD, LCWD, NOTE, etc.). If in doubt use ED.
+    specStatus:           "CG-DRAFT",
+
+    // the specification's short name, as in http://www.w3.org/TR/short-name/
+    shortName:            "web-payments-http-api",
+
+    // if you wish the publication date to be other than today, set this
+    // publishDate:  "2009-08-06",
+
+    // if there is a previously published draft, uncomment this and set its YYYY-MM-DD date
+    // and its maturity status
+    // previousPublishDate:  "1977-03-15",
+    // previousMaturity:  "WD",
+
+    // if there a publicly available Editor's Draft, this is the link
+    edDraftURI:           "https://web-payments.org/specs/source/web-payments-browser-api/",
+
+    // if this is a LCWD, uncomment and set the end of its review period
+    // lcEnd: "2009-08-05",
+
+    // editors, add as many as you like
+    // only "name" is required
+    editors: [
+      { name: "Manu Sporny", url: "https://manu.sporny.org/",
+        company: "Digital Bazaar, Inc.", companyURL: "http://digitalbazaar.com/" },
+    ],
+
+    // authors, add as many as you like.
+    // This is optional, uncomment if you have authors as well as editors.
+    // only "name" is required. Same format as editors.
+
+    authors: [
+      { name: "Manu Sporny", url: "https://manu.sporny.org/",
+        company: "Digital Bazaar, Inc.", companyURL: "http://digitalbazaar.com/" },
+      { name: "Dave Longley", url: "https://github.com/dlongley",
+        company: "Digital Bazaar, Inc.", companyURL: "http://digitalbazaar.com/" },
+    ],
+
+    // extend the bibliography entries
+    //localBiblio: {},
+
+    // name of the WG
+    wg:           "W3C Web Payments Community Group",
+
+    // URI of the public WG page
+    wgURI:        "http://www.w3.org/community/webpayments/",
+
+    // name (with the @w3c.org) of the public mailing to which comments are due
+    wgPublicList: "public-webpayments@w3.org",
+
+    // URI of the patent status for this WG, for Rec-track documents
+    // !!!! IMPORTANT !!!!
+    // This is important for Rec-track documents, do not copy a patent URI from a random
+    // document unless you know what you're doing. If in doubt ask your friendly neighbourhood
+    // Team Contact.
+    wgPatentURI:  "",
+    maxTocLevel: 4,
+    preProcess: [ ] /*,
+    alternateFormats: [ {uri: "diff-20111214.html", label: "diff to previous version"} ],
+    */
+
+};
+    </script>
+    <style>
+.sequence-diagram {
+  margin: auto;
+}
+    </style>
+</head>
+
+<body>
+<section id="abstract">
+  <p>
+This document outlines how to register <a>payment app</a>s, request payments,
+and acknowledge payment requests using a standard HTTP API.
+  </p>
+</section>
+
+<section id="sotd">
+
+  <p>There are a number of ways that one may participate in the development of
+    this specification:</p>
+
+  <ul>
+    <li>Ad-hoc technical discussion primarily occurs on the public community mailing list:
+      <a href="http://lists.w3.org/Archives/Public/public-webpayments/">public-webpayments@w3.org</a></li>
+
+    <li><a href="http://payswarm/minutes/">Public Web Payments Community Group teleconferences</a>
+    are held on Wednesdays at 1600UTC every other week.</li>
+
+    <li>Specification bugs and issues should be reported in the
+      <a href="https://github.com/web-payments/web-payments.org/issues">issue tracker</a>
+      if you do not want to send an e-mail to the public-webpayments mailing
+      list.</li>
+
+    <li><a href="https://github.com/web-payments/web-payments.org/tree/master/">Source code</a>
+      for the specification can be found on Github.</li>
+
+  </ul>
+</section>
+
+<section class="informative">
+  <h1>Introduction</h1>
+
+  <p>
+This HTTP API enables a web application to initiate payment for a product or
+service by responding with an HTTP 402 Payment Required response and
+enough data to initiate and complete a payment flow. The
+implementation of this feature is expected to be implemented by any HTTP
+server and client that is interested in executing payments.
+  </p>
+  <section class="informative">
+    <h2>How to Read this Document</h2>
+
+    <p>This document is a detailed specification for a HyperText Transfer Protocol
+      application programming interface (HTTP API) for executing payments via
+      an HTTP client and server. The document is primarily intended for the following
+      audiences:</p>
+
+    <ul>
+      <li>Software developers who want to understand the design decisions and
+        algorithms behind the API.</li>
+      <li>Software developers who want to implement the API.</li>
+    </ul>
+  </section>
+  <section class="normative">
+    <h3>Terminology</h3>
+
+  <p class="issue">
+The terminology in this specification's terminology and messages need to be
+updated to match the
+<a href="https://github.com/w3c/webpayments/wiki/A-Payments-Initiation-Architecture-for-the-Web">Payments Architecture document</a>.
+  </p>
+
+    <div data-include="//w3c.github.io/webpayments-ig/latest/common/terms.html"
+      data-oninclude="restrictReferences">
+    </div>
+
+  </section>
+
+</section>
+
+<section>
+  <h2>Payment Flow Overview</h2>
+
+  <p>
+The diagram below outlines a basic HTTP client payment flow with no errors.
+The basic flow starts out with the <a>payer</a> accessing a protected resource.
+The <a>payee</a> provides a location where a payment request for the resource
+can be fetched. The <a>payer</a> fetches the payment request, selects
+a payment app, and sends the request and the selected app
+on to the appropriate <a>payment service provider</a> for processing. The
+<a>payment service provider</a> initiates the payment and sends a
+payment request acknowledgement back to the <a>payer</a>. The <a>payer</a>
+then forwards the payment request acknowledgement back to the
+<a>payee</a>. If there are no errors, the <a>payee</a> then grants access to
+the resource that was purchased.
+  </p>
+
+  <p class="issue">
+The flow below reflects a fairly advanced tokenized payment scenario. We may
+want to use a simpler basic credit card flow where the customer doesn't have
+a payment service provider and just returns the credit card details to the
+merchant.
+  </p>
+
+  <script type='text/jumly+sequence'>
+@found "Payment Service Provider (customer)"
+@found "Payer client (customer)", ->
+  @message "access resource", "Payee server (merchant)", ->
+    @reply "402 Payment Required", "Payer client (customer)"
+@found "Payer client (customer)", ->
+  @message "GET payment request", "Payee server (merchant)", ->
+    @reply "payment request", "Payer client (customer)"
+@found "Payer client (customer)", ->
+  @message "POST payment request", "Payment Service Provider (customer)", ->
+    @reply "payment request acknowledgement", "Payer client (customer)"
+@found "Payer client (customer)", ->
+  @message "POST payment request acknowledgement", "Payee server (merchant)", ->
+    @message "verification", ->
+      @reply "grant access to resource", "Payer client (customer)"
+  </script>
+
+  <p class="issue">
+It may be a good idea to return the payment request with the 402 response.
+The concern is that this would be a misrepresentation of the resource. The
+counter-argument is that a client shouldn't interpret a 402 response as
+the resource, and since 402 has not been formally defined yet, we could
+define it to always come with a payment request response.
+  </p>
+
+  <ol class="algorithm">
+    <li>
+The <a>payee</a>'s web page requests payment by responding with a 402 Payment Required
+response code and a URL encoded in the <code>Location</code> header
+to fetch the <code>request</code> from.
+    </li>
+    <li>
+The payment agent fetches the <code>request</code> from the URL specified
+in the <code>Location</code> header in the previous step.
+    </li>
+    <li>
+The payment agent scans the list of previously registered <a>payment app</a>s
+and finds matches against <code>acceptedMethods</code> in the
+payment request.
+    </li>
+    <li>
+A <a>payment app</a> is selected by the payment agent or the <a>payer</a>. The
+process MAY consist of one or more of the following steps:
+      <ol class="algorithm">
+        <li>
+If there is only one app that matches, that is automatically set
+to the <em>selected <a>payment app</a></em>.
+        </li>
+        <li>
+If there is a pre-existing preference set by the <a>payer</a> that narrows the
+selection of the <a>payment app</a> to one match, the match is set to the
+<em>selected <a>payment app</a></em>.
+        </li>
+        <li>
+If there is more than one potential match, the <a>payer</a> is asked which
+app they would like to use and the selection is set to the
+<em>selected <a>payment app</a></em>
+        </li>
+        <li>
+If there are no matches, the <a>payer</a> is notified and may be taken to an
+alternate flow where a matching <a>payment app</a> is acquired.
+        </li>
+      </ol>
+    </li>
+    <li>
+If the <a>payment app</a> does not require the payment flow to switch
+to a 3rd party payment processor (e.g. cryptocurrency),
+then the payment acknowledgement is generated locally and the
+payee's software is notified.
+    </li>
+    <li>
+If the app requires the payment flow to switch to a 3rd party
+payer payment processor (e.g. push-payment like a PayPal/Google
+Wallet-like app, ACH, ISO20022 style app):
+      <ol class="algorithm">
+        <li>
+The payment agent forwards the <code>request</code>, and
+<em>selected <a>payment app</a></em> via an HTTP POST to the
+<code>paymentRequestService</code> in the <a>payment app</a> for approval.
+        </li>
+      </ol>
+    </li>
+    <li>
+If the app requires the payment flow to switch to a 3rd party
+payee payment processor (e.g. pull-payment like non-EMV magstripe credit
+card with embossed PAN and CVV2, or tokenized credit card):
+      <ol class="algorithm">
+        <li>
+The payment agent forwards the request on via an HTTP POST
+to the <code>paymentRequestService</code> in the
+<code>acceptedMethod</code> (note that the <a>payee</a>
+sets this, not the <a>payment app</a>).
+        </li>
+      </ol>
+    </li>
+    <li>
+The payment flow is then transferred to the entity that is going to
+generate the <em>payment acknowledgment</em> (locally installed
+payment app, <a>payee</a>'s payment service provider, or <a>payer</a>'s
+payment service provider).
+    </li>
+    <li>
+Once the entity in control of the payment flow finalizes the
+<em>payment acknowledgement</em>, even if the message is to
+acknowledge that the payment failed, the <em>payment acknowledgement</em>
+is generated and the <a>payer</a>'s payment agent is notified via an HTTP 200
+success code.
+  </ol>
+  <p class="issue">
+Melvin Carvalho has also raised an issue noting that we may not want to use
+402 and the Location header, but rather an additional HTTP header called
+<code>Payment</code> that is compatible with multiple 4xx error conditions.
+  </p>
+  <p>
+The diagram below outlines the basic payment flow described above for a
+push-based payment.
+  </p>
+</section>
+
+<section>
+  <h2>Detailed Payment Flow</h2>
+  <p class="issue">
+Describe the payment flow in detail here using Adrian's flow diagram and Ian's
+steps.
+  </p>
+
+  <section>
+    <h3>Payment app Registration</h3>
+    <ol>
+      <li>
+The <a>payer</a>'s HTTP client navigates to a payment service provider website
+and authenticates itself to fetch a <a>payment app</a> to register:
+        <pre class="example" title="Authenticated GET of <a>payment app</a>">
+GET /apps/visa HTTP/1.1
+Host: mybank.example.org
+Date: Tue, 07 Jun 2017 20:51:35 GMT
+Accept: application/json
+Authorization: Digest username="jdoe", realm="jane@mybank.example.org", ...
+        </pre>
+        <div class="issue">
+While digest authentication is used above, more advanced authentication
+schemes may also be employed. For example, the mechanism below uses
+HTTP Signatures and public/private key cryptography to authenticate the client
+with the server:
+        <pre class="example" title="Authenticated GET of <a>payment app</a> using HTTP Signatures">
+GET /apps/visa HTTP/1.1
+Host: mybank.example.org
+Date: Tue, 07 Jun 2017 20:51:35 GMT
+Accept: application/json
+Authorization: Signature keyId="https://mybank.example.org/people/jane/keys/42",
+   algorithm="rsa-sha256",headers="(request-target) host date",
+   signature="jgSqYK0yKclIHfF9zdApVEbDp5eqj8C4i4X76pE+XHoxugXv7qnVrGR+30bmB
+              gtpR39I4utq17s9ghz/2QFVxlnToYAvbSVZJ9ulLd1HQBugO0jOyn9sXOtcN7
+              uNHBjqNCqUsnt0sw/cJA6B6nJZpyNqNyAXKdxZZItOuhIs78w="
+        </pre>
+        </div>
+      </li>
+      <li>
+The payment service provider MUST respond with the <a>payment app</a> or
+an HTTP error code. If successful, something like the following will be
+returned:
+        <pre class="example" title="Successful retrieval of <a>payment app</a>">
+HTTP/1.1 200 OK
+Date: Tue, 07 Jun 2017 20:51:36 GMT
+Content-Type: application/json
+Content-Length: 412
+
+{
+  "type": "PaymentApp",
+  "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
+  "label": "ExampleBank Visa Card",
+  "paymentRequestService": "https://mybank.example.org/services/cards/2745023475"
+}
+        </pre>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h3>Processing a Payment Request</h3>
+    <ol>
+      <li>
+The <a>payer</a>'s HTTP client accesses a resource that requires payment:
+        <pre class="example" title="Payer requests a resource that requires a payment">
+GET /movies/dr-strangelove HTTP/1.1
+Host: videos.example.com
+Date: Tue, 07 Jun 2017 21:31:35 GMT
+        </pre>
+      </li>
+      <li>
+The <a>payee</a> server notifies the <a>payer</a> that a payment is required along with a
+payment request.
+      <pre class="example" title="Example of a payment request">
+HTTP/1.1 402 Payment Required
+Date: Tue, 07 Jun 2017 21:31:36 GMT
+Content-Type: application/json
+Content-Length: 873
+
+{
+  "type": "PaymentRequest",
+  "description": "Payment for Dr. Strangelove",
+  "acceptedMethod": {
+    "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
+    "transfer": {
+      "amount": "2.99",
+      "currency": "USD"
+    },
+    "destination": "20389472398"
+  },
+  "paymentCompleteService": "https://videos.example.com/services/paymentComplete?transaction=923847298"
+}
+        </pre>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h3>Processing a Payment Acknowledgement</h3>
+    <ol>
+      <li>
+The payment service provider receives a payment request, authenticates
+the <a>payer</a>, and proceeds with the payment:
+      <pre class="example" title="Example of a payment request">
+POST /services/cards/2745023475 HTTP/1.1
+Host: mybank.example.org
+Date: Tue, 07 Jun 2017 20:51:35 GMT
+Accept: application/json
+
+{
+  "type": "PaymentRequest",
+  "description": "Payment for Dr. Strangelove",
+  "acceptedMethod": {
+    "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
+    "transfer": {
+      "amount": "2.99",
+      "currency": "USD"
+    },
+    "destination": "20389472398"
+  },
+  "paymentCompleteService": "https://videos.example.com/services/paymentComplete?transaction=923847298"
+}
+        </pre>
+      </li>
+      <li>
+The payment service provider generates a payment acknowledgement
+message, which is a [[!JSON-LD]] object that contains enough information to
+verify that the transaction has completed in success or failure:
+        <pre class="example" title="Example of a payment acknowledgement">
+HTTP/1.1 200 OK
+Date: Tue, 07 Jun 2017 20:51:36 GMT
+Content-Type: application/json
+Content-Length: 623
+
+{
+  "type": "PaymentAcknowledgement",
+  "description": "Payment to ExampleMerch for widgets",
+  "selectedScheme": {
+    "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
+    "status": "authorized",
+    "token": "10025AB",
+    "transfer": {
+      "amount": "2.99",
+      "currency": "USD"
+    },
+    "destination": "20389472398"
+  }
+}
+        </pre>
+      </li>
+      <li>
+The payment acknowledgement is then relayed back to the <a>payer</a>:
+        <pre class="example" title="Payment acknowledgement relayed back to <a>payee</a>">
+POST /services/paymentComplete?transaction=923847298 HTTP/1.1
+Host: videos.example.com
+Date: Tue, 07 Jun 2017 20:51:35 GMT
+Content-Type: application/json
+
+{
+  "type": "PaymentAcknowledgement",
+  "description": "Payment to ExampleMerch for widgets",
+  "selectedScheme": {
+    "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
+    "status": "authorized",
+    "token": "10025AB",
+    "transfer": {
+      "amount": "2.99",
+      "currency": "USD"
+    },
+    "destination": "20389472398"
+  }
+}
+        </pre>
+      </li>
+      <li>
+The <a>payee</a> validates the payment acknowledgement, sets the appropriate
+access control for the resource, and re-directs the <a>payer</a> to the
+resource:
+        <pre class="example" title="Payment acknowledgement relayed back to <a>payee</a>">
+HTTP/1.1 302 Found
+Date: Tue, 07 Jun 2017 20:51:36 GMT
+Location: /movies/dr-strangelove
+        </pre>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Message Extensibility</h2>
+
+    <p class="issue">
+One proposal for providing message extensibility is to allow messages to
+be interpreted as JSON-LD with a specific context, such as
+<code>https://example.org/contexts/web-payments/v1</code>. Doing this would
+not only solve message versioning, but it would also enable
+decentralized extensibility for all payment messages while ensuring that
+there are no clashes in terminology between industry verticals.
+    </p>
+  </section>
+
+  <section>
+    <h2>Security Considerations</h2>
+
+    <section>
+      <h3>Message Integrity</h3>
+      <p class="issue">
+There are a variety of ways that message integrity can be protected. Which
+set of methods will this specification employ.
+      </p>
+    </section>
+
+    <section>
+      <h3>Message Replay</h3>
+      <p class="issue">
+There are a variety of ways that message replay can be protected against. Which
+set of methods will this specification employ.
+      </p>
+    </section>
+  </section>
+
+</section>
+
+<section class="appendix informative">
+  <h2>Acknowledgements</h2>
+
+  <p>
+The editor would like to thank the Web Payments Community Group, and the
+Web Payments Interest Group.
+  </p>
+
+  <p>
+Thanks to the following individuals, in order of their first name, for
+their input on the specification: ...
+  </p>
+
+</section>
+
+<script src='//code.jquery.com/jquery-2.1.3.min.js' class='remove'></script>
+<script src='//coffeescript.org/extras/coffee-script.js' class='remove'></script>
+<script src='//jumly.tmtk.net/public/jumly.min.js' class='remove'></script>
+
+</body>
+</html>
