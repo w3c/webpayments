@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Apps</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+        var respecConfig = {
+            shortName:  "payment-apps",
+            edDraftURI:   "https://w3c.github.io/browser-payment-api/payment-apps.html",
+
+            specStatus: "ED",
+            editors: [
+                {   name:       "Adrian Hope-Bailie",
+                    company:    "Ripple" },
+            ],
+
+            useExperimentalStyles: true,
+            license:      "w3c-software-doc",
+
+            //previousMaturity: "FPWD",
+            //previousPublishDate:  "1977-03-15",
+
+            wg:           "Web Payments Working Group",
+            wgURI:        "https://www.w3.org/Payments/WG/",
+            wgPublicList: "public-payments-wg",
+            wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
+
+            issueBase:    "https://github.com/w3c/browser-payment-api/issues/",
+
+            localBiblio:  {
+                "PAYMENTREQUESTAPI": {
+                    title:    "Payment Request API"
+                    ,   href:     "paymentrequest.html"
+                    ,   authors:  [
+                        "Adrian Bateman"
+                        ,   "Zach Koch"
+                        ,   "Richard Barnes"
+                    ]
+                    ,   status:   "ED"
+                },
+                "PAYMENTARCH": {
+                    title:    "Payment Request Architecture"
+                    ,   href:     "architecture.html"
+                    ,   authors:  [
+                        "Adrian Bateman"
+                        ,   "Zach Koch"
+                        ,   "Richard Barnes"
+                    ]
+                    ,   status:   "ED"
+                },
+                "METHODIDENTIFIERS": {
+                    title:    "Payment Method Identifiers"
+                    ,   href:     "method-identifiers.html"
+                    ,   authors:  [
+                        "Adrian Bateman"
+                        ,   "Zach Koch"
+                        ,   "Richard Barnes"
+                    ]
+                    ,   status:   "ED"
+                }
+            }
+        };
+    </script>
+    <style>
+        dt { margin-top: 0.75em; }
+        table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+        table thead { border-bottom:solid }
+        table tbody th:first-child { border-left:solid }
+        table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+        li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+</head>
+<body>
+<section id='abstract'>
+    <p>
+        This specification describes how <a>Payment Apps</a> can be registered with a <a>user agent</a> using a manifest
+        file and and how the <a>user agent</a> interfaces with web-based <a>Payment Apps</a> to initate the processing of a
+        payment request.
+    </p>
+</section>
+
+<section id='sotd'>
+    <p>
+        The working group maintains <a href="https://github.com/w3c/browser-payment-api/issues">a
+        list of all bug reports that the group has not yet addressed</a>.
+        This draft highlights some of the pending issues that are still to be discussed in the working
+        group. No decision has been taken on the outcome of these issues including whether they are valid.
+        Pull requests with proposed specification text for outstanding issues are strongly encouraged.
+    </p>
+</section>
+
+<section class='informative'>
+    <h2>Introduction</h2>
+    <p>The Payment Request API [[!PAYMENTREQUESTAPI]] defines an API for websites to initiate a payment request
+        which is then passed to a <a>Payment App</a> for processing.</p>
+
+    <p>The <a>Payment App</a> is a software application that is registered by the payer with the <a>user agent</a>
+        to process payments that are iniated via the API. <a>Payment Apps</a> support one or more <a>payment methods</a>
+        for processing payments initiated via the Payment Request API.</p>
+
+    <p>The Payment Request API [[!PAYMENTREQUESTAPI]] specification describes how the <a>user agent</a>, acting
+        as a mediator between the payee website and the payer, assists the user in selecting a <a>Payment App</a>
+        that can process the payment request, using at least one of the <a>payment methods</a> that is also supported by
+        the payee. The specification then prescribes that the <a>user agent</a> forward the payment request to that app
+        for processing before returning the response to the calling Website.</p>
+
+    <p>This specification describes:
+        <ul>
+            <li>How payment app publishers register <a>Payment Apps</a> with the <a>user agent</a>.</li>
+            <li>How the user agent maintains the list of payment methods that are enabled by the payment app.</li>
+            <li>How, after the user selects a payment app to use, the payment request MAY be passed to the
+                <a>payment app</a>.</li>
+            <li>How a payment response MAY then returned by the app to the <a>user agent</a>?</li>
+        </ul>
+    </p>
+
+    <p>The API described in this document forms part of the Payment Request system described in
+        the Payment Request Architecture [[PAYMENTARCH]] document.</p>
+
+    <section id="goals">
+        <h2>Goals</h2>
+        <ul>
+            <li>Allow users to register <a>payment apps</a> with their user agent such that the user agent is able to maintain
+                a registry of the <a>payment methods</a> that are enabled by the app.</li>
+            <li>Allow <a>payment apps</a> to update the set of <a>payment methods</a> that they have enabled.</li>
+            <li>Standardize a platform-independant mechanism for a <a>user agent</a> to switch focus to a <a>payment app</a>
+                and pass it a payment request.</li>
+            <li>Allow for the publishing of <a>payment apps</a> on any platform, with or without a user interface.</li>
+        </ul>
+    </section>
+
+    <section id="non-goals">
+        <h2>Non-goals</h2>
+        <p>This specification does not attempt to define the full set of interfaces between the <a>user agent</a>
+        and the selected <a>payment app</a> as it is anticipated that <a>payment apps</a> will be implemented on a
+        variety of platforms and that the interfaces between the <a>user agent</a> and apps on platforms other
+        than the Web will be implementation specific.</p>
+    </section>
+
+</section>
+
+<section id='conformance'>
+    <div class="issue" data-number="" title="What are the appropriate conformance criteria for user agents and apps?">
+        <p>This specification describes a mechanism that all user agents MUST support in order to allow for third party payment
+        apps to be published and used from that user agent, however user agents may also have built in payment apps or allow
+        other types of payment app such as browser extensions. How the integration works for these is implementation specific
+        so we need to word the conformance criteria appropriately.</p>
+        <p> Also, we should look at the conformance criteria for user agents as defined in [[!APPMANIFEST]].</p>
+    </div>
+    <p>
+        This specification defines one class of products:
+    </p>
+    <dl>
+        <dt><dfn>Conforming user agent</dfn></dt>
+        <dd>
+            <p>
+                A <dfn data-lt="user agents">user agent</dfn> MUST behave as described in this specification
+                in order to be considered conformant. In this specification, <a>user agent</a> means a <em>Web
+                browser or other interactive user agent</em> as defined in [[!HTML5]].
+            </p>
+            <p>
+                User agents MAY implement algorithms given in this
+                specification in any way desired, so long as the end result is
+                indistinguishable from the result that would be obtained by the
+                specification's algorithms.
+            </p>
+            <p>
+                A conforming user agent MUST also be a
+                <em>conforming implementation</em> of the IDL fragments
+                of this specification, as described in the
+                “Web IDL” specification. [[!WEBIDL]]
+            </p>
+
+            <aside class="note">
+                This specification uses both the terms "conforming user agent(s)"
+                and "user agent(s)" to refer to this product class.
+            </aside>
+    </dl>
+</section>
+
+<section id="dependencies">
+    <h3>Dependencies</h3>
+    <p>
+        This specification relies on several other underlying specifications.
+    </p>
+    <dl>
+        <dt>Payment Request Architecture</dt>
+        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
+            <dfn>Payment Method Data</dfn> and <dfn>Payment Transaction
+                Message Specification</dfn> are defined by the Payment Request Architecture document
+            [[PAYMENTARCH]].</dd>
+        <dt>Payment Request API</dt>
+        <dd>The terms <dfn>Payment Request API</dfn>, <dfn>PaymentRequest</dfn> and <dfn>PaymentResponse</dfn> and the
+            methods <dfn>PaymentRequest.show</dfn> and <dfn>PaymentRequest.complete</dfn> are defined by the
+            PaymentRequest API specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+            Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+            [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web App Manifest</dt>
+        <dd>The terms <dfn>manifest</dfn>,
+            <dfn data-lt="installed|installing|installable application">installed application</dfn>,
+            <dfn>name</dfn>, <dfn>application context</dfn>,
+            <dfn data-lt="related application|related_applications">related application</dfn>,
+            <dfn>extension point</dfn> and the processes <dfn data-lt="apply">apply a manifest</dfn>,
+            <dfn>issue a developer warning</dfn>, <dfn>steps for processing a manifest</dfn> and
+            <dfn>steps for obtaining a manifest</dfn> are defined by [[!APPMANIFEST]].</dd>
+        <dt>HTML5</dt>
+        <dd>The terms <dfn>global object</dfn>,
+            <dfn>queue a task</dfn>, <dfn>browsing context</dfn>, and
+            <dfn>top-level browsing context</dfn> are defined by [[!HTML5]].</dd>
+        <dt>ECMA-262 6th Edition, The ECMAScript 2015 Language Specification</dt>
+        <dd>
+            The terms <dfn>Promise</dfn>, <dfn>internal slot</dfn>, <dfn><code>TypeError</code></dfn>,
+            <dfn>JSON.stringify</dfn>, <dfn>JSON.parse</dfn>, <dfn><code>Array</code></dfn>, <dfn><code>type</code></dfn>
+            and the <dfn>[[\GetOwnProperty]]</dfn></a> operation are defined by [[!ECMA-262-2015]].
+            <p>This document uses the format <em>object</em>@[[\slotname]] to mean the internal slot [[\slotname]]
+                of the object <em>object</em>.</p>
+            <p>The term <dfn>JSON-serializable object</dfn> used in this specification means an object that can
+                be serialized to a string using <a>JSON.stringify</a> and later deserialized back to an object
+                using <a>JSON.parse</a> with no loss of data.</p>
+            <p>When instructed to <dfn>Trim</dfn>(<var>x</var>), a user agent MUST behave as if [[!ECMA-262-2015]]'s
+                <code> String.prototype.trim()</code> function had been called on the string <var>x</var>.
+            </p>
+        </dd>
+        <dt>DOM4</dt>
+        <dd>
+            The <code><dfn>Event</dfn></code> type and the terms <dfn>fire an event</dfn>, <dfn>dispatch flag</dfn>,
+            <dfn>stop propagation flag</dfn>, and <dfn>stop immediate propagation flag</dfn> are defined by [[!DOM4]].
+            <p><dfn>DOMException</dfn> and the following DOMException types from [[!DOM4]] are used:</p>
+            <table>
+                <tr><th>Type</th><th>Message (optional)</th></tr>
+                <tr><td><code><dfn>InvalidStateError</dfn></code></td><td>The object is in an invalid state</td></tr>
+                <tr><td><code><dfn>NotSupportedError</dfn></code></td><td>The payment method was not supported</td></tr>
+                <tr><td><code><dfn>SecurityError</dfn></code></td><td>The operation is only supported in a secure context</td></tr>
+            </table>
+        </dd>
+        <dt>WebIDL</dt>
+        <dd>When this specification says to <dfn>throw</dfn> an error, the <a>user agent</a> must throw an
+            error as described in [[!WEBIDL]]. When this occurs in a sub-algorithm, this results in
+            termination of execution of the sub-algorithm and all ancestor algorithms until one is
+            reached that explicitly describes procedures for catching exceptions.</dd>
+        <dt>Secure Contexts</dt>
+        <dd>The term <dfn>secure context</dfn> is defined by the Secure Contexts specification
+            [[!POWERFUL-FEATURES]].</dd>
+        <dt>URL</dt>
+        <dd>The <dfn>URL</dfn> concept and <dfn>URL parser</dfn> are defined in [[!WHATWG-URL]].</dd>
+        <dt>Fetch</dt>
+        <dd>The terms <dfn>Fetch</dfn>, <dfn>Request</dfn>, <dfn data-lt="body">Request Body</dfn>,
+            <dfn data-lt="method">Request Method</dfn>, <dfn>Header List</dfn>, <dfn>Response</dfn>,
+            <dfn>Context</dfn> and <dfn>Network Error</dfn> are defined in [[!FETCH]].</dd>
+    </dl>
+</section>
+
+<section class="informative">
+    <h2>Payment Apps</h2>
+
+    <p><dfn data-lt="payment apps|payment app">Payment Apps</dfn> are a specialized form of <a>installable application</a> as
+        defined in [[!APPMANIFEST]]. They could take the form of Web apps, interface-less Web services,
+        platform-specific native applications or even <a>user agent</a> components or extensions.</p>
+
+    <p>The <a>Payment App</a> acts on behalf of the payer (or their chosen payment services provider) and performs any
+        logic required for the chosen <a>payment method</a> to process the payment. This might include steps like authentication
+        of the payer and confirmation of the payment details.</p>
+
+    <p>The specific processing required by the <a>Payment App</a>, including the format of the payment request
+        that the app accepts and the format of the reponse it returns, is defined by the
+        <a>Payment Transaction Message Specification</a> for the <a>payment method</a> that is used to process the
+        transaction.</p>
+    <section>
+        <h3>Supported vs Enabled Payment Methods</h3>
+        <p><a>Payment Apps</a> support one or more <a>payment methods</a>. Support for a payment method implies that the app
+            SHOULD be able to process a payment request that conforms to the rules defined in the <a>Payment Transaction Message
+                Specification</a> for that payment method and SHOULD be able to return an appropriate response.
+        </p>
+        <p>However, sometimes an app will be designed to support a specific payment method but the app will not have been configured
+            with the appropriate <a>payment method data</a> (such as user credentials) to process payments using that payment method. In
+            that case the <a>payment app</a> is said to <code>support</code> the payment method but that payment method is not
+            <code>enabled</code>.
+        </p>
+        <p>For example, a <a>payment app</a> may be capable of processing a basic card payment that simply returns the card
+            details in the payment response but unless the user has configure the payment app with the card details or is able to
+            provide these at the time of processing that method is not <code>enabled</code>.
+        </p>
+        <p>If a payment app defines a payment method as <code>enabled</code> then it MUST be able to process any payment request
+            that lists that that payment method as supported and is formatted correctly according to the <a>Payment Transaction Message
+                Specification</a> for that payment method.
+        </p>
+        <p><a>User agents</a> should only consider <code>enabled</code> payment methods when evaluating if a <a>payment app</a> is
+            appropriate to process a given payment request.</p>
+    </section>
+</section>
+
+
+<section>
+    <h2>Registering a Payment App</h2>
+    <p>In order to begin processing payment requests from the <a>user agent</a> a <a>payment app</a> must first be
+        registered so that the <a>user agent</a> is aware of the set of <a>payment methods</a> the app has enabled.
+    </p>
+    <p>The process of <a>Payment App</a> registration follows the process defined for <a>installing</a> an application
+    via a <a>manifest</a>, as described in [[!APPMANIFEST]] but with some custom behavior defined at the
+        <a>extension point</a> in the algorithm <a>steps for processing a manifest</a>.</p>
+    <p>This specifcation also defines an extra mechanism for triggering the installation process via an API call as
+        described in <a><code>registerPaymentApp</code></a>.</p>
+    <section>
+        <h3>Manifest and its members</h3>
+        <div class="issue" data-number="" title="PaymentApp should extend a base manifest object">
+            Unfortunately the [[!APPMANIFEST]] specification does not have a way of installing a manifest via a browser
+            API so there is no WebIDL object definition of the basic manifest. It is declared here but a PR will be made
+            against the [[!APPMANIFEST]] specification to include it there following which this section could be removed.
+        </div>
+        <div class="issue" data-number="" title="'actions' is defined in the Ballista project">
+            The <a href="https://github.com/chromium/ballista/">Ballista project</a> defines a mechanism for extending
+            [[!APPMANIFEST]] to describe the actions that an application can perform. This specification follows a similar
+            pattern in the hope that it will be compatible with Ballista should it be implemented in future.
+        </div>
+        <pre class="idl">
+            dictionary Manifest {
+                DOMString dir;
+                DOMString lang;
+                DOMString name;
+                DOMString short_name;
+                URLString scope;
+                sequence&lt;Image&gt; icons;
+                DOMString display;
+                DOMString orientation;
+                URLString start_url;
+                DOMString theme_color;
+                sequence&lt;Application&gt; related_applications;
+                boolean prefer_related_applications;
+                DOMString backgroung_color;
+                sequence&lt;Action&gt; actions;
+            };
+
+            dictionary Image {
+                DOMString density;
+                DOMString sizes;
+                DOMString src;
+                DOMString type;
+            };
+
+            dictionary Application {
+                DOMString platform;
+                DOMString url;
+                DOMString id;
+            };
+
+            dictionary Action {
+                DOMString verb;
+                boolean bidirectional;
+                sequence&lt;DOMString&gt; types;
+            };
+        </pre>
+        <p>
+            The following manifest object members are not defined in the [[!APPMANIFEST]] specification:
+        </p>
+        <section>
+            <h3><code>actions</code></h3>
+            <p>
+                The <dfn>actions</dfn> member is a sequence of actions that can be performed by the
+                application described in the manifest. <a>Payment Apps</a> MUST support the action <code>pay</code> by
+                including at least one <code>action</code> in the sequence where the value of the <code>verb</code>
+                member is "<code>pay</code>".
+            </p>
+            <p>
+                The <dfn>steps for processing the <code>actions</code>member of a manifest</dfn> are given by the following
+                algorithm. The algorithm takes a <a>manifest</a> as an argument. This algorithm returns a list of
+                action objects <var>actions</var>, which can be empty.
+            </p>
+            <ol>
+                <li>Let <var>actions</var> be an empty list.
+                </li>
+                <li>Let <var>unprocessed actions</var> be the result of calling
+                    the <a>[[\GetOwnProperty]]</a> internal method of <var>manifest</var>
+                    with argument "<code>actions</code>".
+                </li>
+                <li>If <var>unprocessed actions</var> is an <a>array</a>, then:
+                    <ol>
+                        <li>For each <var>potential action</var> in the array:
+                            <ol>
+                                <li>Let <var>verb</var> be the result of running the <a>
+                                    steps for processing the <code>verb</code> member of an
+                                    action</a> with <var>potential action</var>.
+                                </li>
+                                <li>If <var>verb</var> is <code>undefined</code>, move
+                                    onto the next item if any are left.
+                                </li>
+                                <li>Let <var>types</var> be the list that results from running
+                                    the <a>steps for processing the <code>types</code> member of an action</a>
+                                    passing <var>potential action</var>.
+                                </li>
+                                <li>If <var>types</var> is <code>undefined</code> or empty move
+                                    onto the next item if any are left.
+                                </li>
+                                <li>Let <var>bidirectional</var> be the result of running the
+                                    <a>steps for processing the <code>bidirectional</code> member of an action</a>
+                                    with <var>potential action</var>.
+                                </li>
+                                <li>Let <var>action</var> be an object with
+                                    properties <code>verb</code>, <code>types</code>,
+                                    <code>bidirectional</code> respectively set to <var>verb</var>,
+                                    <var>types</var> and <var>bidirectional</var>.
+                                </li>
+                                <li>Append <var>action</var> to <var>actions</var>.
+                                </li>
+                            </ol>
+                        </li>
+                    </ol>
+                </li>
+                <li>Otherwise, if <var>unprocessed actions</var> is not <code>undefined</code>:
+                    <ol>
+                        <li>
+                            <a>Issue a developer warning</a> that the type is not supported.
+                        </li>
+                    </ol>
+                </li>
+                <li>Return <var>actions</var>.</li>
+            </ol>
+            <section>
+                <h4><code>verb</code></h4>
+                <p>
+                    The <dfn>verb</dfn> member is the verb describing the action that can be performed
+                    by the application asscoiated with the manifest.
+                </p>
+                <p>
+                    The <dfn>steps for processing the <code>verb</code> member of an action</dfn> are
+                    given by the following algorithm. The algorithm takes an <var>action</var> as an argument.
+                    This algorithm returns a string or <code>undefined</code>.
+                </p>
+                <ol>
+                    <li>Let <var>value</var> be the result of calling the
+                        <a>[[\GetOwnProperty]]</a> internal method of <var>action</var>
+                        with argument "<code>verb</code>".
+                    </li>
+                    <li>If <a>Type</a>(<var>value</var>) is not "string":
+                        <ol>
+                            <li>If <a>Type</a>(<var>value</var>) is not "undefined",
+                                optionally <a>issue a developer warning</a> that the type is not
+                                supported.
+                            </li>
+                            <li>Return <code>undefined</code>.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>Otherwise, <a>Trim</a>(<var>value</var>) and return the result.</li>
+                </ol>
+            </section>
+            <section>
+                <h4><code>bidirectional</code></h4>
+                <p>
+                    The <dfn>bidirectional</dfn> member indicates if the application is
+                    capable of returning responses to the calling website.
+                </p>
+                <p>
+                    The <dfn>steps for processing the <code>bidirectional</code> member of an action</dfn> are
+                    given by the following algorithm. The algorithm takes an
+                    <var>action</var> as an argument. This algorithm returns a boolean.
+                </p>
+                <ol>
+                    <li>Let <var>value</var> be the result of calling the
+                        <a>[[\GetOwnProperty]]</a> internal method of <var>action</var>
+                        with argument "<code>bidirectional</code>".
+                    </li>
+                    <li>If <a>Type</a>(<var>value</var>) is not "boolean":
+                        <ol>
+                            <li>If <a>Type</a>(<var>value</var>) is not "undefined",
+                                optionally <a>issue a developer warning</a> that the type is not
+                                supported.
+                            </li>
+                            <li>Return <code>false</code>.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>Otherwise return <var>value</var>.</li>
+                </ol>
+            </section>
+            <section>
+                <h4><code>types</code></h4>
+                <p>
+                    The <dfn>types</dfn> member lists the types that can be processed by the
+                    application.
+                </p>
+                <p>
+                    For <a>Payment Apps</a> the <code>types</code> are <a>payment method identifiers</a>.
+                </p>
+                <p>
+                    The <dfn>steps for processing the <code>types</code> member of an action</dfn> are given by the
+                    following algorithm. The algorithm takes an <var>action</var> as an argument.
+                    This algorithm will return a set.
+                </p>
+                <ol>
+                    <li>Let <var>types</var> be an empty list.
+                    </li>
+                    <li>Let <var>value</var> be the result of calling
+                        the <a>[[\GetOwnProperty]]</a> internal method of <var>action</var>
+                        with argument "<code>types</code>".
+                    </li>
+                    <li>If <var>value</var> is not an <a>array</a>, then:
+                        <ol>
+                            <li>
+                                <a>Issue a developer warning</a> that the type is not supported.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>Otherwise, return <var>value</var>.</li>
+
+                </ol>
+            </section>
+        </section>
+    </section>
+
+    <section>
+        <h3>registerPaymentApp()</h3>
+        <div class="issue" data-number="" title="Should all payment related functions be rooted in navigator.payments?">
+            The current shape of the <a>Payment Request API</a> makes it difficult to define the registration functions
+            in a similar style. Perhaps a payment request should be instantiated via a factory method like
+            <code>navigator.payments.createPaymentRequest</code>?
+        </div>
+
+        <pre class="idl">
+            partial interface Navigator {
+                readonly attribute PaymentsApi payments;
+            };
+
+            partial interface PaymentsApi {
+                Promise&lt;PaymentApp&gt; registerPaymentApp (DOMString manifestURL, boolean useCredentials);
+            };
+
+            dictionary PaymentApp : Manifest {
+                sequence&lt;DOMString&gt; payment_methods;
+            };
+        </pre>
+
+        <p>The <code><dfn>registerPaymentApp</dfn></code> method can be used to register or update a <a>payment app</a>
+            installation. It executes the the same process as that descibed in <a>steps for obtaining a manifest</a> and
+            <a>steps for processing a manifest</a> in [[!APPMANIFEST]] but with some specific extensions for
+            <a>payment apps</a>.
+        </p>
+        <div class="issue" data-number="" title="Monkey Patch to describe obtaining a manifest when requested via an API call">
+            Unfortunately the [[!APPMANIFEST]] specification does not have a way of installing a manifest via a browser
+            API so the process has the parsing of link tags hard-coded into it.
+        </div>
+        <p>
+            The <dfn>steps for installing a payment app</dfn> are given by the
+            following algorithm. The algorithm takes a <a>URL</a> argument (<var>manifest URL</var>) which represents the
+            location of the payment app manifest, and a boolean argument (<var>use credentials</var>) which is a flag to
+            indicate if the [[!FETCH]] <a>request</a> should include the credentials of the current user.
+            The algorithm, if successful, returns a <code>PaymentApp</code> object; otherwise, it terminates
+            prematurely and returns nothing.
+        </p>
+        <ol>
+            <li>If <var>manifest URL</var> is <code>null</code>, terminate this
+                algorithm.
+            </li>
+            <li>Let <var>request</var> be a new [[!FETCH]] <a>request</a>, whose
+                URL is <var>manifest URL</var>, and whose <a>context</a> is
+                "<code>manifest</code>".
+            </li>
+            <li>If the <var>use credentials</var> value is <code>true</code>, then set
+                <var>request</var>'s credentials to '<code>include</code>'.
+            </li>
+            <li>Await the result of performing a <a>fetch</a> with
+                <var>request</var>, letting <var>response</var> be the result.
+            </li>
+            <li>If <var>response</var> is a <a>network error</a>, terminate this
+                algorithm.
+            </li>
+            <li>Let <var>PaymentApp</var> be the result of running the <a>steps for
+                processing a manifest</a> with <var>response</var>'s <a>body</a> as the
+                <var>text</var>, <var>manifest URL</var>, and the URL that represents
+                the address of the <a>top-level browsing context</a> as inputs and the following additional steps
+                executed at the <a>extension point</a> defined for this process:
+                <ol>
+                    <li>Let <var>new actions</var> be the result of running the
+                        <a>steps for processing the <code>actions</code>member of a manifest</a> with <var>manifest</var>
+                        as the argument.</li>
+                    <li>Let the <var>payment_methods</var> of <var>parsed manifest</var> be the result of running the
+                        <a>steps for aggregating the <code>payment_methods</code></a> with <var>new actions</var> as the
+                        argument.</li>
+                    <li>Set the <var>actions</var> property of <var>parsed manifest</var> to <var>new actions</var>.</li>
+                </ol>
+            </li>
+            <li>Return <var>PaymentApp</var>.</li>
+        </ol>
+        <section>
+            <h4>PaymentApp and its members</h4>
+            <p>The <dfn><code>PaymentApp</code></dfn> object is returned when the <a>Promise</a>
+                returned by <a>registerPaymentApp</a> resolves. It is an extension of a standard app manifest that
+                includes a member (<code>payment_methods</code>) listing the apps <code>enabled</code>
+                <a>payment methods</a>.</p>
+            <section>
+                <h4><code>payment_methods</code></h4>
+                <p>
+                    The <dfn>payment_methods</dfn> member is the aggregation of all <a>types</a>
+                    for all <a>actions</a> of the <a>manifest</a> where the value of the <code>verb</code> member of the
+                    <code>action</code> is <code>"pay"</code>.
+                </p>
+                <p>
+                    The <dfn>steps for aggregating the <code>payment_methods</code></dfn> are given by the following
+                    algorithm. The algorithm takes an array of <a>action</a> objects (<var>actions</var>) as an argument.
+                    This algorithm will return a set.
+                </p>
+                <ol>
+                    <li>Let <var>payment methods</var> be an empty list.
+                    </li>
+                    <li>If <var>actions</var> is an <a>array</a>, then:
+                        <ol>
+                            <li>For each <var>current action</var> in the array:
+                                <ol>
+                                    <li>Let <var>verb</var> be the result of running the <a>
+                                        steps for processing the <code>verb</code> member of an
+                                        action</a> with <var>current action</var>.
+                                    </li>
+                                    <li>If <var>verb</var> is not equal to <code>"pay"</code>, move
+                                        onto the next item if any are left.
+                                    </li>
+                                    <li>Let <var>types</var> be the list that results from running
+                                        the <a>steps for processing the <code>types</code> member of an action</a>
+                                        passing <var>current action</var>.
+                                    </li>
+                                    <li>If <var>types</var> is <code>undefined</code> or empty move
+                                        onto the next item if any are left.
+                                    </li>
+                                    <li>For each <var>current type</var> in the list:
+                                        <ol>
+                                            <li>If <var>payment methods</var> contains an element equal to
+                                                <var>current type</var> move onto the next item if any are left.</li>
+                                            <li>Otherwise, append <var>current type</var> to <var>payment methods</var>.</li>
+                                        </ol>
+                                    </li>
+                                </ol>
+                            </li>
+                        </ol>
+                    </li>
+                    <li>Return <var>payment methods</var>.
+                    </li>
+                </ol>
+            </section>
+            <p>The following example shows how to register a payment app:</p>
+            <pre class="example highlight">
+                registerPaymentApp(manifestUrl, true).then(function(paymentApp) {
+                  // Do any custom post-processing
+                  // Example: Install ServiceWorker to handle offline payment requests
+                }).catch(function(err) {
+                  console.error("Uh oh, something bad happened", err.message);
+                });
+            </pre>
+        </section>
+    </section>
+</section>
+
+<section>
+    <h2>Processing Payment Requests</h2>
+    <p>
+        When a <a>user agent</a> has completed the <a>payment app</a> selection algorithm as defined in the PaymentRequest
+        API [[!PAYMENTREQUESTAPI]] it must initiate the selected <a>payment app</a> and pass it the payment request to
+        process.</p>
+    <p>
+        The <a>user agent</a> does this by, converting the payment request into a JSON serialized object, executing
+        an HTTP POST request against the <code>start_url</code> defined in the <a>payment app</a>'s <a>manifest</a> and
+        then using the response to determine what type of <a>payment app</a> to instantiate and how to interface to that
+        app.
+    </p>
+    <p>
+        This specification explicitly ctare for three categories of <a>payment app</a> however others may be defined by
+        implementers who also define a custom mechanism for the <a>user agent</a> to instantiate and interface with
+        these apps.
+    </p>
+    <p>At a minimum the <a>user agent</a> MUST handle the following two responses from the <a>payment app</a>:
+        <ol>
+            <li>An HTML response that MUST rendered by the <a>user agent</a> in the <a>application context</a> defined
+                by the <a>payment app</a>'s <a>manifest</a>.</li>
+            <li>A JSON serialized payment response which is converted by the <a>user agent</a> into a <a>PaymentResponse</a>
+            object. The <a>Promise</a> that was returned to the payee website when calling <a><code>PaymentRequest.show</code></a>
+                MUST resolve to this <a>PaymentResponse</a>.</li>
+        </ol>
+    </p>
+    <section>
+        <h3>Converting the <a>PaymentRequest</a> into JSON.</h3>
+        <p>Before the <a>PaymentRequest</a> can be submitted to the <a>payment app</a> it must be converted into a JSON
+        serialized string.</p>
+        <p>This step can be skipped if the selected <a>payment app</a> is internal to the <a>user agent</a> or integrates
+        with the <a>user agent</a> through a non-standard interface that does not require the <a>PaymentRequest</a>
+        to be converted.</p>
+        <p>The <dfn>steps to convert the <code>PaymentRequest</code> to JSON</dfn> are given by the following algorithm. The
+        algorithm takes a <a>PaymentRequest</a> (<var>request</var>) as input and returns a string.</p>
+        <div class="issue" data-number="" title="Need to define an algorithm for converting the PaymentRequest to JSON">
+            The algortihm for this conversion will depend on the outcome of discussions around the shape of the PaymentRequest
+            API. This algorithm may also sit in the messages/extensibility spec.
+        </div>
+    </section>
+    <section>
+        <h3>Submitting the <a>PaymentRequest</a> to the <a>Payment App</a></h3>
+        <p>The <dfn>steps to submit the <code>PaymentRequest</code> to the Payment App</dfn> are given by the
+            following algorithm:
+        </p>
+        <ol>
+            <li>Let <var>payment request</var> be the string that is the outcome of the
+                <a>steps to convert the <code>PaymentRequest</code> to JSON</a>.</li>
+            <li>Let <var>payment app</var> be the <a>PaymentApp</a> object that was the result of previously executing
+                the <a>steps for installing a payment app</a> where the <a>payment app</a> that was installed during
+                that process is the same app selected by the user to process this <a>PaymentRequest</a>.</li>
+            <div class="issue" data-number="" title="What are the appriate fetch parameters for this request?">
+                We should get input form Web Platform and WebAppSec on how to best construct this request.
+            </div>
+            <li>Let <var>request</var> be a new [[!FETCH]] <a>request</a>, whose members are set to the following values:
+                <table>
+                    <tr><th>Member</th><th>Value</th></tr>
+                    <tr><td><code><a>URL</a></code></td>
+                        <td>The value of the <code>start_url</code> member of <var>payment app</var></td></tr>
+                    <tr><td><code><a>method</a></code></td>
+                        <td>The value "<code>POST</code>"</td></tr>
+                    <tr><td><code><a>header list</a></code></td>
+                        <td>
+                            <table>
+                                <tr><td><code>Accept</code></td><td>text/html;application/json</td></tr>
+                            </table>
+                        </td></tr>
+                    <tr><td><code><a>body</a></code></td>
+                        <td>The value of <var>payment request</var></td></tr>
+                </table>
+            </li>
+            <li>If the <var>use credentials</var> value was <code>true</code> when the <a>steps for installing a payment app</a>
+                were executed for <var>payment app</var> then set
+                <var>request</var>'s credentials to '<code>include</code>'.
+            </li>
+            <li>Await the result of performing a <a>fetch</a> with
+                <var>request</var>, letting <var>response</var> be the result.
+            </li>
+            <li>If <var>response</var> is a <a>network error</a>, terminate this
+                algorithm.
+            </li>
+            <li>Let <var>manifest</var> be a <a>manifest</a> that has the same member values as <var>payment app</var></li>
+            <li>
+                <p>Switch on <var>response</var>'s <var>MIME type</var></p>
+                <dl class="switch">
+                    <dt>text/html</dt>
+                    <dd>
+                        <ol>
+                            <li>Execute the <a>steps to render a web based payment app</a> using
+                                <var>response</var> and <var>manifest</var>as input.</li>
+                        </ol>
+                    </dd>
+                    <dt>application/json</dt>
+                    <dd>
+                        <ol>
+                            <div class="issue" data-number="" title="How do we signal that this JSON is a PaymentResponse?">
+                                Should the JSON encoded PaymentRequest and PaymentResponse be JSON-LD with an associated
+                                @context?
+                            </div>
+                            <li>If <var>response</var>'s <var>body</var> is a JSON encoded <a>PaymentResponse</a>
+                                execute the <a>steps to create a <code>PaymentResponse</code> from JSON</a> using the
+                                <var>response</var>'s <var>body</var> as input.
+                            </li>
+                            <li>Otherwise execute the <a>steps to launch a custom payment app</a> using the
+                                <var>response</var>'s <var>body</var> and <var>manifest</var> as input.
+                            </li>
+                        </ol>
+                    </dd>
+                </dl>
+            </li>
+        </ol>
+    </section>
+    <section>
+        <h2>Launching the Payment App</h2>
+        <p>Unless the selected payment app is built into the <a>user agent</a> or uses a proprietary mechanism for
+            launching and interfacing with the <a>payment app</a>, the <a>user agent</a> MUST launch the
+            <a>payment app</a> based upon the response it gets from submitting the <a>PaymentRequest</a>.</p>
+        <p>The MIME Type and other signals are used to determine how the app is launched and what type of app is
+            launched.</p>
+        <section>
+            <h3>Payment Apps on the Web</h3>
+            <section>
+                <h4>Web Based Payment App with HTML interface</h4>
+                <p>If the payment app is a web application with an HTML-based user interface then the response will have a
+                    <code>MIME Type</code> of <code>text/html</code>.</p>
+                <p>If a <a>user agent</a> receives a response with a <code>MIME Type</code> of <code>text/html</code> it
+                    MUST assume that the response body is the HTML that must be rendered as the user interface of the
+                    <a>payment app</a>.</p>
+                <p>The <a>user agent</a> MUST execute the <dfn>steps to render a web based payment app</dfn> as given by
+                    the following algorithm. The algorithm takes a [[!FETCH]] <a>Response</a> (<var>response</var>) and
+                    an app <a>manifest</a> (<var>manifest</var>) as arguments:
+                </p>
+                <ol>
+                    <li>Create a new <a>top-level browsing context</a> in a new tab, window or dialogue as
+                        <var>new context</var>.</li>
+                    <li><a>Apply</a> <var>manifest</var> to <var>new context</var> to produce <var>application context</var> per
+                        the definition in [[!APPMANIFEST]].</li>
+                    <li>Render the <var>response</var> in the <var>application context</var>.</li>
+                </ol>
+                <section>
+                    <h5>Accepting the PaymentResponse</h5>
+                    <pre class="idl">
+                        partial interface Navigator {
+                            readonly attribute PaymentsApi payments;
+                        };
+
+                        partial interface PaymentsApi {
+                            Promise&lt;boolean&gt; submitPaymentResponse (PaymentResponse response);
+                        };
+
+                    </pre>
+
+                    <div class="issue" data-number="" title="Should we model this on Ballista">
+                        We have already borroed some ideas, such as the concepts of actions and the "pay" verb, from the
+                        <a href="https://github.com/chromium/ballista/">Ballista project</a>. Should we also try to replicate
+                        how they perform IPC between web apps? Do we want to force publishers to write ServiceWorkers?
+                    </div>
+
+                    <p>The user will interact directly with web based <a>payment apps</a> in the <a>application context</a>
+                        created for this purpose by the <a>user agent</a>.</p>
+                    <p>When the <a>payment app</a> is ready to do so, it must submit a <a>PaymentResponse</a> to the <a>user agent</a>
+                    that can be returned to the website that submitted the initial <a>PaymentRequest</a>. It does this by calling
+                    <code>submitPaymentResponse</code>.</p>
+                </section>
+            </section>
+            <section>
+                <h4>Autonomous Payment App services with no user interface</h4>
+                <p>If the payment app is a web service that requires no user interface hen the response must set the
+                    <code>Content-Type</code> header to the value <code>application/json</code> and the response body should be
+                    a JSON serialized payment response object.</p>
+                <p>The <dfn>steps to create a <code>PaymentResponse</code> from JSON</dfn> are given in the following algorithm:</p>
+                <div class="issue" data-number="" title="Need to define an algorithm for parsing a PaymentRequest object from JSON">
+                    This will likely sit in the messages or extensibility spec.
+                </div>
+            </section>
+            <section>
+                <h4>Resolving the PaymentResponse Promise</h4>
+                <p>The <a>user agent</a> must return a <a>PaymentResponse</a> to the website that originally initiated the
+                    <a>PaymentRequest</a>. The <dfn>steps for returning the <a>PaymentResponse</a></dfn> are given by the
+                    following algorithm.</p>
+                <ol>
+                    <li>Let <var>application context</var> be an empty <a>context</a>.</li>
+                    <li>Let <var>response</var> be an empty <a>PaymentResponse</a>.</li>
+                    <li>Let <var>promise</var> be the <a>Promise</a> that was returned to the payee website when it called
+                    <a>PaymentRequest.show</a> to initiate the payment.</li>
+                    <li>If a web based <a>payment app</a> called <code>submitPaymentResponse</code> then:
+                        <ol>
+                            <li>Set <var>response</var> equal to the first parameter passed to that method.</li>
+                            <li>Let <var>application context</var> be the <a>application context</a> of the <a>payment app</a>.</li>
+                        </ol>
+                    </li>
+                    <li>Otherwise, if the <a>steps to submit the <code>PaymentRequest</code> to the Payment App</a> resulted
+                    in the return of a JSON encoded <a>PaymentResponse</a> then set <var>response</var> to the result
+                        of running the <a>steps to create a <code>PaymentResponse</code> from JSON</a>.</li>
+                    <li>If <var>application context</var> is set, disable user input to that context and do not allow any
+                        calls to <code>submitPaymentResponse</code>.</li>
+                    <li>Resolve <var>promise</var> with <var>response</var>.</li>
+                    <p>If <var>application context</var> is set, wait until the website calls <a>PaymentRequest.complete</a>
+                        on <var>response</var> or a until reasonable timeout and then tear down <var>application context</var> and any associated
+                        user interfaces.</p>
+                </ol>
+            </section>
+        </section>
+        <section>
+            <h3>Platform-specific Payment Apps</h3>
+            <p>If the payment app is implemented in a non-standard or proprietary way then the
+                <dfn>steps to launch a custom payment app</dfn> are undefined.</p>
+            <p>User agents may use the <code><a>related_applications</a></code> defined in the <a>payment app</a>'s
+            <a>manifest</a> to determine if a native or other app is available and launch that app. In this case the
+                response data will be platform specific.</p>
+        </section>
+    </section>
+</section>
+
+<p class="issue" data-number="55" title="Add section on security considerations">
+    The spec should indicate how data might be passed securely through the API using
+    mechanisms such as field level encryption and message signing. While these may not
+    be standardised a reference to the payment method specifications would be appropriate
+    as well as some examples of how those specifcations might implement secure messaging.
+</p>
+
+</body>
+</html>
