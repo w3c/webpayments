@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic CT-DD Payment</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          shortName:  "payment-method-basic-ct-dd",
+          edDraftURI:   "https://w3c.github.io/browser-payment-api/basic-ct-dd-payment.html",
+          specStatus: "ED",
+          editors: [
+                {   name:       "Cyril Vignet",
+                    company:    "BPCE" },
+          ],
+          useExperimentalStyles: true,
+          license:      "w3c-software-doc",
+          //previousMaturity: "FPWD",
+          //previousPublishDate:  "1977-03-15",
+          wg:           "Web Payments Working Group",
+          wgURI:        "https://www.w3.org/Payments/WG/",
+          wgPublicList: "public-payments-wg",
+          wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
+          issueBase:    "https://github.com/w3c/browser-payment-api/issues/",
+          localBiblio:  {
+              "PAYMENTARCH": {
+                  title:    "Payment Request Architecture"
+              ,   href:     "architecture.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ]
+              ,   status:   "ED"
+              },
+              "PAYMENTREQUESTAPI": {
+                  title:    "Payment Request API"
+              ,   href:     "paymentrequest.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ]
+              ,   status:   "ED"
+              },
+              "METHODIDENTIFIERS": {
+                  title:    "Payment Method Identifiers"
+              ,   href:     "method-identifiers.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ]
+              ,   status:   "ED"
+              },
+              "WEBIDL": {
+                  title:    "WebIDL Level 1"
+              ,   href:     "http://www.w3.org/TR/WebIDL-1/ "
+              ,   authors:  [
+                      "Cameron McCormack"
+                  ,   "Boris Zbarsky"
+                  ]
+              ,   status:   "CR"
+              }
+
+          }
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+	The Basic SEPA Payment specification describes the data formats used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by SEPA payments such as SEPA Credit Transfer (SCT), SEPA Direct Debit (SDD CORE) and SEPA direct Debit between corporates (SDD B2B)
+      </p>
+    </section>
+
+    <section id='sotd'>
+      <p>
+        The working group maintains <a href="https://github.com/w3c/browser-payment-api/issues">a
+        list of all bug reports that the group has not yet addressed</a>.
+      </p>
+    </section>
+    
+    <section class='informative'>
+      <h2>Introduction</h2>
+      <p>
+	This specification is a Payment Transaction Message Specification used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by SEPA payments such as SEPA Credit Transfer and SEPA direct debit. It is intended to provide compatibility for merchants who currently request account details from customers to ease adoption of the PaymentRequest API.</p>
+      <p>In the future, merchants should favor payment methods that provide a tokenized response rather than clear text credit card details.</p>
+    </section>
+
+    <section id="dependencies"> 
+      <h2>Dependencies</h2> 
+      <p> 
+      This specification relies on several other underlying specifications. 
+      </p> 
+      <dl> 
+        <dt>Payment Request Architecture</dt>
+        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
+        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
+        Message Specification</dfn> are defined by the Payment Request Architecture document
+        [[!PAYMENTARCH]].</dd>
+        <dt>Payment Request API</dt>
+        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
+        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+        Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+        [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web IDL</dt>
+        <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+      </dl>
+    </section>
+
+    <section id="method-id">
+      <h2>Payment Method Identifier</h2>
+      <p>The following payment method identifier strings are supported by the Basic CT-DD Payment data formats.</p>
+
+      <table>
+	<tr>
+        <tr><th>Identifier String</th><th>Description</th><th>Comment</th></tr>
+	<tr>
+	  <td>CT</td>
+	  <td>Credit Transfer</td>
+	  <td>In this scenario, the user should be invited to process a credit transfer by his own.  The merchant gives a label and tis IBAN (or equivalent) and BIC (or equivalent).
+The user copy this label in the remittance information (or equivalent) of the credit transfer. There is no automatic link from the web validation to the credit transfer validation.
+	    Could be used for any credit transfer in the world.</td>
+	</tr>
+	<tr>
+	  <td>SCT</td>
+	  <td>SEPA CREDIT TRANSFER</td>
+	  <td>This scenario is a specific Credit Transfer scenario where the webmerchant accepts only SEPA credit Transfer. This is a regional (even a big one) limitation. Fields provided by merchant are, IBAN, BIC (in SEPA non EU countries) and REMITTANCE Information</td>
+	</tr>
+	<tr>
+	  <td>DD</td>
+	  <td>DIRECT DEBIT</td>
+	  <td>In this generic scenario the user will provide an IBAN (or equivalent) to the merchant. The merchant will process a direct debit. There is no link at this stage to mandate process that are necessary in some kind of Direct Debit Scheme.</td>
+	</tr>
+	<tr>
+	  <td>SDD</td>
+	  <td>SEPA Direct Debit CORE</td>
+	  <td>In this specialised Direct Debit scenario the merchant could either provide a URM (unique reference of mandate) if he already identified the user, or ask for this URM and for a validation of its client (the user). The mandatory signed mandate asked by the scheme SDD CORE is outside of the scope and should have been done by the merchant in another way and before. (IBAN of the user is asked during the mandate process).
+	    The Direct Debit should be a SEPA Direct debit in euro</td>
+	</tr>
+	<tr>
+	  <td>SDDB2B</td>
+	  <td>SEPA Direct Debit B2B</td>
+	  <td>In this specialised Direct Debit scenario, the merchant will provide a URM (unique reference of mandate). The mandatory signed mandate asked by the scheme SDD B2B is outside of the scope. It should have been done by the merchant in another way and will be verified by the bank of the user (which is a corporate). The SEPA Direct Debit B2B should be a SEPA Direct debit in euro.</td>
+	</tr>
+	<tr>
+	  <td>SEMCT</td>
+	  <td>SEPAmail for SCT</td>
+	  <td>This scenario provides an automatic link with the Credit Transfer solution. The merchant should adhere to SEPAmail and the user also. Only a specific IBAN (named QXBAN) will be asked by the merchant</td>
+	</tr>
+	<tr>
+	  <td>SEMDD</td>
+	  <td>SEPAmail for SDD</td>
+	  <td>This scenario provides an automatic link with a e-mandate solution, i.e. a solution that provide a way to electronically sign a SEPA Direct debit mandate.</td>
+	</tr>
+	<tr>
+	  <td>IDEALCT</td>
+	  <td>IDEAL for SCT</td>
+	  <td>@@Evert!</td>
+	</tr>
+	<tr>
+	  <td>IDEALDDD</td>
+	  <td>IDEAL for SDD</td>
+	  <td>@@Evert!</td>
+	</tr>
+      </table>
+    </section>
+
+    <section id="init-data">
+      <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
+      <p>This section describes payment method specific data that is supplied as part of the data argument to the PaymentRequest constructor.</p>
+      <p>There is no payment method specific data used by the PaymentRequest constructor when processing Basic SEPA Payment methods.</p>
+    </section>
+
+    <section id="response">
+      <h2>Payment Method Response</h2>
+      <p>The <dfn><code>BasicCTDDResponse</code></dfn> dictionary contains the response from the
+      PaymentRequest API when a user accepts payment with a Basic Payment SEPA payment method.</p>
+
+      <section>
+      <h2>BasicCTDDResponse</h2>
+
+      <pre class="idl">
+	Dictionary BasicDDResponse {
+ 
+	 required DOMString       DbtrName;
+	 required DOMString       DbtrUMR;
+ 	 required DOMString       Address of the Debtor
+	 required DOMString       PostCode
+	 required DOMString       Country
+	 required DOMString       BIC
+	} ;
+
+	Dictionary  BasicCTResponse {
+
+	 required DOMString       IdentString;
+	 required DOMString       DbtrName;
+	 required DOMString       SemAcct;
+	 required DOMString       Address
+	 required DOMString       PostCode
+	 required DOMString       Country
+	 required DOMString       BIC
+        };
+      </pre>
+
+      <p>
+        The <code>BasicCTDDResponse</code> dictionary contains the following fields:
+      </p>
+
+      <dl>
+	<dt><dfn<code>DbtrName</code></dfn></dt>
+	       <dd>Name of the Debtor . First name + last name of the debtor. For a company, legal name..</dd>
+<dt><dfn<code>DbtrUMR</code></dfn></dt>
+       <dd>Debtor’s Unique reference of Mandate that was given during the mandate or e-mandate phase. Those phases are out of the scope of WebPayment.</dd>
+<dt><dfn<code>SemAcct</code></dfn></dt>
+       <dd>Account number used in SEPAmail flows : QXBAN is a specific IBAN (same structure) with QX as a proprietary country code. It is used as a routing identifier for SEPAmail flows. </dd>
+<dt><dfn<code>PostCode</code></dfn></dt>
+		     <dd>Postal code/city of the Debtor .</dd>
+<dt><dfn<code>Country</code></dfn></dt>
+       <dd>Debtor’s country of residence</dd>
+<dt><dfn<code>BIC</code></dfn></dt>
+       <dd>The BIC code of the Debtor Bank</dd>
+       </dl>
+
+<p>Note: Other field should be defined by other CT initiation scheme or DD mandate scheme.</p>
+      </section>
+
+  </body>
+</html>
