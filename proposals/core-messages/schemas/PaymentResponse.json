@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "https://www.w3.org/Payments/WG/PaymentResponse",
+  "type": "object",
+  "properties": {
+    "type": {
+      "id": "https://www.w3.org/Payments/WG/PaymentResponse/type",
+      "type": "string"
+    },
+    "description": {
+      "id": "https://www.w3.org/Payments/WG/PaymentResponse/description",
+      "type": "string"
+    },
+    "payment": {
+      "id": "https://www.w3.org/Payments/WG/PaymentResponse/payment",
+      "type": "object",
+      "properties": {
+        "paymentMethod": {
+          "id": "https://www.w3.org/Payments/WG/PaymentResponse/payment/paymentMethod",
+          "type": "string"
+        },
+        "paymentAmount": {
+          "id": "https://www.w3.org/Payments/WG/PaymentResponse/payment/paymentAmount",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "id": "https://www.w3.org/Payments/WG/PaymentResponse/payment/paymentAmount/amount",
+              "type": "string",
+              "pattern": "^-?[0-9]+(\.[0-9]+)?$"
+            },
+            "currency": {
+              "id": "https://www.w3.org/Payments/WG/PaymentResponse/payment/paymentAmount/currency",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "payment"
+  ]
+}
