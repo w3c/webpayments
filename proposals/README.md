@@ -4,7 +4,7 @@ Proposals for new specification documents to be adopted by the WG are put here f
 a dedicated (new or existing) repo as WG editor's drafts.
 
 The specifications are discussed on the WG [issue list](https://github.com/w3c/webpayments/issues).   
-Please use appropriate *"Proposal: XXX"* labels for new issues to help us sort them.
+Please use appropriate *"Proposal: XXX"*  labels for new issues to help us sort them.
 
 ## Current Proposals
 
