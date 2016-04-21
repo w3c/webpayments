@@ -1,0 +1,45 @@
+@startuml
+autonumber
+
+Participant "Payee" as Payee
+Participant "Payment Mediator" as Mediator
+Participant "Payer Payment App" as App
+Actor "Payer" as Payer
+
+title Payment Request Flow
+
+Payee->Mediator: Payment Request
+
+alt Payer selects Payment App
+    Mediator->Payer: Get Payment App selection
+    Payer->Mediator: Select Payment App
+else Mediator uses an algorithm to select Payment App
+    Mediator->Mediator: Select Payment App
+end
+
+create App
+Mediator->App: Payment Request
+
+opt Payer interacts with Payment App
+    App->Payer
+    Payer->App
+end
+
+opt App communicates directly with payee
+    App->Payee: Get updated payment request
+    Payee->App: Updated payment request
+end
+
+alt Payer selects Payment Method
+    App->Payer: Get Payment Method selection
+    Payer->App: Select Payment Method
+else Payment App uses an algorithm to select Payment Method
+    App->Mediator: Select Payment Method
+end
+
+note over App: Payment Method\n specific processing
+
+App->Mediator: Payment Response
+Mediator->Payee: Payment Response
+
+@enduml

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>A Role-based Architecture for Processing Payment Requests</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+        var respecConfig = {
+            shortName: "payments-req-arch",
+            edDraftURI: "https://w3c.github.io/webpayments/architecture/index.html",
+
+            specStatus: "unofficial",
+            editors: [
+                {
+                    name: "Adrian Hope-Bailie",
+                    company: "Ripple"
+                }
+            ],
+
+            license: "w3c-software-doc",
+            "noRecTrack": true,
+
+            //previousMaturity: "FPWD",
+            //previousPublishDate:  "1977-03-15",
+
+            wg: "Web Payments Working Group",
+            wgURI: "https://www.w3.org/Payments/WG/",
+            wgPublicList: "public-payments-wg",
+            wgPatentURI: "https://www.w3.org/2004/01/pp-impl/83744/status",
+
+            issueBase: "https://github.com/w3c/webpayments/issues/",
+            // additional defines to improve github integration
+            githubAPI: "https://api.github.com/repos/w3c/webpayments",
+            otherLinks: [{
+                key: "Version control",
+                data: [{
+                    value: "Github Repository",
+                    href: "https://github.com/w3c/webpayments"
+                }, {
+                    value: "Issues",
+                    href: "https://github.com/w3c/webpayments/issues"
+                }]
+            }],
+            localBiblio: {
+                "METHOD-IDENTIFIERS": {
+                    title: "Payment Method Identifiers",
+                    href: "https://w3c.github.io/browser-payment-api/specs/method-identifiers.html",
+                    authors: [
+                        "Adrian Bateman",
+                        "Zach Koch",
+                        "Richard Barnes",
+                        "Roy McElmurray"
+                    ],
+                    status: "WD"
+                }
+            }
+        };
+    </script>
+    <style>
+        dt {
+            margin-top: 0.5em;
+        }
+
+        table {
+            margin-top: 0.75em;
+            border-collapse: collapse;
+            border-style: hidden hidden none hidden
+        }
+
+        table thead {
+            border-bottom: solid
+        }
+
+        table tbody th:first-child {
+            border-left: solid
+        }
+
+        table td, table th {
+            border-left: solid;
+            border-right: solid;
+            border-bottom: solid thin;
+            vertical-align: top;
+            padding: 0.2em
+        }
+
+        li {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+    </style>
+</head>
+<body>
+<section id='abstract'>
+    <p>The mission of the Web Payments Working Group is to make payments easier and more secure on the Web.</p>
+
+    <p>The group is chartered to develop multiple technologies. This document describes an architecture and a set
+        of roles in that architecture that, together, faciliatate the group's mission.</p>
+
+    <p>This intentionally describes components by their role, acknowledging that different implementations
+        may result in multiple roles being adopted by a single system component. No specifics are defined about how
+        the functions of each role will be fulfilled beyond the internal algorithms that each must execute. Specific
+        interfaces may be described in detail in accompanying documents that define how these roles are implemented
+        in those contexts.</p>
+
+    <p class="note">This architecture is focused on the interactions between a payer and payee on the Web and does not
+        cover the architecture or components required for the full end to end payment process.</p>
+</section>
+
+<section id='sotd'>
+    <p>
+        The working group maintains <a href="https://github.com/w3c/webpayments/issues">a
+        list of all bug reports that the group has not yet addressed</a>.
+        This draft highlights some of the pending issues that are still to be discussed in the working
+        group. No decision has been taken on the outcome of these issues including whether they are valid.
+        Pull requests with proposed specification text for outstanding issues are strongly encouraged.
+    </p>
+
+    <p>
+        This specification was derived from
+        <a href="https://github.com/w3c/webpayments/wiki/A-Payments-Initiation-Architecture-for-the-Web">A Payments
+            Initiation Architecture for the Web</a>.
+    </p>
+</section>
+
+<section>
+    <h2>Design Decisions</h2>
+
+    <section>
+        <h3>Improve the payment experience for payers</h3>
+
+        <p>Payments on the Web today are very payee-centric. The entire payment process is driven by the payee, usually
+            an online merchant, who presents the user with one or more ways to pay. In the majority of cases the user
+            provides a static credential (such as the details of a credit card) back to the merchant or is redirected
+            to a digital wallet service where they approve the transaction.</p>
+
+        <p>Unless the user is able to find a digital wallet that is supported by all of the payee's they wish to pay
+            they will never have a standardized payment experience and the majority of the time that experience is
+            driven by the payee.</p>
+
+        <p>Further, there is no standardized mechanism to estabilsh a bi-directional channel of communcation between the
+            payer (or their service provider) and the payee (or their service provider) which could be used to exchange
+            payment details and credentials in a more secure manner or negotiate the use of an entirely new payment
+            method.</p>
+
+        <p>To remedy this one-sided situation this architecture proposes a new standardized component, the
+            <a>payment app</a>, that is used by the payer to handle payment requests.</p>
+    </section>
+    <section>
+        <h3>Protect payer privacy</h3>
+
+        <p>Facilitating an autonomous process for matching the payment methods that the payer supports with those that
+            the payee supports seems trivial on the surface, however it is also important to ensure that the
+            architecture doesn't allow for user data to be leaked to the payee system.</p>
+
+        <p>To protect the payer's privacy the architecture defines the role of a <a>payment mediator</a> that sits
+            between the payer and payee mediating the initial handshake between them and conencting the requesting
+            payee system with an appropriate payer payment app.</p>
+    </section>
+</section>
+
+<section>
+    <h2>Definitions</h2>
+
+    <p>In this document we use the following terms with the implied definition as stated below:</p>
+    <dl>
+        <dt>Payer</dt>
+        <dd>A <dfn data-lt="payer|payers">payer</dfn> is implied to mean any system operated by (or on behalf of) the
+            payer. This includes systems operated by the payer's payment services provider.
+        </dd>
+        <dt>Payee</dt>
+        <dd>A <dfn data-lt="payee|payees">payee</dfn> is implied to mean any system operated by (or on behalf of) the
+            payee. This includes systems operated by the payee's payment services provider.
+        </dd>
+        <dt>Payment Request</dt>
+        <dd>A <dfn data-lt="payment request|payment requests">payment request</dfn> is a request from a payee to be paid.
+            It contains the details of <em>what</em> to pay and <em>how</em> the payment can be made. <em>How</em> the
+            payment can be made is specified as a list of <a>payment method identifiers</a>. The payment request MUST
+            conatin all of the <a>payment method data</a> required for each <a>payment method</a> identified in it's set
+            of <em>supported payment methods</em>.
+        </dd>
+        <dt>Payment Response</dt>
+        <dd>A <dfn data-lt="payment response|payment responses">payment response</dfn> is a response to a payment request
+            (normally the result of processing by a payment app). The content of a payment response will be dependant on
+            <em>how</em> the payment is being processed.
+        </dd>
+        <dt>Payment App</dt>
+        <dd>A <a>payment app</a> is a component that fulfills the conformance
+            criteria specified for a <a>payment app</a> in this specification.
+        </dd>
+        <dt>Payment Mediator</dt>
+        <dd>A <a>payment mediator</a> is a component that fulfills the
+            conformance criteria specified for a <a>payment mediator</a> in this specification.
+        </dd>
+        <dt>Payment Method</dt>
+        <dd>A <dfn data-lt="payment method|payment methods">payment method</dfn> defines <em>how</em> a payment request
+            must be processed. It defines the format and content of the payment request and payment response messages
+            that are exchanged with a payment app. A <a>payment app</a> must be able to process <a>payment requests</a>
+            for one or more payment methods.
+        </dd>
+        <dt>Payment Method Data</dt>
+        <dd><a>Payment requests</a> and <a>payment responses</a> have a limited set of data elements that are common to
+            all payments, irresepective of the payment method. However <a>payment methods</a> can define additional
+            custom data that is specific to that <a>payment method</a>. This custom data is called
+            <dfn>payment method data</dfn>.
+        </dd>
+        <dt>Payment Method Specification</dt>
+        <dd>A <dfn data-lt="payment method specification|payment method specifications">payment method specification</dfn>
+            defines what <a>payment method data</a> is required in<a>payment requests</a> and <a>payment responses</a>
+            for a particular payment method. It also lists the <a>payment method identifiers</a> that are defined for
+            that <a>payment method</a>.
+        </dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd><dfn data-lt="payment method identifier|payment method identifiers">Payment Method Identfiers</dfn> are
+            defined in [[!METHOD-IDENTIFIERS]]</dd>
+    </dl>
+</section>
+
+<section id='conformance'>
+    <p>
+        This specification defines two classes of products:
+    </p>
+    <dl>
+        <dt><dfn data-lt="payment apps">Payment App</dfn></dt>
+        <dd>
+            <p>
+                A <a>payment app</a> MUST behave as described in this specification
+                in order to be considered conformant. In this specification, <a>payment app</a> means a software
+                component that exercises the role of a payment app as described in the section <em>Roles</em>.
+            </p>
+
+            <p>An informative summary of the required capabilities of a payment app are:
+            <ul>
+                <li>It makes available a list of the payment methods for which it is able to process payment requests.
+                </li>
+                <li>It accepts and processes payment requests that conform to the requirements for one of the payment
+                    methods it supports.
+                </li>
+                <li>It returns payment responses that conform to the requirements of one of the payment methods it
+                    supports and one of the payment methods that was listed as supported in the original request.
+                </li>
+            </ul>
+            </p>
+            <p>
+                Payment apps MAY implement algorithms given in this specification in any way desired, so long as
+                the end result is indistinguishable from the result that would be obtained by the specification's
+                algorithms.
+            </p>
+        </dd>
+        <dt><dfn data-lt="payment mediators">Payment Mediator</dfn></dt>
+        <dd>
+            <p>
+                A <a>payment mediator</a> MUST behave as described in this specification
+                in order to be considered conformant. In this specification, <a>payment mediator</a> means a software
+                component that exercises the role of a payment mediator as described in the section <em>Roles</em>.
+            </p>
+
+            <p>A summary of the required capabilities of a payment mediator are:
+            <ul>
+                <li>It maintains a record of the available payment apps that it is able to pass payment requests to.
+                </li>
+                <li>It maintains a record of the payment methods that each of these payment apps supports.</li>
+                <li>It accepts payment requests and, using algorithms, user input or a combination of the two,
+                    determines which payment app to pass the payment request on to.
+                </li>
+                <li>It accepts payment responses back from the payment app and passes these on to the originator
+                    of the corresponding payment request.
+                </li>
+            </ul>
+            </p>
+            <p>
+                Payment mediators MAY implement algorithms given in this specification in any way desired, so long as
+                the end result is indistinguishable from the result that would be obtained by the specification's
+                algorithms.
+            </p>
+        </dd>
+    </dl>
+</section>
+<section>
+    <h2>Payment Request Flow</h2>
+
+    <p>The flow of a payment request is shown in the diagram below:</p>
+    <img src="flow.png"/>
+
+    <p>In this flow, any system or system component playing the role of <a>payment app</a> or <a>payment mediator</a> is
+        assumed to be controlled by the <a>payer</a>. The <a>payment request</a> originates from the <a>payee</a> and is
+        always processed first by a <a>payment mediator</a>.</p>
+
+    <p>It's quite possible that a single component may fulfil both roles or even that the system only supports a single
+        <a>payment app</a>, which is always used by default, and therefor the role of the <a>payment mediator</a> is
+        reduced to simply proxying the request and response between the payee system and the <a>payment app</a>.</p>
+</section>
+
+<section>
+    <h2>Payment Methods</h2>
+
+    <p>Each <a>payment app</a> will support one or more <a>payment methods</a>. A payment method is a system and
+        set of rules for processing a <a>payment request</a>. This architecture is designed to support the broadest
+        possible array of payment methods. When a payee accepts a given payment method, the assumption is that the
+        payee will know how to process the <a>payment method data</a> returned by the <a>payment app</a> for that payment
+        method.</p>
+
+    <p>Each payment method is identified by a <a>payment method identifier</a>. The <a>payment mediator</a> compares
+        <a>payment method identifiers</a> in the <a>payment request</a> to those, known to be <em>enabled</em> in the
+        available <a>payment apps</a> to determine which <a>payment apps</a> to offer the payer to use to process the
+        <a>payment request</a>.</p>
+    <p><a>Payment method identifiers</a> support distributed extensibility, meaning that there is not a central
+        machine-readable registry to discover or register <a>payment methods</a>. Rather, any perosn or entity can
+        define a new <a>payment method</a> as long as they publish a <a>payment method specification</a> that defines:
+    </p>
+    <ol>
+        <li>How a <a>payment app</a> should process a <a>payment request</a>.</li>
+        <li>What <a>payment method data</a> is expected to be included in the request.</li>
+        <li>What <a>payment method data</a> is expected to be included in the response.</li>
+        <li>What <a>payment method identifiers</a> identify this payment method.</li>
+    </ol>
+</section>
+<section>
+    <h2>Roles</h2>
+
+    <p>
+        The following are the key roles within this architecture.
+    </p>
+    <section>
+        <h3>Payment App</h3>
+
+        <p>A <a>payment app</a> is a component able to process a payment request and return a payment response. Banks,
+            merchants, mobile operators, and anyone else who wants to, will make these available. User agents are also
+            likely to take on the role of a payment app, storing payment related information on behalf of the user,
+            as they already do today with passwords, and using this to process certain payment requests. It is expected
+            that payment apps will increase security and privacy by giving users more control over what they share over
+            the network. Payment apps will distinguish themselves through the features and services they provide beyond
+            the required capabilities described here, for example by offering strong user authentication, loyalty
+            program integration, back-channel communications with the merchant for fraud analytics, and so on.</p>
+
+        <p>Payment apps should be implementable on desktops, mobile devices, televisions, embedded devices and other
+            devices and operating systems. Payment apps may even be implemented in contexts where they do not have direct
+            access to the Web since they payment app receives payment requests from the <a>payment mediator</a>.</p>
+
+        <p>As part of processing a payment request, a payment app MAY render a user interface and/or take advantage of one or
+            more other IO channels for payer or third-party interaction (e.g., with a payment service provider). In some
+            cases, and where supported by a payment method, a payment app may be able to facilitate a payment without
+            immediate user interaction based on prior payer consent. (Example: A Web of Things scenario where the payer
+            is a machine capable of executing payments in accordance with predefined rules and logic).</p>
+
+        <p>The composition of a payment app will be platform and deployment dependent and many aspects of how the
+            payment app communicates with the host platform, interacts with the payer and payee, and communicates with
+            third-party services will be determined by the implementer who provides the execution environment for the
+            app, the channels supported by the chosen payment method and the capabilities of the payment mediator,
+            that mediates interactions between the payment app and the payee.</p>
+
+        <section>
+            <h3>Supported vs Enabled Payment Methods</h3>
+
+            <p><a>Payment apps</a> support one or more <a>payment methods</a>. Support for a payment method implies that
+                the app SHOULD be able to process a <a>payment request</a> that conforms to the rules defined in the
+                <a>payment method specification</a> for that payment method and SHOULD be able to return a valid
+                <a>payment response</a>.
+            </p>
+
+            <p>However, sometimes an app will be <em>designed</em> to support a specific payment method but the app will
+                not have been <em>configured</em> to process payments using that payment method. This may be due to some
+                <a>payment method data</a> that the payer needs to configure such as a user credential or payment
+                instrument details. In that case the <a>payment app</a> is said to <em>support</em> the payment
+                method but that payment method is not <em>enabled</em>.
+            </p>
+
+            <p>For example, a <a>payment app</a> may be capable of processing a basic credit card payment that simply
+                returns the card details in the payment response. Unless the user has configured the payment app with
+                the card details or is able to provide these at the time of processing, that method is not
+                <em>enabled</em>.
+            </p>
+
+            <p>If a payment app defines a payment method as <code>enabled</code> then it MUST be able to process any
+                payment request that lists that that payment method as supported and is formatted correctly according
+                to the <a>payment method specification</a> for that payment method.
+            </p>
+
+            <p><a>Payment mediators</a> should only consider <code>enabled</code> payment methods when evaluating if a
+                <a>payment app</a> is appropriate to process a given payment request.</p>
+        </section>
+
+        <section>
+            <h3>Algorithms</h3>
+            <p>
+                The following algorithms must be implemented by all conforming <a>payment apps</a>:
+            </p>
+            <section>
+                <h4>Processing Payment Requests</h4>
+                <p>The most important capability of a <a>payment app</a> is it's ability to process a <a>payment request</a>
+                    and return a valid <a>payment response</a>.</p>
+                <p>The <dfn>steps for processing a <a>payment request</a></dfn> are given by the following algorithm. The
+                    algorithm takes a valid <a>payment request</a> (<var>request</var>) as input and returns a valid
+                    <a>payment response</a> (<var>response</var>).</p>
+                <ol>
+                    <li>
+                        Let <var>methods</var> be an empty list.
+                    </li>
+                    <li>
+                        Let <var>enabled methods</var> be the list of <a>payment method identifiers</a> for the
+                        <a>payment methods</a> that are currently <em>enabled</em> in the app.
+                    </li>
+                    <li>
+                        Let <var>candidate methods</var> be the list of <a>payment method identifiers</a> listed as
+                        supported in <var>request</var>.
+                    </li>
+                    <li>
+                        If <var>enabled methods</var> is empty <a>throw an exception</a>.
+                    </li>
+                    <li>
+                        For each unique <var>candidate payment method identifier</var> in <var>candidate methods</var>
+                        <ol>
+                            <li>
+                                If no identifier, that is an exact string match for <var>candidate payment method identifier</var>,
+                                is found in <var>enabled methods</var>, move onto the next item if there are any left.
+                            </li>
+                            <li>
+                                Append <var>candidate payment method identifier</var> to <var>methods</var>.
+                            </li>
+                        </ol>
+                    </li>
+                    <li>
+                        If <var>methods</var> is empty <a>throw an exception</a>.
+                    </li>
+                    <li>
+                        Let <var>selected payment method</var> be the result of <a>selecting a payment method</a> with
+                        <var>methods</var> as input.
+                    </li>
+                    <li>
+                        Let <var>response</var> be the result of <a>performing payment method specific processing</a> with
+                        <var>request</var> and <var>selected payment method</var> as input.
+                    </li>
+                </ol>
+            </section>
+            <section>
+                <h4>Returning a list of enabled <a>Payment Methods</a></h4>
+                <p>
+                    In order for a <a>payment mediator</a> to know if it should consider passing a <a>payment request</a>
+                    to a <a>payment app</a> it must know which <a>payment methods</a> are <em>enabled</em> in that app.</p>
+                <p>
+                    The payment app MUST provide a mechanism for external components to
+                    <dfn>get a list of enabled payment methods</dfn>. The return value MUST be a set of unique
+                    <a>payment method identifiers</a> and the <a>payment app</a> MUST be capable of
+                    <a>performing payment method specific processing</a> for all <a>payment methods</a> identified by the
+                    identifiers in that set.
+                </p>
+            </section>
+        </section>
+        <section>
+            <h3>Extension Points</h3>
+            <p>The following extension points are defined for implemntation specific processing.</p>
+            <section>
+                <h4>Selecting a Payment Method</h4>
+                <p>
+                    A payment app should implement a mechanism for <dfn>selecting a payment method</dfn> which takes as
+                    input a list of <a>payment method identifiers</a> and returns a single <a>payment method identifier</a>.
+                    This mechanism MAY include user input, selection based on a custom algorithm or even configured
+                    defaults.</p>
+            </section>
+            <section>
+                <h4>Performing Payment Method Specific Processing</h4>
+                <p>
+                    A payment app that claims to have a particular <a>payment method</a> <em>enabled</em> must provide a
+                    mechanism for <dfn>performing payment method specific processing</dfn> for that <a>payment method</a>.
+                </p>
+                <p>
+                    The input to this process will be a complete <a>payment request</a> and the <a>payment method identifier</a>
+                    of the <a>payment method</a> that should be used to process the request. The <a>payment app</a> SHOULD
+                    expect the request to contain any <a>payment method data</a> required to complete the processing of the
+                    request.
+                </p>
+                <p>
+                    The specific behaviour of the <a>payment app</a> during this processing MAY include
+                    user interaction or communication with other systems or components. This will be defined, either
+                    explicitly or implicitly, in the appropriate <a>payment method specification</a>. The payment app
+                    MUST return a <a>payment response</a> that contains the appropriate <a>payment method data</a> for the
+                    <a>payment method</a> identifed by the <a>payment method identifier</a> passed as input to the process.
+                </p>
+            </section>
+        </section>
+    </section>
+
+    <section>
+        <h3>Payment Mediator</h3>
+        <p>The <a>payment mediator</a> sits between the payee's system and the payer's payment app(s) and performs a
+            number of functions:</p>
+        <ol>
+            <li>
+                It determines which <a>payment apps</a> can be used to fulfill a payment request given the payee's
+                accepted payment methods.
+            </li>
+            <li>
+                It helps the payer choose one (typically with explicit interaction or prior consent).
+            </li>
+            <li>
+                It passes the <a>payment request</a> from the payee to the to the payer's selected payment app and
+                passes the <a>payment response</a> from the payment app back to the payee.
+            </li>
+        </ol>
+        <section>
+            <h3>Algorithms</h3>
+            <p>
+                The following algorithms must be implemented by all conforming <a>payment mediators</a>:
+            </p>
+            <section>
+                <h4>Filtering for capable Payment Apps</h4>
+                <p>A <a>payment mediator</a>, upon receiving a <a>payment request</a> must compare the set of
+                    <a>payment methods</a> supported by the payee (as defined in the <a>payment request</a>) with the
+                    set of <a>payment methods</a> <em>enabled</em> in all available <a>payment apps</a> to which it has
+                    access and produce a list of <a>payment apps</a> that should be capable of processing the
+                    request.</p>
+                <p>The <dfn>steps for getting a list of capable payment apps</dfn> are given by the following algorithm.
+                    The algorithm takes a valid <a>payment request</a> (<var>request</var>) and the set of
+                    <a>payment apps</a> to which it is able to pass the <a>payment request</a> (<var>apps</var>) as
+                    input and returns a set of <a>payment method identifiers</a>.</p>
+                <div class="issue" data-number="" title="Determine the correct matching algorithm for payment method
+                identifiers? ">
+                    There are a number of issues open against the browser API which need to be resolved to come to a
+                    conclusion on the correct algorithm to use in mathcing payment method identifiers.
+                </div>
+            </section>
+            <h3>Extension Points</h3>
+            <p>The following extension points are defined for implemntation specific processing.</p>
+            <section>
+                <h4>Selection of Payment App</h4>
+                <p>Once the mediator has determined the set of <a>payment apps</a> that are able to process the
+                    <a>payment request</a> it must select one and pass the request to it.</p>
+                <p>The <dfn>steps for selecting a payment app</dfn> are implementation specific and MAY involve user
+                    interaction with the payer or may involve an algorithm that uses defaults and configuration data to
+                    make the selection.</p>
+                <p>The input to this process is an ordered list of <a>payment apps</a> and the output is a single
+                    <a>payment app</a>.</p>
+            </section>
+            <section
+                <h4>Passing the Payment Request to the Payment App</h4>
+                <p>The payment mediator must have some mechanism of passing the <a>payment request</a> to the
+                    <a>payment app</a> that was selected following the <a>steps for selecting a payment app</a>.</p>
+                <p>The <a>payment request</a> MUST not be altered by the <a>payment mediator</a>.</p>
+            </section>
+        </section>
+    </section>
+</section>
+</body>
+</html>
