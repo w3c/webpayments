@@ -517,25 +517,25 @@
                     conclusion on the correct algorithm to use in mathcing payment method identifiers.
                 </div>
             </section>
+        </section>
+        <section>
+            <h3>Extension Points</h3>
+            <p>The following extension points are defined for implemntation specific processing.</p>
             <section>
-                <h3>Extension Points</h3>
-                <p>The following extension points are defined for implemntation specific processing.</p>
-                <section>
-                    <h4>Selection of Payment App</h4>
-                    <p>Once the mediator has determined the set of <a>payment apps</a> that are able to process the
-                        <a>payment request</a> it must select one and pass the request to it.</p>
-                    <p>The <dfn>steps for selecting a payment app</dfn> are implementation specific and MAY involve user
-                        interaction with the payer or may involve an algorithm that uses defaults and configuration data to
-                        make the selection.</p>
-                    <p>The input to this process is an ordered list of <a>payment apps</a> and the output is a single
-                        <a>payment app</a>.</p>
-                </section>
-                <section>
-                    <h4>Passing the Payment Request to the Payment App</h4>
-                    <p>The payment mediator must have some mechanism of passing the <a>payment request</a> to the
-                        <a>payment app</a> that was selected following the <a>steps for selecting a payment app</a>.</p>
-                    <p>The <a>payment request</a> MUST not be altered by the <a>payment mediator</a>.</p>
-                </section>
+                <h4>Selection of Payment App</h4>
+                <p>Once the mediator has determined the set of <a>payment apps</a> that are able to process the
+                    <a>payment request</a> it must select one and pass the request to it.</p>
+                <p>The <dfn>steps for selecting a payment app</dfn> are implementation specific and MAY involve user
+                    interaction with the payer or may involve an algorithm that uses defaults and configuration data to
+                    make the selection.</p>
+                <p>The input to this process is an ordered list of <a>payment apps</a> and the output is a single
+                    <a>payment app</a>.</p>
+            </section>
+            <section>
+                <h4>Passing the Payment Request to the Payment App</h4>
+                <p>The payment mediator must have some mechanism of passing the <a>payment request</a> to the
+                    <a>payment app</a> that was selected following the <a>steps for selecting a payment app</a>.</p>
+                <p>The <a>payment request</a> MUST not be altered by the <a>payment mediator</a>.</p>
             </section>
         </section>
     </section>
