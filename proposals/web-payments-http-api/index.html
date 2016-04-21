@@ -8,8 +8,8 @@
       For the three scripts below, if your spec resides on dev.w3 you can check them
       out in the same tree and use relative links so that they'll work offline,
      -->
-    <link rel="stylesheet" href="spec.css">
     <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
+    <link rel="stylesheet" href="spec.css">
     <script src='utils.js' async class='remove'></script>
     <script type="text/javascript" class="remove">
 var respecConfig = {
@@ -161,13 +161,13 @@ updated to match the
   <p>
 The diagram below outlines a basic HTTP client payment flow with no errors.
 The basic flow starts out with the <a>payer</a> accessing a protected resource.
-The <a>payee</a> provides a location where a payment request for the resource
+The <a>payee</a> provides a URL where a payment request for the resource
 can be fetched. The <a>payer</a> fetches the payment request, selects
-a payment app, and sends the request and the selected app
-on to the appropriate <a>payment service provider</a> for processing. The
+a payment app, and sends the request on to the appropriate
+<a>payment service provider</a> for processing. The
 <a>payment service provider</a> initiates the payment and sends a
-payment request acknowledgement back to the <a>payer</a>. The <a>payer</a>
-then forwards the payment request acknowledgement back to the
+payment response back to the <a>payer</a>. The <a>payer</a>
+then forwards the payment response back to the
 <a>payee</a>. If there are no errors, the <a>payee</a> then grants access to
 the resource that was purchased.
   </p>
@@ -189,9 +189,9 @@ merchant.
     @reply "payment request", "Payer client (customer)"
 @found "Payer client (customer)", ->
   @message "POST payment request", "Payment Service Provider (customer)", ->
-    @reply "payment request acknowledgement", "Payer client (customer)"
+    @reply "payment response", "Payer client (customer)"
 @found "Payer client (customer)", ->
-  @message "POST payment request acknowledgement", "Payee server (merchant)", ->
+  @message "POST payment response", "Payee server (merchant)", ->
     @message "verification", ->
       @reply "grant access to resource", "Payer client (customer)"
   </script>
@@ -211,17 +211,23 @@ response code and a URL encoded in the <code>Location</code> header
 to fetch the <code>request</code> from.
     </li>
     <li>
-The payment agent fetches the <code>request</code> from the URL specified
+The <a>payment mediator</a> fetches the <code>request</code> from the URL specified
 in the <code>Location</code> header in the previous step.
     </li>
     <li>
-The payment agent scans the list of previously registered <a>payment app</a>s
+The <a>payment mediator</a> scans the list of previously registered <a>payment app</a>s
 and finds matches against <code>acceptedMethods</code> in the
 payment request.
     </li>
     <li>
-A <a>payment app</a> is selected by the payment agent or the <a>payer</a>. The
+A <a>payment app</a> is selected by the <a>payment mediator</a> or the <a>payer</a>. The
 process MAY consist of one or more of the following steps:
+
+      <div class="issue">
+This payment app selection process should probably be moved out into a separate
+<a>payment mediator</a> specification and referenced from this specification.
+      </div>
+
       <ol class="algorithm">
         <li>
 If there is only one app that matches, that is automatically set
@@ -246,8 +252,38 @@ alternate flow where a matching <a>payment app</a> is acquired.
     <li>
 If the <a>payment app</a> does not require the payment flow to switch
 to a 3rd party payment processor (e.g. cryptocurrency),
-then the payment acknowledgement is generated locally and the
+then the payment response is generated locally and the
 payee's software is notified.
+
+<div class="issue">
+Steps 5, 6, and 7 are intended to provide for various flows envisioned by
+the Web Payments ecosystem. This algorithm is merely a starting point,
+is very much a work in progress, and is not asserted to be correct
+at present:
+
+<ol style="border-left: 0px;" class="clear-algorithm">
+  <li>
+Let "selectedApp" be the payment app selected by the payment mediator.
+  </li>
+  <li>
+Let "selectedMethod" be the payment method provided by the
+payee and selected by the payer.
+  </li>
+  <li>
+If selectedMethod.paymentRequestService exists, re-direct the user
+there (payee-based PSP).
+  </li>
+  <li>
+If selectedApp.paymentRequestService exists, re-direct the user
+there (payer-based PSP).
+  </li>
+  <li>
+Otherwise, the payment response can be generated locally
+(local PSP - Bitcoin and others).
+  </li>
+</ol>
+
+</div>
     </li>
     <li>
 If the app requires the payment flow to switch to a 3rd party
@@ -255,8 +291,8 @@ payer payment processor (e.g. push-payment like a PayPal/Google
 Wallet-like app, ACH, ISO20022 style app):
       <ol class="algorithm">
         <li>
-The payment agent forwards the <code>request</code>, and
-<em>selected <a>payment app</a></em> via an HTTP POST to the
+The <a>payment mediator</a> forwards the <code>request</code>, via
+an HTTP POST to the
 <code>paymentRequestService</code> in the <a>payment app</a> for approval.
         </li>
       </ol>
@@ -267,7 +303,7 @@ payee payment processor (e.g. pull-payment like non-EMV magstripe credit
 card with embossed PAN and CVV2, or tokenized credit card):
       <ol class="algorithm">
         <li>
-The payment agent forwards the request on via an HTTP POST
+The <a>payment mediator</a> forwards the request on via an HTTP POST
 to the <code>paymentRequestService</code> in the
 <code>acceptedMethod</code> (note that the <a>payee</a>
 sets this, not the <a>payment app</a>).
@@ -282,10 +318,51 @@ payment service provider).
     </li>
     <li>
 Once the entity in control of the payment flow finalizes the
-<em>payment acknowledgement</em>, even if the message is to
-acknowledge that the payment failed, the <em>payment acknowledgement</em>
-is generated and the <a>payer</a>'s payment agent is notified via an HTTP 200
+<em>payment response</em>, even if the message is to
+acknowledge that the payment failed, the <em>payment response</em>
+is generated and the <a>payer</a>'s <a>payment mediator</a> is notified via an HTTP 200
 success code.
+
+<div class="issue">
+Returning an HTTP status code of 200 when a payment fails is controversial.
+
+The current thinking seems to be that 200 is the right thing to do as
+the message was processed successfully (that's what the 200 is referring to).
+The result of processing the message, however, has nuance that may be
+dependent on the payment method used.
+
+As a thought experiment, what should the HTTP response code be in the
+following cases:
+
+<ol style="border-left: 0px;" class="clear-algorithm">
+  <li>
+Funds transfer was initiated and completed. Clearly 200, right?
+  </li>
+  <li>
+Funds transfer was initiated, but network delay may cause it to fail at a
+later point in time (ACH, etc.). 102 or 202?
+  </li>
+  <li>
+Request for subscription was noted and is setup, but no funds were moved. 200?
+  </li>
+  <li>
+Payment submitted to network, but network didn't respond with an auth code. 504?
+  </li>
+  <li>
+Cryptocurrency payment was submitted to network but a fork has been detected
+and it is unclear if we're on the winning or losing fork. 102 or 202?
+  </li>
+
+</ol>
+
+There are not enough HTTP status codes to try and enumerate the nuanced
+potential outcomes so the best we can do at present (it seems) is to just report
+on whether or not the payment request was processed successfully or not and
+let the payee determine if the outcome of the transaction was valid from their
+viewpoint. In many nuanced cases, it's up to the payer to decide if it was
+"successful" or not (like waiting on a certain number of acknowledgments
+from a blockchain, for example).
+</div>
   </ol>
   <p class="issue">
 Melvin Carvalho has also raised an issue noting that we may not want to use
@@ -358,7 +435,7 @@ Content-Length: 412
   </section>
 
   <section>
-    <h3>Processing a Payment Request</h3>
+    <h3>Initiating a Payment Request</h3>
     <ol>
       <li>
 The <a>payer</a>'s HTTP client accesses a resource that requires payment:
@@ -369,11 +446,39 @@ Date: Tue, 07 Jun 2017 21:31:35 GMT
         </pre>
       </li>
       <li>
-The <a>payee</a> server notifies the <a>payer</a> that a payment is required along with a
-payment request.
-      <pre class="example" title="Example of a payment request">
+The <a>payee</a>'s HTTP server responds with a 402 Payment Required response
+and the URL where the payment request may be fetched via the
+<code>Location</code> header:
+        <pre class="example" title="Payee responds with 402 Payment Required">
 HTTP/1.1 402 Payment Required
 Date: Tue, 07 Jun 2017 21:31:36 GMT
+Location: https://videos.example.com/payment-requests/dr-strangelove
+        </pre>
+
+<div class="issue">
+It's currently not clear if having an extra round-trip (steps 2 and 3) is
+beneficial. The alternative is to respond with an HTTP 402 and the payment
+request (step 4)  when the GET for the initial resource is performed. This
+removes the need to do an extra GET at the expense of providing a little
+more flexibility wrt. the location of the payment request service. For example,
+having the Location header enables software developers to split media servers
+from payment processing servers. That said, there are techniques to do this
+today without the extra layer of indirection.
+</div>
+      </li>
+      <li>
+The <a>payer</a>'s HTTP client accesses the payment request resource:
+        <pre class="example" title="Payer requests a payment request">
+GET /payment-requests/dr-strangelove HTTP/1.1
+Host: videos.example.com
+Date: Tue, 07 Jun 2017 21:31:37 GMT
+        </pre>
+      </li>
+      <li>
+The <a>payee</a> server provides the payment request.
+      <pre class="example" title="Payee provides the payment request">
+HTTP/1.1 200 OK
+Date: Tue, 07 Jun 2017 21:31:38 GMT
 Content-Type: application/json
 Content-Length: 873
 
@@ -385,8 +490,7 @@ Content-Length: 873
     "transfer": {
       "amount": "2.99",
       "currency": "USD"
-    },
-    "destination": "20389472398"
+    }
   },
   "paymentCompleteService": "https://videos.example.com/services/paymentComplete?transaction=923847298"
 }
@@ -396,12 +500,18 @@ Content-Length: 873
   </section>
 
   <section>
-    <h3>Processing a Payment Acknowledgement</h3>
+    <h3>Generating a Payment Response</h3>
     <ol>
       <li>
-The payment service provider receives a payment request, authenticates
-the <a>payer</a>, and proceeds with the payment:
-      <pre class="example" title="Example of a payment request">
+A <a>payment app</a> is selected by the <a>payment mediator</a>
+to process the payment request generated in the previous section.
+      </li>
+      <li>
+The <code>paymentRequestService</code> URL, provided in the <a>payment app</a>
+or the payment request, is used as the HTTP POST endpoint. The payment service
+provider that is providing the <a>payment app</a> interface receives the
+payment request, authenticates the <a>payer</a>, and proceeds with the payment:
+      <pre class="example" title="The payment request is POSTed by the payment mediator for processing at the payment app">
 POST /services/cards/2745023475 HTTP/1.1
 Host: mybank.example.org
 Date: Tue, 07 Jun 2017 20:51:35 GMT
@@ -415,25 +525,24 @@ Accept: application/json
     "transfer": {
       "amount": "2.99",
       "currency": "USD"
-    },
-    "destination": "20389472398"
+    }
   },
   "paymentCompleteService": "https://videos.example.com/services/paymentComplete?transaction=923847298"
 }
         </pre>
       </li>
       <li>
-The payment service provider generates a payment acknowledgement
-message, which is a [[!JSON-LD]] object that contains enough information to
-verify that the transaction has completed in success or failure:
-        <pre class="example" title="Example of a payment acknowledgement">
+The payment service provider generates a payment response message that
+contains enough information to verify that the transaction has completed in
+success or failure:
+        <pre class="example" title="The payment response is provided back to the payment mediator from the payment app">
 HTTP/1.1 200 OK
 Date: Tue, 07 Jun 2017 20:51:36 GMT
 Content-Type: application/json
 Content-Length: 623
 
 {
-  "type": "PaymentAcknowledgement",
+  "type": "PaymentResponse",
   "description": "Payment to ExampleMerch for widgets",
   "selectedScheme": {
     "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
@@ -442,22 +551,23 @@ Content-Length: 623
     "transfer": {
       "amount": "2.99",
       "currency": "USD"
-    },
-    "destination": "20389472398"
+    }
   }
 }
         </pre>
       </li>
       <li>
-The payment acknowledgement is then relayed back to the <a>payer</a>:
-        <pre class="example" title="Payment acknowledgement relayed back to <a>payee</a>">
+The payment response is then relayed back to the <a>payee</a> by the
+<a>payment mediator</a> using the <code>paymentCompleteService</code> URL
+provided in the initial payment request:
+        <pre class="example" title="The payment response is relayed back to the payee by the payment mediator">
 POST /services/paymentComplete?transaction=923847298 HTTP/1.1
 Host: videos.example.com
 Date: Tue, 07 Jun 2017 20:51:35 GMT
 Content-Type: application/json
 
 {
-  "type": "PaymentAcknowledgement",
+  "type": "PaymentResponse",
   "description": "Payment to ExampleMerch for widgets",
   "selectedScheme": {
     "paymentMethod": "https://payments.example.org/payment-schemes#Visa",
@@ -466,19 +576,19 @@ Content-Type: application/json
     "transfer": {
       "amount": "2.99",
       "currency": "USD"
-    },
-    "destination": "20389472398"
+    }
   }
 }
         </pre>
       </li>
       <li>
-The <a>payee</a> validates the payment acknowledgement, sets the appropriate
+The <a>payee</a> validates the payment response, sets the appropriate
 access control for the resource, and re-directs the <a>payer</a> to the
 resource:
-        <pre class="example" title="Payment acknowledgement relayed back to <a>payee</a>">
+        <pre class="example" title="The payee grants access to the initially requested resource">
 HTTP/1.1 302 Found
 Date: Tue, 07 Jun 2017 20:51:36 GMT
+Cookie: movieToken=2983fhfa92h3iuhf908723nkjcsdh923; Expires=Tue, 08 Jun 2017 20:51:40 GMT
 Location: /movies/dr-strangelove
         </pre>
       </li>
@@ -524,20 +634,18 @@ set of methods will this specification employ.
   <h2>Acknowledgements</h2>
 
   <p>
-The editor would like to thank the Web Payments Community Group, and the
-Web Payments Interest Group.
-  </p>
-
-  <p>
-Thanks to the following individuals, in order of their first name, for
-their input on the specification: ...
+The editor would like to thank members of the Web Payments Community Group,
+Web Payments Interest Group, and Web Payments Working Group for the ideas and
+discussion that culminated in this specification. In addition, thank you to the
+to the following individuals, in order of their first name, for their input
+on this specification: LIST_TBD
   </p>
 
 </section>
 
 <script src='//code.jquery.com/jquery-2.1.3.min.js' class='remove'></script>
 <script src='//coffeescript.org/extras/coffee-script.js' class='remove'></script>
-<script src='//jumly.tmtk.net/public/jumly.min.js' class='remove'></script>
+<script src='http://jumly.tmtk.net/public/jumly.min.js' class='remove'></script>
 
 </body>
 </html>

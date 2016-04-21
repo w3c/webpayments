@@ -1,3 +1,7 @@
 ol.algorithm { counter-reset:numsection; list-style-type: none; }
 ol.algorithm li { margin: 0.5em 0; }
 ol.algorithm li:before { font-weight: bold; counter-increment: numsection; content: counters(numsection, ".") ") "; }
+
+ol.clear-algorithm { list-style-type: decimal; border-left: 0px;}
+ol.clear-algorithm li { margin: 0.5em 0; }
+ol.clear-algorithm li:before { font-weight: normal; counter-increment: nonsection; content: none; }
