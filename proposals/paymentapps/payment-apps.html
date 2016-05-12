@@ -21,11 +21,6 @@
                     company:    "Opera",
                     companyURL: "https://opera.com"
                 },
-                {   name:       "Adam Roach",
-                    url:        "",
-                    company:    "Mozilla",
-                    companyURL: "https://mozilla.com"
-                },
             ],
 
             useExperimentalStyles: true,
@@ -84,13 +79,13 @@
     <p>
         This specification describes how <a>Payment Apps</a> can be registered with a <a>user agent</a> using a manifest
         file and and how the <a>user agent</a> interfaces with web-based <a>Payment Apps</a> to initate the processing of a
-        payment request and get back a payment response.
+        payment request.
     </p>
 </section>
 
 <section id='sotd'>
     <p>
-        The working group maintains <a href="https://github.com/w3c/webpayments/issues?q=is%3Aissue+is%3Aopen+label%3A%22Proposal%3A+Payment+Apps%22">a
+        The working group maintains <a href="https://github.com/w3c/browser-payment-api/issues">a
         list of all bug reports that the group has not yet addressed</a>.
         This draft highlights some of the pending issues that are still to be discussed in the working
         group. No decision has been taken on the outcome of these issues including whether they are valid.
@@ -101,22 +96,12 @@
 <section class='informative'>
     <h2>Introduction</h2>
     <p>The Payment Request API [[!PAYMENT-REQUEST-API]] defines an API for websites to initiate a payment request
-        in a <a>user agent</a>which is then passed to a <a>Payment App</a> for processing.</p>
+        which is then passed to a <a>Payment App</a> for processing.</p>
 
-    <p>The <a>Payment App</a> is an application that is registered by the payer with the <a>user agent</a>
+    <p>The <a>Payment App</a> is a software application that is registered by the payer with the <a>user agent</a>
         to process payments that are iniated via the API. <a>Payment Apps</a> support one or more <a>payment methods</a>
-        for processing payment requests initiated via the Payment Request API.</p>
+        for processing payments initiated via the Payment Request API.</p>
 
-    <div class="issue" title="Should this document be combined with the Payment Request API specification?">
-        The following text gives context to this specification in relation to the Payment Request API specification. The
-        requirements for registration and interoperability of payment apps with user agents is currently described in
-        this document however since neither document can exist in isolation it may make sense to either:
-        <ol>
-            <li>Combine the two documents</li>
-            <li>Establish some normative relationship between them</li>
-        </ol>
-
-    </div>
     <p>The Payment Request API [[!PAYMENT-REQUEST-API]] specification describes how the <a>user agent</a>, acting
         as a mediator between the payee website and the payer, assists the user in selecting a <a>Payment App</a>
         that can process the payment request, using at least one of the <a>payment methods</a> that is also supported by
