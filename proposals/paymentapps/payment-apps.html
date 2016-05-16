@@ -309,6 +309,9 @@
             Method</dfn>, <dfn>Header List</dfn>, <dfn>Response</dfn>,
             <dfn>Context</dfn> and <dfn>Network Error</dfn> are defined in
             [[!FETCH]].</dd>
+        <dt>Service Workers</dt>
+        <dd>The term <dfn data-lt="service worker|service workers">service worker</dfn> is defined in
+        [[SERVICE-WORKERS]].</dd>
     </dl>
 </section>
 <section class="informative">
@@ -316,7 +319,7 @@
     <p><dfn data-lt="payment apps|payment app">Payment apps</dfn> are
         applications that process payment requests and return payment responses.
         They could take the form of sophisticated Web apps (using the full stack of
-        Web technologies such as HTML5, CSS and JavaScript), simple <a>ServiceWorkers</a>,
+        Web technologies such as HTML5, CSS and JavaScript), simple <a>service workers</a>,
         interface-less Web services,  platform-specific native applications, built-in
         <a>user agent</a> components, browser extensions or even a combination of these.</p>
     <p>The <a>payment app</a> acts on behalf of the payer (or their
@@ -362,8 +365,8 @@
         <a>user agent</a> is aware of the set of <a>payment methods</a> the
         app has enabled and the URL of the app's HTTP API entry point.</p>
     <p class="note">The process of <a>payment app</a> registration is modeled on the
-        process defined for <a>installing</a> an application via a
-        <a>manifest</a>, as described in [[APPMANIFEST]]. In future payment
+        process defined for installing an application via a
+        manifest, as described in [[APPMANIFEST]]. In future payment
         apps may also be installed via web app manifests.</p>
     <section>
         <h3>The PaymentApp dictionary</h3>
@@ -380,7 +383,7 @@
             </h3>
             <p>
                 The <dfn id="payment-app-name"><code>name</code> member</dfn> is a
-                <a>string</a> that represents the name of the payment app as it
+                string that represents the name of the payment app as it
                 is usually displayed to the user (e.g., among a list of other
                 payment apps, or as a label for an icon).
             </p>
@@ -390,13 +393,13 @@
                 <code>start_url</code> member
             </h3>
             <p>
-                The <dfn id="payment-app-start-url"><code>start_url</code> member</dfn> is a <a>string</a> that
+                The <dfn id="payment-app-start-url"><code>start_url</code></dfn> is a string that
                 represents the <dfn>start URL</dfn>, which is the <a>URL</a> that accepts
                 payment request messages via HTTP POST.
             </p>
             <p>
                 The <code><a>start_url</a></code> is the API entry point for the payment
-                app and must have the same <a>origin</a> as the web application that attempts
+                app and must have the same origin as the web application that attempts
                 to register the payment app.
             </p>
             <p>
@@ -410,7 +413,7 @@
             <h3><code>enabled_methods</code></h3>
             <p>
                 The <dfn id="payment-app-enabled-methods">enabled_methods</dfn> member
-                lists the <a>payment method identifers</a> of the <a>payment methods</a>
+                lists the <a>payment method identifiers</a> of the <a>payment methods</a>
                 that can be processed by the payment app.
             </p>
         </section>
@@ -458,7 +461,7 @@
 <section>
     <h2>Processing Payment Requests</h2>
     <p>When a <a>user agent</a> has completed the <a>payment app</a>
-        selection algorithm as defined in the PaymentRequest API
+        selection algorithm as defined in the Payment Request API
         [[!PAYMENT-REQUEST-API]] it must pass the payment request to
         the <a>payment app</a> to be processed.</p>
     <p>The <a>user agent</a> does this by, converting the payment
@@ -508,10 +511,10 @@
         </div>
     </section>
     <section>
-        <h3>Sending the <a>Payment Request</a> to the <a>Payment
+        <h3>Sending the payment request to the <a>Payment
             App</a></h3>
-        <p>The <dfn>steps to submit the payment request to the
-            payment app</dfn> are given by the following algorithm:</p>
+        <p>The <dfn>steps to submit the payment request to the payment app</dfn>
+            are given by the following algorithm:</p>
         <ol>
             <li>Let <var>payment request</var> be the string that is the
                 outcome of the <a>steps to convert the <code>PaymentRequest</code>
@@ -671,7 +674,7 @@
                 set <var>response</var> equal to the first parameter passed to
                 that method.</li>
             <li>Otherwise, if the <a>steps to submit the
-                <code>PaymentRequest</code> to the payment app</a> resulted in the
+                payment request to the payment app</a> resulted in the
                 return of a JSON encoded <a>PaymentResponse</a> then set
                 <var>response</var> to the result of running the <a>steps to create
                     a <code>PaymentResponse</code> from JSON</a>.</li>
