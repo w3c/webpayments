@@ -375,7 +375,7 @@
                 DOMString name;
                 URLString start_url;
                 sequence&lt;DOMString&gt; enabled_methods;
-                DOMString communication_method;
+                sequence&lt;DOMString&gt; communication_methods;
             };
 </pre>
         <section>
@@ -418,21 +418,17 @@
             </p>
         </section>
         <section>
-            <h3><code>communication_method</code> member</h3>
+            <h3><code>communication_methods</code> member</h3>
             <p>
-                The <dfn id="payment-app-communication-method"><code>communication_method
-                </code></dfn> is a string that defines how the user agent communicates with
-                the payment app.
+                The <dfn id="payment-app-communication-methods"><code>communication_methods
+                </code></dfn> member is a list of strings that defines how the user agent
+                can communicate with the payment app.
             </p>
             <p>
-                The <code>communication_method</code> member can have either the value
-                "<code>javascript</code>" or the value "<code>http</code>". If the member does
-                not exist or has any other value, it will default to "<code>javascript</code>".
-            </p>
-            <p>
-                The value "<code>javascript</code>" indicates that the payment app is an
-                <a>HTML-based payment app</a>, while "<code>http</code>" indicates an
-                <a>HTTP-based payment app</a>.
+                The <code>communication_methods</code> list must contain one or both of the
+                values "<code>javascript</code>" and "<code>http</code>". If the member does
+                not exist or does not contain any of these two values, it will default to
+                the list that contains the single element "<code>javascript</code>".
             </p>
         </section>
     </section>
@@ -482,20 +478,21 @@
         selection algorithm as defined in the Payment Request API
         [[!PAYMENT-REQUEST-API]] it must pass the payment request to
         the <a>payment app</a> to be processed.</p>
-    <p>How the <a>user agent</a> does this, depends on the type of
-        <a>payment app</a>. The two types of <a>payment app</a> covered
-        by this specification are HTML-based and HTTP-based apps. The 
-        type of a specific payment app is decided by the value of the
-        <code><a>communication_method</a></code> manifest member.
-        The mechanisms for passing the payment request to the two types of
-        payment app, are detailed below.
+    <p>How the <a>user agent</a> does this, depends on the communication method
+        selected for communicating between the <a>user agent</a> and the <a>
+        payment app</a>.</p>
     <section>
-        <h3>HTML-based Payment Apps</h3>
-        <p>An <dfn>HTML-based payment app</dfn> displays an HTML user interface in the
-            browser, and communicates the payment requests and responses with the browser
-            through javascript functions</p>
-        <section>
-            <h4>Sending the Payment Request to the Payment App</h4>
+        <h3>Selecting a communication method</h3>
+        <p>The <a>user agent</a> may select any one communication method from the
+            intersection of the <code><a>communication_methods</a></code> manifest
+            member and the communication methods supported by the <a>user agent</a>.</p>
+    </section>
+    <section>
+        <h3>Communicating via javascript</h3>
+        <p>This communication method is suitable for Browser-based payment apps that
+            display an HTML user interface. They communicate using the following
+            javascript API:</p>
+
 <pre class="idl">
                 partial interface Navigator {
                     readonly attribute PaymentsApi payments;
@@ -503,8 +500,11 @@
 
                 partial interface PaymentsApi {
                     PaymentRequest getRequest();
+                    Promise&lt;boolean&gt; submitPaymentResponse(PaymentResponse response);
                 };
 </pre>
+        <section>
+            <h4>Sending the Payment Request to the Payment App</h4>
             <p>The <a>user agent</a> MUST execute the <dfn>steps to render a
                 web based payment app</dfn> as given by the following algorithm.</p>
             <ol>
@@ -518,15 +518,6 @@
         </section>
         <section>
             <h4>Receiving the Payment Response from the Payment App</h4>
-<pre class="idl">
-                partial interface Navigator {
-                    readonly attribute PaymentsApi payments;
-                };
-
-                partial interface PaymentsApi {
-                    Promise&lt;boolean&gt; submitPaymentResponse(PaymentResponse response);
-                };
-</pre>
             <p>The user will interact directly with web based <a>payment
                 apps</a> in the context created for this purpose
                 by the <a>user agent</a>.</p>
@@ -538,9 +529,10 @@
         </section>
     </section>
     <section>
-        <h3>HTTP-based Payment Apps</h3>
-        <p>An <dfn>HTTP-based payment app</dfn> requires no user interface, and communicates the
-            payment requests and responses as JSON over HTTP.</p>
+        <h3>Communicating over HTTP</h3>
+        <p>This communication method is intended for payment apps that do not require
+            a user interface, and communicate the payment requests and responses as JSON
+            over HTTP.</p>
         <section>
             <h4>Converting the Payment Request into JSON</h4>
             <p>Before the <a>PaymentRequest</a> can be submitted to the
@@ -650,14 +642,12 @@
                 <a>PaymentResponse</a>.</li>
             <li>Let <var>promise</var> be the <a>Promise</a> that was created
                 by <a>PaymentRequest.show</a>.</li>
-            <li>If an <a>HTML-based payment app</a> called
-                <code>submitPaymentResponse</code> then
-                set <var>response</var> equal to the first parameter passed to
-                that method.</li>
-            <li>Otherwise, if an <a>HTTP-based payment app</a> returned a JSON encoded
-                <a>PaymentResponse</a> then set
-                <var>response</var> to the result of running the <a>steps to create
-                    a <code>PaymentResponse</code> from JSON</a>.</li>
+            <li>If the <a>user agent</a> communicates with the <a>payment app</a>
+                via javascript, then set <var>response</var> to the first parameter
+                passed to the <code>submitPaymentResponse</code> method.</li>
+            <li>Otherwise, if communicating via HTTP then set <var>response</var>
+                to the result of running the <a>steps to create a <code>PaymentResponse
+                </code> from JSON</a>.</li>
             <li>Resolve <var>promise</var> with <var>response</var>.</li>
         </ol>
     </section>
