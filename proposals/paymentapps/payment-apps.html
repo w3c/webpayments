@@ -337,8 +337,8 @@
             process a payment request that conforms to the rules defined in the
             <a>payment method specification</a> for that payment
             method and SHOULD be able to return an appropriate response.</p>
-        <p>For a given <a>payment method</a> supported by a given <a>payment
-            app</a>, the <a>payment method</a> can be in one of two states:</p>
+        <p>For a given <a>payment method</a> and a given <a>payment app</a>, the
+            <a>payment method</a> can be in one of three states:</p>
         <dl>
             <dt><dfn id="payment-app-enabled-payment-method">enabled</dfn></dt>
             <dd>
@@ -349,7 +349,7 @@
                     request that lists that payment method as supported and is
                     formatted correctly according to the <a>payment method
                     specification</a> for that payment method.</p>
-                <p>A <a>user agent</a> SHOULD NOT define a payment method as <a>
+                <p>A <a>payment app</a> SHOULD NOT define a payment method as <a>
                     enabled</a> unless one of the following criteria is met:
                     </p>
                 <ul>
@@ -368,9 +368,14 @@
             </dd>
             <dt><dfn id="payment-app-supported-payment-method">supported</dfn></dt>
             <dd>
-                <p>Any payment method that the <a>payment app</a> supports, but
+                <p>A <a>payment method</a> that the <a>payment app</a> supports, but
                     that has not been added to the <code><a>enabled_methods</a>
                     </code> list, is said to be a <a>supported</a> payment method.</p>
+            </dd>
+            <dt><dfn id="payment-app-unsupported-payment-method">unsupported</dfn></dt>
+            <dd>
+                <p>A <a>payment method</a> the user cannot configure the <a>payment
+                    app</a> to support.</p>
             </dd>
         </dl>
     </section>
