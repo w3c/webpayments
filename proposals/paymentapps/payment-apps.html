@@ -337,25 +337,42 @@
             process a payment request that conforms to the rules defined in the
             <a>payment method specification</a> for that payment
             method and SHOULD be able to return an appropriate response.</p>
-        <p>However, sometimes an app will be designed to support a specific
-            payment method but the app will not have been configured with the
-            appropriate <a>payment method data</a> (such as user credentials)
-            to process payments using that payment method. In that case the
-            <a>payment app</a> is said to <code>support</code> the payment
-            method but that payment method is not <code>enabled</code>.</p>
-        <p>For example, a <a>payment app</a> may be capable of processing a
-            credit card payment by simply returning the card details in the
-            payment response but unless the user has configured the payment app
-            with the card details or is able to provide these at the time of
-            processing that method is not <code>enabled</code>.</p>
-        <p>If a payment app defines a payment method as <code>enabled</code>
-            then it MUST be able to process any payment
-            request that lists that payment method as supported and is
-            formatted correctly according to the <a>payment method
-            specification</a> for that payment method.</p>
-        <p><a>User agents</a> should only consider <code>enabled</code>
-            payment methods when evaluating if a <a>payment app</a> is
-            appropriate to process a given payment request.</p>
+        <p>For a given <a>payment method</a> supported by a given <a>payment
+            app</a>, the <a>payment method</a> can be in one of two states:</p>
+        <dl>
+            <dt><dfn id="payment-app-enabled-payment-method">enabled</dfn></dt>
+            <dd>
+                <p>A <a>payment app</a> can define a payment method as <a>enabled
+                    </a> by adding it to the <code><a>enabled_methods</a></code>
+                    list. If a payment app defines a payment method as <a>enabled
+                    </a>, then it MUST be able to process any payment
+                    request that lists that payment method as supported and is
+                    formatted correctly according to the <a>payment method
+                    specification</a> for that payment method.</p>
+                <p>A <a>user agent</a> SHOULD NOT define a payment method as <a>
+                    enabled</a> unless one of the following criteria is met:
+                    </p>
+                <ul>
+                    <li>The user has already configured the <a>payment method</a>
+                        with appropriate <a>payment method data</a> (such as user
+                        credentials) so that the <a>payment app</a> is ready to
+                        process payments using this <a>payment method</a>.</li>
+                    <li>The necessary <a>payment method data</a> may be easily
+                        provided by the user as part of the payment request
+                        processing. For example, a <a>payment app</a> that supports
+                        payments with credit cards, may let the user enter his
+                        name, credit card number and expiration date the first time
+                        he pays with the card, and store the information for
+                        use with subsequent payments.</li>
+                </ul>
+            </dd>
+            <dt><dfn id="payment-app-supported-payment-method">supported</dfn></dt>
+            <dd>
+                <p>Any payment method that the <a>payment app</a> supports, but
+                    that has not been added to the <code><a>enabled_methods</a>
+                    </code> list, is said to be a <a>supported</a> payment method.</p>
+            </dd>
+        </dl>
     </section>
 </section>
 <section>
@@ -412,7 +429,7 @@
 
             <h3><code>enabled_methods</code></h3>
             <p>
-                The <dfn id="payment-app-enabled-methods">enabled_methods</dfn> member
+                The <dfn id="payment-app-enabled-methods"><code>enabled_methods</code></dfn> member
                 lists the <a>payment method identifiers</a> of the <a>payment methods</a>
                 that can be processed by the payment app.
             </p>
