@@ -375,6 +375,7 @@
                 DOMString name;
                 URLString start_url;
                 sequence&lt;DOMString&gt; enabled_methods;
+                sequence&lt;DOMString&gt; communication_methods;
             };
 </pre>
         <section>
@@ -409,12 +410,25 @@
             </p>
         </section>
         <section>
-
-            <h3><code>enabled_methods</code></h3>
+            <h3><code>enabled_methods</code> member</h3>
             <p>
-                The <dfn id="payment-app-enabled-methods">enabled_methods</dfn> member
-                lists the <a>payment method identifiers</a> of the <a>payment methods</a>
+                The <dfn id="payment-app-enabled-methods"><code>enabled_methods</code></dfn>
+                member lists the <a>payment method identifiers</a> of the <a>payment methods</a>
                 that can be processed by the payment app.
+            </p>
+        </section>
+        <section>
+            <h3><code>communication_methods</code> member</h3>
+            <p>
+                The <dfn id="payment-app-communication-methods"><code>communication_methods
+                </code></dfn> member is a list of strings that defines how the user agent
+                can communicate with the payment app.
+            </p>
+            <p>
+                The <code>communication_methods</code> list must contain one or both of the
+                values "<code>javascript</code>" and "<code>http</code>". If the member does
+                not exist or does not contain any of these two values, it will default to
+                the list that contains the single element "<code>javascript</code>".
             </p>
         </section>
     </section>
@@ -464,193 +478,152 @@
         selection algorithm as defined in the Payment Request API
         [[!PAYMENT-REQUEST-API]] it must pass the payment request to
         the <a>payment app</a> to be processed.</p>
-    <p>The <a>user agent</a> does this by, converting the payment
-        request into a JSON serialized object, executing an HTTP POST
-        request against the <code>start_url</code> of the
-        <a>payment app</a>.</p>
-    <p>At a minimum the <a>user agent</a> MUST handle the following two
-        responses from the <a>payment app</a>:</p>
-    <ol>
-        <li><p>
-                An HTML response that MUST be rendered by the <a>user agent</a>.
-            </p>
-            <p class="issue" title="How should the browser render the payment app HTML?">
-                When the browser gets HTML back from the payment app it must render this
-                UI for the user to interact with the payment app. Should this be in an iframe,
-                in a special modal dialogue or just a new tab? Is this an implementation
-                detail?
-            </p>
-        </li>
-        <li>A JSON serialized payment response which is converted by the
-            <a>user agent</a> into a <a>PaymentResponse</a> object. The
-            <a>Promise</a> that was returned to the payee website when calling
-            <a><code>PaymentRequest.show</code></a> MUST resolve to this
-            <a>PaymentResponse</a>.</li>
-    </ol>
+    <p>How the <a>user agent</a> does this, depends on the communication method
+        selected for communicating between the <a>user agent</a> and the <a>
+        payment app</a>.</p>
     <section>
-        <h3>Converting the <a>PaymentRequest</a> into JSON.</h3>
-        <p>Before the <a>PaymentRequest</a> can be submitted to the
-            <a>payment app</a> it must be converted into a JSON serialized
-            string.</p>
-        <p>The <dfn>steps to convert the <code>PaymentRequest</code> to
-            JSON</dfn> are given by the following algorithm. The algorithm
-            takes a <a>PaymentRequest</a> (<var>request</var>) as input and
-            returns a string.</p>
-        <div class="issue" data-number="" title=
-                "Need to define an algorithm for converting the PaymentRequest to JSON">
-            <p>
-                The algortihm for this conversion will depend on the outcome of
-                discussions around the shape of the PaymentRequest API. This
-                algorithm may also sit in the core messages spec.
-            </p>
-            <p>
-                The fact that there are elements of this specification that can't be decided
-                until the Payment Request API is decided is another indication that the two
-                should be combined or have a normative dependancy.
-            </p>
-        </div>
+        <h3>Selecting a communication method</h3>
+        <p>The <a>user agent</a> may select any one communication method from the
+            intersection of the <code><a>communication_methods</a></code> manifest
+            member and the communication methods supported by the <a>user agent</a>.</p>
     </section>
     <section>
-        <h3>Sending the payment request to the <a>Payment
-            App</a></h3>
-        <p>The <dfn>steps to submit the payment request to the payment app</dfn>
-            are given by the following algorithm:</p>
-        <ol>
-            <li>Let <var>payment request</var> be the string that is the
-                outcome of the <a>steps to convert the <code>PaymentRequest</code>
-                    to JSON</a>.</li>
-            <li>Let <var>payment app</var> be the registered <a>payment app</a>
-                selected by the user to process this <a>PaymentRequest</a>.
-                <div class="issue" data-number="" title=
-                        "What are the appriate fetch parameters for this request?">We
-                    should get input form Web Platform and WebAppSec on how to best
-                    construct this request.</div>
-            </li>
-            <li>Let <var>request</var> be a new [[!FETCH]] <a>request</a>,
-                whose members are set to the following values:
-                <table>
-                    <tr>
-                        <th>Member</th>
-                        <th>Value</th>
-                    </tr>
-                    <tr>
-                        <td><code><a>URL</a></code></td>
-                        <td>The value of the <code>start_url</code> member of <var>payment
-                            app</var></td>
-                    </tr>
-                    <tr>
-                        <td><code><a>method</a></code></td>
-                        <td>The value "<code>POST</code>"</td>
-                    </tr>
-                    <tr>
-                        <td><code><a>header list</a></code></td>
-                        <td>
-                            <table>
-                                <tr>
-                                    <td><code>Accept</code></td>
-                                    <td>text/html;application/json</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code><a>body</a></code></td>
-                        <td>The value of <var>payment request</var></td>
-                    </tr>
-                </table>
-            </li>
-            <li>Await the result of performing a <a>fetch</a> with
-                <var>request</var>, letting <var>response</var> be the result.</li>
-            <li>If <var>response</var> is a <a>network error</a>, terminate
-                this algorithm.</li>
-            <li>
-                <p>Switch on <var>response</var>'s <var>MIME type</var></p>
-                <dl class="switch">
-                    <dt>text/html</dt>
-                    <dd>
-                        <ol>
-                            <li>Execute the <a>steps to render a web based payment app</a>
-                                using <var>response</var> as input.</li>
-                        </ol>
-                    </dd>
-                    <dt>application/json</dt>
-                    <dd>
-                        <ol>
-                            <li style="list-style: none; display: inline">
-                                <div class="issue" data-number="" title=
-                                        "How do we signal that this JSON is a PaymentResponse?">Should the
-                                    JSON encoded PaymentRequest and PaymentResponse be JSON-LD with an
-                                    associated @context?</div>
-                            </li>
-                            <li>If <var>response</var>'s <var>body</var> is a JSON encoded
-                                <a>PaymentResponse</a> execute the <a>steps to create a
-                                    <code>PaymentResponse</code> from JSON</a> using the
-                                <var>response</var>'s <var>body</var> as input.</li>
-                            <li>Otherwise reject the <a>Promise</a> created during <a>PaymentRequest.show</a>
-                             with an error.</li>
-                        </ol>
-                    </dd>
-                </dl>
-            </li>
-        </ol>
-    </section>
-    <section>
-        <h2>Launching the Payment App</h2>
-        <p>Unless the selected payment app is built into the <a>user
-            agent</a> or uses a proprietary mechanism for launching and
-            interfacing with the <a>payment app</a>, the <a>user agent</a> MUST
-            launch the <a>payment app</a> based upon the response it gets from
-            submitting the <a>PaymentRequest</a>.</p>
-        <p>The MIME Type and other signals are used to determine how the
-            app is launched and what type of app is launched.</p>
+        <h3>Communicating via javascript</h3>
+        <p>This communication method is suitable for Browser-based payment apps that
+            display an HTML user interface. They communicate using the following
+            javascript API:</p>
+
+<pre class="idl">
+                partial interface Navigator {
+                    readonly attribute PaymentsApi payments;
+                };
+
+                partial interface PaymentsApi {
+                    PaymentRequest getRequest();
+                    Promise&lt;boolean&gt; submitPaymentResponse(PaymentResponse response);
+                };
+</pre>
         <section>
-            <h3>Web Based Payment App with HTML interface</h3>
-            <p>If the payment app is a web application with an HTML-based user
-                interface then the response will have a <code>MIME Type</code> of
-                <code>text/html</code>.</p>
-            <p>If a <a>user agent</a> receives a response with a <code>MIME
-                Type</code> of <code>text/html</code> it MUST assume that the
-                response body is the HTML that must be rendered as the user
-                interface of the <a>payment app</a>.</p>
+            <h4>Sending the Payment Request to the Payment App</h4>
             <p>The <a>user agent</a> MUST execute the <dfn>steps to render a
-                web based payment app</dfn> as given by the following algorithm.
-                The algorithm takes a [[!FETCH]] <a>Response</a>
-                (<var>response</var>) as input:</p>
+                web based payment app</dfn> as given by the following algorithm.</p>
             <ol>
                 <li>Create a new <a>top-level browsing context</a> in a new tab,
                     window or dialogue as <var>new context</var>.</li>
-                <li>Render the <var>response</var> in the <var>new
-                    context</var>.</li>
+                <li>Load the web page pointed to by <code><a>start_url</a></code>
+                    in the <var>new context</var>.</li>
             </ol>
-            <section>
-                <h4>Accepting the PaymentResponse</h4>
-<pre class="idl">
-                    partial interface Navigator {
-                        readonly attribute PaymentsApi payments;
-                    };
-
-                    partial interface PaymentsApi {
-                        Promise&lt;boolean&gt; submitPaymentResponse (PaymentResponse response);
-                    };
-
-
-</pre>
-                <p>The user will interact directly with web based <a>payment
-                    apps</a> in the context created for this purpose
-                    by the <a>user agent</a>.</p>
-                <p>When the <a>payment app</a> is ready to do so, it must submit a
-                    <a>PaymentResponse</a> to the <a>user agent</a> that can be
-                    returned to the website that submitted the initial
-                    <a>PaymentRequest</a>. It does this by calling
-                    <code>submitPaymentResponse</code>.</p>
-            </section>
+            <p>The payment app can retrieve the payment request from the browser by
+                calling <code>getRequest</code>.</p>
         </section>
         <section>
-            <h3>Autonomous Payment App services with no user interface</h3>
-            <p>If the payment app is a web service that requires no user
-                interface then the response must set the <code>Content-Type</code>
-                header to the value <code>application/json</code> and the response
-                body should be a JSON serialized payment response object.</p>
+            <h4>Receiving the Payment Response from the Payment App</h4>
+            <p>The user will interact directly with web based <a>payment
+                apps</a> in the context created for this purpose
+                by the <a>user agent</a>.</p>
+            <p>When the <a>payment app</a> is ready to do so, it must submit a
+                <a>PaymentResponse</a> to the <a>user agent</a> that can be
+                returned to the website that submitted the initial
+                <a>PaymentRequest</a>. It does this by calling
+                <code>submitPaymentResponse</code>.</p>
+        </section>
+    </section>
+    <section>
+        <h3>Communicating over HTTP</h3>
+        <p>This communication method is intended for payment apps that do not require
+            a user interface, and communicate the payment requests and responses as JSON
+            over HTTP.</p>
+        <section>
+            <h4>Converting the Payment Request into JSON</h4>
+            <p>Before the <a>PaymentRequest</a> can be submitted to the
+                <a>payment app</a> it must be converted into a JSON serialized
+                string.</p>
+            <p>The <dfn>steps to convert the <code>PaymentRequest</code> to
+                JSON</dfn> are given by the following algorithm. The algorithm
+                takes a <a>PaymentRequest</a> (<var>request</var>) as input and
+                returns a string.</p>
+            <div class="issue" data-number="" title=
+                    "Need to define an algorithm for converting the PaymentRequest to JSON">
+                <p>
+                    The algortihm for this conversion will depend on the outcome of
+                    discussions around the shape of the PaymentRequest API. This
+                    algorithm may also sit in the core messages spec.
+                </p>
+                <p>
+                    The fact that there are elements of this specification that can't be decided
+                    until the Payment Request API is decided is another indication that the two
+                    should be combined or have a normative dependancy.
+                </p>
+            </div>
+        </section>
+        <section>
+            <h4>Sending the Payment Request to the Payment App</h4>
+            <p>The <dfn>steps to submit the payment request to the payment app</dfn>
+                are given by the following algorithm:</p>
+            <ol>
+                <li>Let <var>payment request</var> be the string that is the
+                    outcome of the <a>steps to convert the <code>PaymentRequest</code>
+                        to JSON</a>.</li>
+                <li>Let <var>payment app</var> be the registered <a>payment app</a>
+                    selected by the user to process this <a>PaymentRequest</a>.
+                    <div class="issue" data-number="" title=
+                            "What are the appriate fetch parameters for this request?">We
+                        should get input form Web Platform and WebAppSec on how to best
+                        construct this request.</div>
+                </li>
+                <li>Let <var>request</var> be a new [[!FETCH]] <a>request</a>,
+                    whose members are set to the following values:
+                    <table>
+                        <tr>
+                            <th>Member</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr>
+                            <td><code><a>URL</a></code></td>
+                            <td>The value of the <code>start_url</code> member of <var>payment
+                                app</var></td>
+                        </tr>
+                        <tr>
+                            <td><code><a>method</a></code></td>
+                            <td>The value "<code>POST</code>"</td>
+                        </tr>
+                        <tr>
+                            <td><code><a>header list</a></code></td>
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td><code>Accept</code></td>
+                                        <td>application/json</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><code><a>body</a></code></td>
+                            <td>The value of <var>payment request</var></td>
+                        </tr>
+                    </table>
+                </li>
+                <li>Await the result of performing a <a>fetch</a> with
+                    <var>request</var>, letting <var>response</var> be the result.</li>
+                <li>If <var>response</var> is a <a>network error</a>, terminate
+                    this algorithm.</li>
+                <li style="list-style: none; display: inline">
+                    <div class="issue" data-number="" title=
+                            "How do we signal that this JSON is a PaymentResponse?">Should the
+                        JSON encoded PaymentRequest and PaymentResponse be JSON-LD with an
+                        associated @context?</div>
+                </li>
+                <li>If <var>response</var>'s <var>body</var> is a JSON encoded
+                    <a>PaymentResponse</a> execute the <a>steps to create a
+                        <code>PaymentResponse</code> from JSON</a> using the
+                    <var>response</var>'s <var>body</var> as input.</li>
+                <li>Otherwise reject the <a>Promise</a> created during <a>PaymentRequest.show</a>
+                 with an error.</li>
+            </ol>
+        </section>
+        <section>
+            <h4>Converting JSON into a Payment Response</h4>
             <p>The <dfn>steps to create a <code>PaymentResponse</code> from
                 JSON</dfn> are given in the following algorithm:</p>
             <div class="issue" data-number="" title=
@@ -659,7 +632,7 @@
         </section>
     </section>
     <section>
-        <h2>Resolving the PaymentResponse Promise</h2>
+        <h3>Resolving the Payment Response promise</h3>
         <p>The <a>user agent</a> must return a <a>PaymentResponse</a> to
             the website that originally initiated the <a>PaymentRequest</a>.
             The <dfn>steps for returning the <a>PaymentResponse</a></dfn> are
@@ -669,15 +642,12 @@
                 <a>PaymentResponse</a>.</li>
             <li>Let <var>promise</var> be the <a>Promise</a> that was created
                 by <a>PaymentRequest.show</a>.</li>
-            <li>If a web based <a>payment app</a> called
-                <code>submitPaymentResponse</code> then
-                set <var>response</var> equal to the first parameter passed to
-                that method.</li>
-            <li>Otherwise, if the <a>steps to submit the
-                payment request to the payment app</a> resulted in the
-                return of a JSON encoded <a>PaymentResponse</a> then set
-                <var>response</var> to the result of running the <a>steps to create
-                    a <code>PaymentResponse</code> from JSON</a>.</li>
+            <li>If the <a>user agent</a> communicates with the <a>payment app</a>
+                via javascript, then set <var>response</var> to the first parameter
+                passed to the <code>submitPaymentResponse</code> method.</li>
+            <li>Otherwise, if communicating via HTTP then set <var>response</var>
+                to the result of running the <a>steps to create a <code>PaymentResponse
+                </code> from JSON</a>.</li>
             <li>Resolve <var>promise</var> with <var>response</var>.</li>
         </ol>
     </section>
