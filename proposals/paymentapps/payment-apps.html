@@ -287,6 +287,7 @@
   <section>
     <h3>Registration</h3>
     <ul>
+      <li>Note: Users register payment apps. But the code for registration is written by the publishers of those payments apps.</li>
       <li>Todo: Define registration in terms of a service worker.</li>
       <li>Data:
 	<ul>
@@ -295,6 +296,8 @@
 	  <li>Enabled payment methods</li>
 	  <li>Information necessary to invoke the app (e.g., JS blob)</li>
 	  <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
+	  <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
+	</ul>
   </section>
   <section>
     <h3>Updates</h3>
@@ -307,6 +310,7 @@
     <ul>
       <li>The browser <span class='rfc2119'>MUST</span> enable a user to unregister a payment app.</li>
       <li>Todo: Define unregistration in terms of a service worker.</li>
+    </ul>
   </section>
 </section>
 <section>
