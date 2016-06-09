@@ -248,7 +248,7 @@
     <dt><dfn id="">enabled payment method </dfn></dt>
     <dd>a payment method that a user has configured a payment app to use.</dd>
     <dt><dfn id="">enabled payment instrument</dfn></dt>
-    <dd>the data that the user has provided when configuring the payment app; the nature of the data depends on the payment method (e.g., for legacy card payments, a card number and expiration date).
+    <dd>the data that the user has provided when configuring the payment app; the nature of the data depends on the payment method (e.g., for legacy card payments, a card number and expiration date). <strong>Note</strong>: We don't yet know whether we need the term "instrument" in this document. It may suffice to say that the user selected a payment app and we do not need to know what happens in detail. However, if the group chooses to expose the concept of instrument (e.g., so that the mediator may display instrument details) we may need this definition and similar ones.</dd>
   </dl>
   
   <h3>Payment App Status</h3>
@@ -262,7 +262,7 @@
     <dt><dfn id="">ignored payment app</dfn></dt>
     <dd>a payment app that, per user configuration, the user agent does included in matching computations and does not invoke for payment. A payment app may be ignored for some transactions and not for others.</dd>
     <dt><dfn id="">recommended payment app</dfn></dt>
-    <dd>a payment app identified by the payee or browser that may be enabled, or just registered, or unregistered.</dd>
+    <dd>a payment app identified by the payee or browser that may be enabled, or just registered, or unregistered. <strong>Note:</strong> The Working Group has not yet agreed that the system should support recommended payment apps.</dd>
     <dt><dfn id="">matching payment app</dfn></dt>
     <dd>a non-ignored payment app that is either enabled with one enabled payment method accepted by the payee, or recommended with one supported payment method accepted by the payee.</dd>
     <dt><dfn id="">displayed payment app</dfn></dt>
@@ -381,7 +381,7 @@
   <section>
     <h3>Design Considerations</h3>
     <ul>
-      <li>The API does not share information about the user's registered payment methods or payment apps with the payee. The only information that is shared is the result of user selection of a payment instrument.</li>
+      <li>The API does not share information about the user's registered payment methods or payment apps with the payee. The only information that is shared is the result of user selection.</li>
     </ul>
   </section>
   <section>
