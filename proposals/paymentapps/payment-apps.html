@@ -432,7 +432,7 @@
     </section>
   </section>
   <section>
-    <h3>User Selection</h3>
+    <h3>Selection by the User</h3>
     <ul>
       <li>The browser  <span class='rfc2119'>MUST</span> enable the user to select any displayed payment app.</li>
       <li>If the user selects an unregistered recommended payment app, the browser <span class='rfc2119'>SHOULD</span> offer the user an opportunity to register it.</li>
@@ -444,7 +444,7 @@
   <p>Once the user has selected a payment app, the browser is responsible
     for preparing payment app invocation data, providing it to the payment app for processing, and returning the payment app response through the Payment Request API.</p>
   <section>
-    <h3>Structuring the Invocation Data</h3>
+    <h3>Invocation Data</h3>
     <ul>
       <li>Todo: define the shape of the payment app invocation data: Let P be the intersection of payment methods supported by the payee and enabled by the selected app. Send the data corresponding to P, as well as any global transaction data (total, etc.) to the payment app. The details depend on discussions about the shape of the Payment Request API.</li>
       </ul>
