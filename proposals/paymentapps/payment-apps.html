@@ -329,58 +329,57 @@
                 The <dfn id="payment-app-supported-methods"><code>supported_methods</code></dfn> member
                 lists the <a>payment method identifiers</a> of the supported payment methods.</dd>
 </dl>
-        </section>
-    </section>
-    <section>
-        <h4>registerPaymentApp()</h4>
-<pre class="idl">
-            partial interface Navigator {
-                readonly attribute PaymentsApi payments;
-            };
-
-            partial interface PaymentsApi {
-                void registerPaymentApp (PaymentApp payment_app);
-            };
-</pre>
-        <div class="issue" data-number="" title=
-                "Should all payment related functions be rooted in navigator.payments?">
-            The current shape of the <a>Payment Request API</a> makes it
-            difficult to define the registration functions in a similar style.
-            Perhaps a payment request should be instantiated via a factory
-            method like
-            <code>navigator.payments.createPaymentRequest</code>?</div>
-        <p>The <code><dfn>registerPaymentApp</dfn></code> method can be
-            used to register or update a <a>payment app</a> installation.</p>
-        <p>The <dfn>steps for installing a payment app</dfn> are given by
-            the following algorithm. The algorithm takes a <a>PaymentApp</a> argument
-            (<var>payment_app</var>) as input.
-            The algorithm, if successful, returns nothing; otherwise, it terminates
-            prematurely and throws an exception.</p>
-        <div class="issue" title="TODO: Define install algorithm">
-        </div>
-            <p>The following example shows how to register a payment app:</p>
-<pre class="example highlight">
-                try {
-                    navigator.payments.registerPaymentApp(payment_app);
-                    // Do any custom post-processing
-                    // Example: Install ServiceWorker to handle offline payment requests
-                }).catch(function(err) {
-                  console.error("Uh oh, something bad happened", err.message);
-                });
-
-</pre></section>
-    <section>
-      <h4>Discussion Notes on Registration</h4>
-    <ul>
-      <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
-      <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
-      <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
-    </ul>
-    </section>
+     </section>
+     <section>
+       <h4>registerPaymentApp()</h4>
+       <pre class="idl">
+         partial interface Navigator {
+         readonly attribute PaymentsApi payments;
+         };
+	 
+         partial interface PaymentsApi {
+         void registerPaymentApp (PaymentApp payment_app);
+         };
+       </pre>
+       <div class="issue" data-number="" title=
+            "Should all payment related functions be rooted in navigator.payments?">
+         The current shape of the <a>Payment Request API</a> makes it
+         difficult to define the registration functions in a similar style.
+         Perhaps a payment request should be instantiated via a factory
+         method like
+         <code>navigator.payments.createPaymentRequest</code>?</div>
+       <p>The <code><dfn>registerPaymentApp</dfn></code> method can be
+         used to register or update a <a>payment app</a> installation.</p>
+       <p>The <dfn>steps for installing a payment app</dfn> are given by
+         the following algorithm. The algorithm takes a <a>PaymentApp</a> argument
+         (<var>payment_app</var>) as input.
+         The algorithm, if successful, returns nothing; otherwise, it terminates
+         prematurely and throws an exception.</p>
+       <div class="issue" title="TODO: Define install algorithm">
+       </div>
+       <p>The following example shows how to register a payment app:</p>
+       <pre class="example highlight">
+         try {
+         navigator.payments.registerPaymentApp(payment_app);
+         // Do any custom post-processing
+         // Example: Install ServiceWorker to handle offline payment requests
+         }).catch(function(err) {
+         console.error("Uh oh, something bad happened", err.message);
+         });
+	 
+     </pre></section>
+     <section>
+       <h4>Discussion Notes on Registration</h4>
+       <ul>
+	 <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
+	 <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
+	 <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
+       </ul>
+     </section>
   </section>
   <section>
     <h3>Updates</h3>
-
+    
     <p>The <code><dfn>registerPaymentApp</dfn></code> method can be
       used to update a payment app.</p>
     <ul>
