@@ -297,44 +297,38 @@
                 sequence&lt;DOMString&gt; enabled_methods;
             };
 </pre>
-        <section>
-            <h5><code>name</code> member</h5>
-            <p>
+<dl>
+  <dt><code>name</code> member</dt>
+  <dd>
                 The <dfn id="payment-app-name"><code>name</code> member</dfn> is a
                 string that represents the name of the payment app as it
                 is usually displayed to the user (e.g., among a list of other
                 payment apps, or as a label for an icon).
-            </p>
-        </section>
-        <section>
-            <h5><code>start_url</code> member</h5>
-            <p>
+  </dd>
+  <dt><code>start_url</code> member</dt>
+<dd>
                 The <dfn id="payment-app-start-url"><code>start_url</code></dfn> is a string that
                 represents the <dfn>start URL</dfn>, which is the <a>URL</a> that accepts
-                payment request messages via HTTP POST.
-            </p>
-            <p>
+                payment request messages via HTTP POST.</dd>
+  <dd><p>
                 The <code><a>start_url</a></code> is the API entry point for the payment
                 app and must have the same origin as the web application that attempts
                 to register the payment app.
-            </p>
-            <p>
+            </p></dd>
+  <dd><p>
                 The <code><a>start_url</a></code> is also the unique identifier for the payment app.
                 If a payment app is already installed with the same <code><a>start_url</a></code>
                 it will be replaced if a new payment app is registered with the same URL.
-            </p>
-        </section>
-        <section>
-            <h5><code>enabled_methods</code></h5>
-            <p>
+  </p></dd>
+  <dt><code>enabled_methods</code> member</dt>
+<dd>
                 The <dfn id="payment-app-enabled-methods"><code>enabled_methods</code></dfn> member
-                lists the <a>payment method identifiers</a> of the enabled payment methods.</p>
-        </section>
-        <section>
-            <h5><code>supported_methods</code></h5>
-            <p>
+                lists the <a>payment method identifiers</a> of the enabled payment methods.</dd>
+  <dt><code>supported_methods</code> member</dt>
+<dd>
                 The <dfn id="payment-app-supported-methods"><code>supported_methods</code></dfn> member
-                lists the <a>payment method identifiers</a> of the supported payment methods.</p>
+                lists the <a>payment method identifiers</a> of the supported payment methods.</dd>
+</dl>
         </section>
     </section>
     <section>
@@ -376,7 +370,7 @@
 
 </pre></section>
     <section>
-      <h4>Discussion Notes</h4>
+      <h4>Discussion Notes on Registration</h4>
     <ul>
       <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
       <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
@@ -577,7 +571,7 @@
     </ol>
 
     <section>
-      <h4>Payment App Response Discussion Notes</h4>
+      <h4>Discussion Notes on Payment App Response</h4>
       
       <ul>
 	<li>Todo: Define how the response from the payment app is returned to the merchant via the Payment Request API "user accepts the payment request" algorithm (e.g., setting the payment repsonse in step 5 to be the payment app's response).</li>
