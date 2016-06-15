@@ -90,12 +90,15 @@
   <p>The Payment Request API [[!PAYMENT-REQUEST-API]] provides
     a standard way to initiate payment requests from Web pages and
     applications. Browsers implementing that API prompt the user
-    to select a payment method and authorize payment, after which
+    to select a way to handle the payment request, after which
     the browser returns a payment response to the originating site.
-    The current specification adds <strong>payment apps</strong>
+    This specification adds <strong>payment apps</strong>
     to this user experience. It defines how users
-    register payment apps with browsers, how browsers support the display of information matching payment apps, how the user selects on, and how communication takes
-    place between browsers and selected payment apps to fulfill the requirements of the underlying Payment Request API.</p>
+    register payment apps with browsers, how browsers support the display of
+    information about payment apps the user can select to handle the
+    payment request, how the user selects a payment app, and how communication takes
+    place between browsers and payment apps to fulfill the requirements of the
+    underlying Payment Request API.</p>
 </section>
 <section id='sotd'>
     <p>The Web Payments Working Group maintains <a href=
@@ -110,8 +113,8 @@
 <section class='informative'>
   <h2>Introduction</h2>
 
-  <p>The Web Payments Working Group seeks to streamline checkout to
-  help reduce "shopping cart abandonment" and make it easier to use
+  <p>The Web Payments Working Group seeks to streamline payments on the Web to
+  help reduce payment "abandonment" and make it easier to use
   new payment methods on the Web. It has published the Payment Request
   API [[!PAYMENT-REQUEST-API]] as a standard way to initiate payment
   requests from Web pages and applications. This specification adds
@@ -120,15 +123,15 @@
 
     <ul>
       <li>How users register and unregister payment apps with the browser, and how browsers learn when the user updates a payment app.</li>
-      <li>How the browser matches payment methods supported by the payee with those available in registered payment apps.</li>
-      <li>How the browser displays information about matching payment apps to the user for selection to make a payment.</li>
-      <li>How the browser invokes a selected payment app, communicates input/response data with it, and returns the response data to the underlying Payment Request API.</li>
+      <li>How the browser matches payment methods supported by the payee with those enabled in registered payment apps.</li>
+      <li>How the browser displays information about payment apps to the user for selection to handle a payment request.</li>
+      <li>How the browser invokes a payment app, communicates input/response data with it, and returns the response data to the underlying Payment Request API.</li>
     </ul>
 
 
   <p>Payment apps may be implemented in a variety of ways: as in-browser applications, native operating system applications, browser extensions, built-in browser components, interface-less Web services, or a combination. This specification does not cover every aspect of communication on every platform.</p>
 
-  <p><strong>Note:</strong> The Web Payments Working Group has used the term "mediator" to refer to the software (here, the browser) that carries out the activities defined in this specification (matching, information display, etc.).</p>
+  <p class="note" title="Browser as payment request mediator">The Web Payments Working Group has used the term "mediator" to refer to the software (here, the browser) that carries out the activities defined in this specification (matching, information display, etc.).</p>
 </section>
 <section id='conformance'>
   <p>Most of the requirements in this specification are for Web browsers (or any other user agent). Some requirements and good practices are for payment apps.</p>
@@ -228,47 +231,79 @@
   <h2>Definitions</h2>
   <h3>Payment App Implementation Technology</h3>
   <dl>
-    <dt><dfn id="">browser-based payment app</dfn></dt>
+    <dt><dfn id="dfn-browser-based-payment-app">browser-based payment app</dfn></dt>
     <dd>a payment app that runs in a browser.</dd>
-    <dt><dfn id="">headless Web payment app</dfn></dt>
-    <dd>a payment app that has no user interface but communicates using Web technology (such as HTTP).</dd>
+    <dt><dfn id="dfn-headless-payment-app">headless Web payment app</dfn></dt>
+    <dd>a payment app that has no user interface.</dd>
+    <!-- This adds no value
     <dt><dfn id="">web-based payment app</dfn></dt>
-    <dd>a browser-based or headless Web payment app.</dd>
-    <dt><dfn id="">native payment app</dfn></dt>
+    <dd>a payment app that communicates using Web technology (such as HTTP).</dd>
+    -->
+    <dt><dfn id="dfn-native-payment-app">native payment app</dfn></dt>
     <dd>a payment app built with the operating system default technology stack that uses non-Web technologies.</dd>
   </dl>
-  <h3>Payment Method Support</h3>
-  <dl>
-    <dt><dfn id="">supported payment method</dfn></dt>
-    <dd>a payment method that a user may configure a payment app to use, but for which the user has not provided data. A payment app may support more than one payment method.</dd>
-    <dt><dfn id="">unsupported payment method</dfn></dt>
-    <dd>a payment method that a user cannot configure a payment app to use. Note that updates to a payment app may cause an unsupported payment method to becomes supported.</dd>
-    <dt><dfn id="">enabled payment method </dfn></dt>
-    <dd>a payment method that a user has configured a payment app to use.</dd>
-    <dt><dfn id="">enabled payment instrument</dfn></dt>
-    <dd>the data that the user has provided when configuring the payment app; the nature of the data depends on the payment method (e.g., for legacy card payments, a card number and expiration date). <strong>Note</strong>: We don't yet know whether we need the term "instrument" in this document. It may suffice to say that the user selected a payment app and we do not need to know what happens in detail. However, if the group chooses to expose the concept of instrument (e.g., so that the browser may display instrument details) we may need this definition and similar ones.</dd>
-  </dl>
-  
+    <p class="note" title="Payment Apps in scope">
+        This specification does not limit the scope of payment apps it realtes to based upon the implementation technology.
+        If a payment app can be invoked by the browser over the Web then it is in scope of the specification.
+    </p>
   <h3>Payment App Status</h3>
   <dl>
-    <dt><dfn id="">registered payment app</dfn></dt>
-    <dd>a payment app that is "known" to the browser for the purposes of the interactions described in this document. This specification does not limit how registration may take place (e.g., directly with a browser, or with an underlying operating system). </dd>
-    <dt><dfn id="">unregistered payment app</dfn></dt>
-    <dd>a payment app that is unknown to the browser, either because it has never been registered, or because it has been unregistered.</dd>
-    <dt><dfn id="">enabled payment app</dfn></dt>
+    <dt><dfn id="dfn-registered-payment-app">registered payment app</dfn></dt>
+    <dd>a payment app that is "known" to the browser for the purposes of the interactions described in this document.
+        This specification does not limit how registration could take place
+        (e.g., directly with a browser, or with an underlying operating system) but does specify a mechanism that all
+        conformant implementations MUST support. </dd>
+    <dt><dfn id="dfn-unregistered-payment-app">unregistered payment app</dfn></dt>
+    <dd>a payment app that is not known to the browser, either because it has never been registered, or because it has been unregistered.</dd>
+    <dt><dfn id="dfn-available-payment-app">available payment app</dfn></dt>
     <dd>a registered payment app with at least one enabled payment method.</dd>
+    <!--
     <dt><dfn id="">ignored payment app</dfn></dt>
     <dd>a payment app that, per user configuration, the browser does included in matching computations and does not invoke for payment. A payment app may be ignored for some transactions and not for others.</dd>
-    <dt><dfn id="">recommended payment app</dfn></dt>
-    <dd>a payment app identified by the payee or browser that may be enabled, or just registered, or unregistered. <strong>Note:</strong> The Working Group has not yet agreed that the system should support recommended payment apps. Inclusion might involve small changes to payment request API.</dd>
+    -->
+    <dt><dfn id="dfn-recommended-payment-app">recommended payment app</dfn></dt>
+    <dd>a payment app suggested by the payee or browser to be registered and used to handle a specific payment request.</dd>
+      <p class="note" title="Recommended Payment Apps is still under discussion">
+          The Working Group has not yet agreed that the system should support recommended payment apps.
+          Inclusion might involve small changes to payment request API.</p>
     <dt><dfn id="">matching payment app</dfn></dt>
-    <dd>a non-ignored payment app that is either enabled with one enabled payment method accepted by the payee, or recommended with one supported payment method accepted by the payee.</dd>
+    <dd>an available payment app that has at least one enabled payment method accepted by the payee, or a recommended
+        payment app with at least one supported payment method accepted by the payee.</dd>
     <dt><dfn id="">selectable payment app</dfn></dt>
-    <dd>a matching payment app for which information has been displayed by the browser to facilitate user selection, but that has not yet been selected. <strong>Note:</strong> Information about selectable payment apps may be displayed in a variety of modalities, including visual and aural.</dd>
+    <dd>a matching payment app for which information has been displayed by the browser to facilitate user selection,
+        but that has not yet been selected. <strong>Note:</strong> Information about selectable payment apps may be
+        displayed in a variety of modalities, including visual and aural.</dd>
     <dt><dfn id="">selected payment app</dfn></dt>
     <dd>the app selected by the user to make a payment, but not yet invoked.</dd>
     <dt><dfn id="">invoked payment app</dfn></dt>
     <dd>the selected payment app that the browser has invoked (executed) and passed payment app input data.</dd>
+  </dl>
+  <h3>Payment Method Support</h3>
+  <dl>
+        <dt><dfn id="">supported payment method</dfn></dt>
+        <dd>a payment method that a payment app has been designed to support however, this payment method may or may
+            not currently be enabled. A payment app may support more than one payment method.</dd>
+        <dt><dfn id="">unsupported payment method</dfn></dt>
+        <dd>a payment method that can noit be enabled by a payment app. Updates to a payment app may cause an
+            unsupported payment method to become supported.</dd>
+        <dt><dfn id="">enabled payment method </dfn></dt>
+        <dd>a payment method that the currently registered payment app is able to handle. The set of enabled payment
+            methods for a payment app is either the set or a subset of the supported payment methods.</dd>
+        <p class="note" title="Supported vs enabled Payment Methods">
+            The difference between supported and enabled payment methods is one of design-time vs runtime consideration.
+            A Payment App supports all the payment methods it was designed to support however at runtime only a subset
+            may be enabled due to configuration or other runtime requirements that may not have been met for all
+            supported payment methods.
+        </p>
+        <!--
+        <dt><dfn id="">enabled payment instrument</dfn></dt>
+        <dd>the data that the user has provided when configuring the payment app; the nature of the data depends on the
+        payment method (e.g., for legacy card payments, a card number and expiration date). <strong>Note</strong>:
+        We don't yet know whether we need the term "instrument" in this document. It may suffice to say that the user
+        selected a payment app and we do not need to know what happens in detail. However, if the group chooses to
+        expose the concept of instrument (e.g., so that the browser may display instrument details) we may need this
+        definition and similar ones.</dd>
+        -->
   </dl>
   <h3>Payment App Invocation and Response Data</h3>
     <dl>
