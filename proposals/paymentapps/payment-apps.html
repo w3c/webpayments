@@ -122,7 +122,7 @@
   defines:<p>
 
     <ul>
-      <li>How users register and unregister payment apps with the browser, and how browsers learn when the user updates a payment app.</li>
+      <li>How users register and unregister payment apps with the browser.</li>
       <li>How the browser matches payment methods supported by the payee with those enabled in registered payment apps.</li>
       <li>How the browser displays information about payment apps to the user for selection to handle a payment request.</li>
       <li>How the browser invokes a payment app, communicates input/response data with it, and returns the response data to the underlying Payment Request API.</li>
@@ -311,8 +311,55 @@
     <dd>Data provided by an invoked payment app to the browser, typically after payment authorization or other action taken through the payment app. This data, which will vary according to payment method, is then passed through the Payment Request API as the payment response.</dd>
   </dl>
 </section>
+<section id="model">
+  <h2>Payment App Model and Design Considerations</h2>
+  <section>
+    <h3>General Considerations</h3>
+    <ul>
+      <li>This specification builds on PaymentRequest API.</li>
+      <li>It defines mechanisms that may be used to support
+	both Web-based and native payment apps. However, we anticipate
+	that the ecosystem will also include proprietary approaches
+	to some of the functionality defined here (e.g., payment app registration or invocation).</li>
+      <li>
+    </ul>
+  </section>
+  <section>
+    <h3>Registration and Unregistration</h3>
+    <ul>
+      <li>The user registers a payment app with the browser, which provides developers with primitives for this purpose. For example, when using Web-based payment, the user can push a button to register the payment app. When using a native app, the native app can open a Web page that supports registration.</li>
+      <li>During registration, information about supported and enabled payment methods is provided to the browser. The browser caches this information for subsequent actions (e.g., when matching merchant-accepted payment methods). In this proposal, there are no requirements for a payment app to be able to respond to browser queries for updated registration information. We expect payment apps to implement updates in a variety of ways (e.g., through push notifications and service workers, followed by re-registration).</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Payment App Matching</h3>
+    <ul>
+      <li>When the user invokes the Payment Request API (by, for example, "pushing the Buy button"), the browser computes the intersection between merchant-accepted payment methods and user-registered payment methods. It does this by comparing Payment Request API data (from the payee) and payment app registration data, invoking the comparison algorithm defined in the Payment Method Identifier specification. The result is a list of matching payment apps.</li>
+      <li>Using information provided during registration,the browser displays matching payment apps for selection by the user. </li>
+      <li>The browser may also display merchant-specified or browser-specified recommended payment apps, which are displayed distinctly for the user. This mechanism is intended to support use cases such as a merchant recommending their own payment app to the user, or the browser helping the user find payment apps that are relevant for a transaction but that the user has not yet registered.</li>
+      <li>The browser may offer features to facilitate selection (e.g., launch a chosen payment app every time the user wants to pay at a given Web site); those features lie outside the scope of this specification.</li>
+      <li>The user selects a payment app to make a payment. If the user selected a recommended payment app, behavior depends on whether the payment app is unregistered or registered.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Payment App Invocation and Response</h3>
+    <ul>
+      <li>Based on information provided at registration, the browser "launches" the payment app and provides it with input data drawn from the Payment Request API.</li>
+      <li>This specification defines an HTTP-based mechanism for providing input data to the payment app. Payment apps may use a variety of mechanisms to handle the payment request, including network calls to a server or local processing via a service worker. In some systems, payment apps may bypass this mechanism entirely, but that behavior lies outside the scope of this specification.</li>
+      <li>The user may interact with the payment app in a variety of ways to authorize payment, cancel the transaction, or carry out other activities supported by the payment app. This specification does not address payment app behavior other than accepting requests and returning responses to the browser.</li>
+      <li>This specification defines a means for the browser to receive a response asynchronously once the user has authorized payment. The response becomes the response of the Payment Request API.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Network Considerations</h3>
+    <ul>
+      <li>This specification only describes communication between the browser and the payment app. This includes an asynchronous mechanism for a payment app to return a payment response to the browser. This specification does not address scenarios where the browser does not receive the response (e.g., due to a crash our network outage).</li>
+      <li>This specification does not address communication between the payee server and the payee Web app, or between the payment app and other parties (e.g., the payment app distibutor, or directly to the merchant).</li>
+    </ul>
+  </section>
+</section>
 <section>
-  <h2>Payment App Registration, Updates, and Unregistration</h2>
+  <h2>Payment App Registration and Unregistration</h2>
   <section>
     <h3>Registration</h3>
 
@@ -379,8 +426,6 @@
          Perhaps a payment request should be instantiated via a factory
          method like
          <code>navigator.payments.createPaymentRequest</code>?</div>
-       <p>The <code><dfn>registerPaymentApp</dfn></code> method can be
-         used to register or update a <a>payment app</a> installation.</p>
        <p>The <dfn>steps for installing a payment app</dfn> are given by
          the following algorithm. The algorithm takes a <a>PaymentApp</a> argument
          (<var>payment_app</var>) as input.
@@ -402,20 +447,12 @@
      <section>
        <h4>Discussion Notes on Registration</h4>
        <ul>
+	 <li>At each registration, the browser <span class='rfc2119'>MUST</span> replace all previous registration information with the new registration information. Payment apps  <span class='rfc2119'>MAY</span> use this feature to provide updates.</li>
 	 <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
 	 <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
 	 <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
        </ul>
      </section>
-  </section>
-  <section>
-    <h3>Updates</h3>
-    
-    <p>The <code><dfn>registerPaymentApp</dfn></code> method can be
-      used to update a payment app.</p>
-    <ul>
-      <li>Todo: Confirm that this is the update approach we wish to take.</li>
-    </ul>
   </section>
   <section>
     <h3>Unregistration</h3>
