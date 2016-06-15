@@ -1,4 +1,0 @@
-{
-  "@context": "https://example.org/contexts/web-payments/v1",
-  "type": "PaymentResponse"
-}
