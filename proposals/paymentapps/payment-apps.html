@@ -242,17 +242,13 @@
     <dt><dfn id="dfn-native-payment-app">native payment app</dfn></dt>
     <dd>a payment app built with the operating system default technology stack that uses non-Web technologies.</dd>
   </dl>
-    <p class="note" title="Payment Apps in scope">
-        This specification does not limit the scope of payment apps it realtes to based upon the implementation technology.
-        If a payment app can be invoked by the browser over the Web then it is in scope of the specification.
-    </p>
+  <p class="note" title="Payment Apps in scope">
+    The Web Payments Working Group intends for this specification to apply to any payment app that the may be invoked by the browser, whatever technologies have been used to implement the payment app.</p>
   <h3>Payment App Status</h3>
   <dl>
     <dt><dfn id="dfn-registered-payment-app">registered payment app</dfn></dt>
-    <dd>a payment app that is "known" to the browser for the purposes of the interactions described in this document.
-        This specification does not limit how registration could take place
-        (e.g., directly with a browser, or with an underlying operating system) but does specify a mechanism that all
-        conformant implementations MUST support. </dd>
+    <dd>a payment app that is "known" to the browser for the purposes of the interactions described in this document. <strong>Note</strong>: 
+      This specification defines a registration mechanism. Other registration mechanisms might co-exist with this one (e.g., on some platforms there may be a way to register a payment app directly with the operating system).</dd>
     <dt><dfn id="dfn-unregistered-payment-app">unregistered payment app</dfn></dt>
     <dd>a payment app that is not known to the browser, either because it has never been registered, or because it has been unregistered.</dd>
     <dt><dfn id="dfn-available-payment-app">available payment app</dfn></dt>
