@@ -345,7 +345,7 @@
     <h3>Payment App Invocation and Response</h3>
     <ul>
       <li>Based on information provided at registration, the browser "launches" the payment app and provides it with input data drawn from the Payment Request API.</li>
-      <li>This specification defines an HTTP-based mechanism for providing input data to the payment app. Payment apps may use a variety of mechanisms to handle the payment request, including network calls to a server or local processing via a service worker. In some systems, payment apps may bypass this mechanism entirely, but that behavior lies outside the scope of this specification.</li>
+      <li>This specification defines an HTTP-based mechanism for providing input data to the payment app. In some systems, payment apps may bypass this mechanism entirely, but that behavior lies outside the scope of this specification.</li>
       <li>The user may interact with the payment app in a variety of ways to authorize payment, cancel the transaction, or carry out other activities supported by the payment app. This specification does not address payment app behavior other than accepting requests and returning responses to the browser.</li>
       <li>This specification defines a means for the browser to receive a response asynchronously once the user has authorized payment. The response becomes the response of the Payment Request API.</li>
     </ul>
@@ -360,6 +360,13 @@
 </section>
 <section>
   <h2>Payment App Registration and Unregistration</h2>
+
+  <p>To support registration and unregistration, the browser provides
+  primitives that may be called from within a Web page or
+  application. For example, the user might visit a Web-based payment
+  app and push a "Register payment app" to invoke the browser
+  primitives.</p>
+    
   <section>
     <h3>Registration</h3>
 
@@ -458,7 +465,6 @@
     <h3>Unregistration</h3>
     <ul>
       <li>The browser <span class='rfc2119'>MUST</span> enable a user to unregister a payment app.</li>
-      <li>Todo: Define unregistration in terms of a service worker.</li>
     </ul>
   </section>
 </section>
@@ -510,7 +516,7 @@
 <section>
   <h2>Payment App Invocation and Response</h2>
   <p>Once the user has selected a payment app, the browser is responsible
-    for preparing payment app invocation data, providing it to the payment app for processing, and returning the payment app response through the Payment Request API.</p>
+    for preparing payment app invocation data, providing it to the payment app for processing, and returning the payment app response through the Payment Request API. This specification defines an HTTP-based mechanism to provide data to the payment app. Payment apps may use a variety of mechanisms to handle the incoming data, including server-side processing, or client-side interception of the HTTP message by a service worker. </p>
   <section>
     <h3>Invocation Data</h3>
     <ul>
