@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Web Payments Architecture 1.0</title>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+    <!--
+      === NOTA BENE ===
+      For the three scripts below, if your spec resides on dev.w3 you can check them
+      out in the same tree and use relative links so that they'll work offline,
+     -->
+    <link rel="stylesheet" href="spec.css">
+    <script src='//www.w3.org/Tools/respec/respec-w3c-common' async class='remove'></script>
+    <script src='utils.js' async class='remove'></script>
+    <script type="text/javascript" class="remove">
+var respecConfig = {
+    // specification status (e.g. WD, LCWD, NOTE, etc.). If in doubt use ED.
+    specStatus:           "UNOFFICIAL",
+
+    // the specification's short name, as in http://www.w3.org/TR/short-name/
+    shortName:            "web-payments-architecture",
+
+    // if you wish the publication date to be other than today, set this
+    // publishDate:  "2009-08-06",
+
+    // if there is a previously published draft, uncomment this and set its YYYY-MM-DD date
+    // and its maturity status
+    previousPublishDate:  "2016-06-16",
+    previousMaturity:  "UNOFFICIAL",
+
+    // if there a publicly available Editor's Draft, this is the link
+    edDraftURI:           "http://w3c.github.io/webpayments/proposals/wparch/",
+
+    // if this is a LCWD, uncomment and set the end of its review period
+    // lcEnd: "2009-08-05",
+
+    // editors, add as many as you like
+    // only "name" is required
+    editors: [
+      { name: "Manu Sporny", url: "https://manu.sporny.org/",
+        company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/" }
+    ],
+
+    // authors, add as many as you like.
+    // This is optional, uncomment if you have authors as well as editors.
+    // only "name" is required. Same format as editors.
+
+    // authors: [
+    //   { name: "Manu Sporny", url: "https://manu.sporny.org/",
+    //     company: "Digital Bazaar, Inc.", companyURL: "http://digitalbazaar.com/" },
+    //   { name: "Adrian Hope Bailie", url: "https://www.linkedin.com/in/adrianhopebailie",
+    //     company: "Ripple", companyURL: "https://ripple.com/" }
+    // ],
+
+    // extend the bibliography entries
+    //localBiblio: {},
+
+    // name of the WG
+    wg:           "W3C Web Payments Community Group",
+
+    // URI of the public WG page
+    wgURI:        "http://www.w3.org/community/webpayments/",
+
+    // name (with the @w3c.org) of the public mailing to which comments are due
+    wgPublicList: "public-webpayments@w3.org",
+
+    // URI of the patent status for this WG, for Rec-track documents
+    // !!!! IMPORTANT !!!!
+    // This is important for Rec-track documents, do not copy a patent URI from a random
+    // document unless you know what you're doing. If in doubt ask your friendly neighbourhood
+    // Team Contact.
+    wgPatentURI:  "",
+    maxTocLevel: 4,
+    preProcess: [ ] /*,
+    alternateFormats: [ {uri: "diff-20111214.html", label: "diff to previous version"} ],
+    */
+};
+    </script>
+    <style>
+.sequence-diagram {
+  margin: auto;
+}
+    </style>
+</head>
+
+<body>
+<section id="abstract">
+  <p>
+This document outlines the Web Payments Architecture by introducing readers
+to the goals of the architecture, messages, roles, and information flow in
+the system. Links to specifications that detail each aspect of the
+architecture in more detail are also provided for implementers.
+  </p>
+</section>
+
+<section id="sotd">
+  <p>
+This is an experimental specification.
+  </p>
+</section>
+
+<section class="informative">
+  <h1>Introduction</h1>
+
+  <p>
+This document outlines the Web Payments Architecture. It starts by highlighting
+the goals of the architecture, then covers the primary types of messages
+exchanged and the roles of participants in the system. An example use case
+is then used to demonstrate how roles in the system communicate. Finally,
+specifications that detail each aspect of the architecture in more detail
+are also provided for implementers.
+  </p>
+
+</section>
+
+<section>
+  <h2 id="goals">Web Payments Architecture Goals</h2>
+
+  <p>
+The Web Payments architecture strives to support fundamental Web principles
+by:
+  </p>
+
+  <ul>
+    <li>Adhering to Web architecture fundamentals</li>
+    <li>Supporting network and device independence</li>
+    <li>Providing accessibility for payers and payees with disabilities</li>
+    <li>Being machine-readable where possible to enable automation and engagement of non-human entities</li>
+    <li>Protecting the privacy of all participants</li>
+  </ul>
+
+  <p>
+In addition to the fundamental Web principles above, the Web Payments
+architecture also strives to:
+  </p>
+
+  <ul>
+    <li>Improve the interface experience for all stakeholders</li>
+    <li>Provide stakeholders with unencumbered knowledge and choice when undertaking a payment</li>
+    <li>Support a wide spectrum of security and privacy needs to meet industry expectations</li>
+    <li>Support existing payment schemes while enabling new ones</li>
+    <li>Encourage efficient settlement</li>
+    <li>Facilitate compliance with legal and regulatory obligations</li>
+    <li>Enable monetization on the spectrum of Web to native apps</li>
+    <li>Bridge distributed value networks</li>
+  </ul>
+
+</section>
+
+<section>
+  <h2>The Structure of Payment Messages</h2>
+
+  <p>
+A payment instruction is composed of the following parts:
+  </p>
+
+  <dl>
+    <dt><strong><em>Instruction Type</em></strong></dt>
+    <dd>
+The type of transaction that should be executed if the message is processed.
+Examples include: request, subscription, hold, and refund.
+    </dd>
+    <dt><strong><em>Payment Method</em></strong></dt>
+    <dd>
+The requested mechanism to be used for processing the payment. Examples include:
+credit card, ACH, SEPA, and Bitcoin.
+    </dd>
+    <dt><strong><em>Transaction Details</em></strong></dt>
+    <dd>
+Specific information pertaining to the transaction. Examples include: price,
+transaction reference number, and items being purchased.
+    </dd>
+    <dt><strong><em>Transaction Options</em></strong></dt>
+    <dd>
+A set of information that needs to be collected from the payer in order for
+the transaction to be fulfilled. Examples include: shipping options,
+requests for shipping address, and requests for contact information.
+    </dd>
+  </dl>
+
+  <figure>
+    <img style="margin: auto; display: block;" width="50%" src="instruction.svg">
+    <figcaption style="text-align: center;">
+- The structure of a payment instruction.
+    </figcaption>
+  </figure>
+
+  <p>
+A payment response is composed of the following parts:
+  </p>
+
+  <dl>
+    <dt><strong><em>Payment Method</em></strong></dt>
+    <dd>
+The selected mechanism that was used for processing the payment. Examples
+include: credit card, ACH, SEPA, and Bitcoin.
+    </dd>
+    <dt><strong><em>Transaction Details</em></strong></dt>
+    <dd>
+Specific information pertaining to the transaction. Examples include:
+transaction reference number, price, and items purchased.
+    </dd>
+    <dt><strong><em>Response Details</em></strong></dt>
+    <dd>
+Information that pertains to the result of processing the payment including
+all information requested in the initial payment instruction. Examples include:
+selected shipping option, shipping address, and contact email.
+    </dd>
+  </dl>
+
+  <figure>
+    <img style="margin: auto; display: block;" width="50%" src="response.svg">
+    <figcaption style="text-align: center;">
+- The structure of a payment response.
+    </figcaption>
+  </figure>
+
+
+</section>
+
+<section>
+
+  <h2>Roles in the Architecture</h2>
+
+  <p>
+An architecture for web payments must distinguish the essential
+roles of core actors and the relationships between them; how do they interact?
+A role is an abstraction that might be implemented in many different ways. The
+separation of roles suggests likely interfaces and/or protocols for
+standardization. The following roles exist in the Web Payments
+Architecture:
+  </p>
+
+  <dl>
+    <dt><strong><em>Payer</em></strong></dt>
+    <dd>
+An entity transmitting value to the Payee.
+    </dd>
+    <dt><strong><em>Payee</em></strong></dt>
+    <dd>
+An entity receiving value from the Payer.
+    </dd>
+    <dt><strong><em>Mediator</em></strong></dt>
+    <dd>
+Routes payment instructions between the Payee and the Payment App.
+    </dd>
+    <dt><strong><em>Payment App</em></strong></dt>
+    <dd>
+Processes payment instructions sent via the Mediator and returns
+payment responses to the Mediator. It may communicate with Payment Networks
+to execute a payment instruction or it may return data so that another
+entity can execute a payment instruction.
+    </dd>
+    <dt><strong><em>Payment Network</em></strong></dt>
+    <dd>
+A system that is responsible for transferring value from one entity to another.
+    </dd>
+  </dl>
+
+  <figure>
+    <img style="margin: auto; display: block;" src="architecture.svg">
+    <figcaption style="text-align: center;">
+- Roles in the Web Payments architecture
+    </figcaption>
+  </figure>
+
+  <p>
+As the diagram above depicts, the Web Payments architecture separates the
+following concerns:
+  </p>
+
+  <ul>
+    <li>
+The role that creates the payment instruction (Payee) is separated from the
+role that routes the payment instruction to the entity that will process it
+(Mediator).
+    </li>
+    <li>
+The role that routes the payment instruction (Mediator) is separated from
+the role that processes the payment instruction (Payment App).
+    </li>
+    <li>
+The role that processes the payment instruction/response
+(Payment App/Payee) is separated from the role that transfers the value
+associated with the instruction/response (Payment Network).
+    </li>
+  </ul>
+
+</section>
+
+<section>
+  <h2>An Exemplary Use Case</h2>
+
+  <p>
+In order to understand how all of the actors and roles in the ecosystem
+interact, consider the following use case:
+  </p>
+
+  <p>
+Quinn would like to purchase a new laptop using her new security-enhanced
+credit card.
+  </p>
+
+  <h3>Payer Registers Payment App</h3>
+
+  <p>
+In order for Quinn (Payer) to use her new security-enhanced credit card, she
+must enroll it via her bank's website (Payment App).
+  </p>
+
+  <figure>
+    <img style="margin: auto; display: block;" src="flow-register.svg">
+    <figcaption style="text-align: center;">
+- The Payer Registers a New Payment App
+    </figcaption>
+  </figure>
+
+  <h3>Payer Makes a Purchase</h3>
+
+  <p>
+Quinn (Payer) finds the laptop she wants on a website (Payee). She
+clicks "Buy", selects the information necessary to complete the transaction,
+and is notified that her purchase is successful and is on its way.
+  </p>
+
+  <figure>
+    <img style="margin: auto; display: block;" src="flow-purchase.svg">
+    <figcaption style="text-align: center;">
+- Payer Makes a Purchase
+    </figcaption>
+  </figure>
+
+</section>
+
+<section>
+
+</section>
+
+<section>
+
+  <h2>Implementing the Architecture</h2>
+
+  <p>
+There are a number of specifications that are of interest to developers
+implementing portions of the architecture outlined in this document.
+  </p>
+
+  <dl>
+    <dt><a href="https://w3c.github.io/webpayments/proposals/paymentapps/payment-apps.html">Web Payment Applications</a></dt>
+    <dd>
+Specifies how messages are exchanged between a payment app and a mediator.
+    </dd>
+    <dt><a href="https://w3c.github.io/webpayments-core-messages/">Web Payments Core Messages</a></dt>
+    <dd>
+Message types and the content of messages in the Web Payments ecosystem.
+    </dd>
+    <dt><a href="https://w3c.github.io/webpayments-method-identifiers/">Payment Methods</a> and <a href="https://github.com/w3c/webpayments-methods-credit-transfer-direct-debit/">Basic Card</a></dt>
+    <dd>
+Details how payment methods are identified and how new payment methods are specified.
+    </dd>
+    <dt><a href="https://w3c.github.io/webpayments-http-api/">Web Payments HTTP API</a></dt>
+    <dd>
+Specifies how messages are transmitted via an HTTP client.
+    </dd>
+    <dt><a href="https://w3c.github.io/browser-payment-api/">Web Payments Browser API</a></dt>
+    <dd>
+Specifies how messages are transmitted and processed via a Web browser.
+    </dd>
+  </dl>
+
+</section>
+
+</body>
+</html>
