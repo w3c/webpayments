@@ -3,21 +3,21 @@
 var termNames = [] ;
 
 function restrictReferences(utils, content) {
-    var base = document.createElement("div");
-    base.innerHTML = content;
+  var base = document.createElement("div");
+  base.innerHTML = content;
 
-    // strategy: Traverse the content finding all of the terms defined
-    $.each(base.querySelectorAll("dfn"), function(i, item) {
-        var $t = $(item) ;
-        var titles = $t.getDfnTitles();
-        var n = $t.makeID("dfn", titles[0]);
-        if (n) {
-            termNames[n] = $t.parent() ;
-        }
-    });
+  // strategy: Traverse the content finding all of the terms defined
+  $.each(base.querySelectorAll("dfn"), function(i, item) {
+      var $t = $(item) ;
+      var titles = $t.getDfnTitles();
+      var n = $t.makeID("dfn", titles[0]);
+      if (n) {
+          termNames[n] = $t.parent() ;
+      }
+  });
 
     // add a handler to come in after all the definitions are resolved
-
+  require(["core/pubsubhub"], function( respecEvents ) {
     respecEvents.sub('end', function(message) {
         if (message == 'core/link-to-dfn') {
             // all definitions are linked
@@ -44,6 +44,6 @@ function restrictReferences(utils, content) {
             });
         }
     });
-
+  });
     return (base.innerHTML);
 }
