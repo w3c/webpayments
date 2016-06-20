@@ -456,7 +456,7 @@
        <ul>
 	 <li>At each registration, the browser <span class='rfc2119'>MUST</span> replace all previous registration information with the new registration information. Payment apps  <span class='rfc2119'>MAY</span> use this feature to provide updates.</li>
 	 <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
-	 <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., "last four digits of the card") to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
+	 <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., a user-provided label) to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
 	 <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
        </ul>
      </section>
@@ -491,7 +491,18 @@
       <li>The browser <span class='rfc2119'>MAY</span> allow the user to configure the display of matching payment apps.</li>
       <li>The browser <span class='rfc2119'>MUST</span> display matching payment apps in an order that corresponds to the order of supported payment methods supplied by the payee, except where the browser enables the user to override this order.</li>
       <li>The browser <span class='rfc2119'>SHOULD</span> display any payee-recommended apps in the order specified by the payee.</li>
-      <li><strong>Question</strong> What information is needed by the browser to display selectable apps?</li>
+      <li><strong>Question</strong> What information is needed by the browser to display selectable apps? Should instrument-specific information (e.g., mnemonic labels) be passed through to help with selection?</li>
+      <li><strong>Question</strong> Which of these scenarios do we expect to support through the set of technologies, and should we seek to harmonize the user experience across them?
+	<ol>
+	  <li>User has no registered payment apps.</li>
+	  <li>User has apps with supported but no enabled payment methods.</li>
+	  <li>User has apps with supported but no enabled payment methods.</li>
+	  <li>User has apps with supported and enabled payment methods.</li>
+	  <li>Merchant wishes to recommend a payment app to the user.</li>
+	  <li>Browser wishes to recommend a payment app that supports a payment method for which the user does not currently have a supporting payment app.</li>
+	</ol>
+	Current ideas for supporting 4 and 5 include (1) using the "recommended payment apps" approach of this spec (2) using payment method identifiers to designated recommended payment apps</li>
+      </li>
     </ul>
 
     <section>
