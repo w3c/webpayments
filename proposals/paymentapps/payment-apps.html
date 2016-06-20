@@ -602,6 +602,21 @@
       <ul>
 	<li>Todo: Review the approach to invoking payment apps. HTTP or JS? Role of service workers?</li>
 	<li><strong>Question</strong>: What, if anything, should we say about launching native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
+	<li><strong>Question</strong>: Communication mail fail at various points in the flow, including between server and payment app:
+	  <ul>
+	    <li>Payment server to payment app</li>
+	    <li>Payment app to browser</li>
+	    <li>Payee Web app to payee server</li>
+	  </ul>
+	  What sort of guarantees should we endeavor to provide, if any, for any of these points in the flow? If, for examle, a proof of payment is lost
+	  along the communication flow, then, for instance, a merchant might not shiop goods. Some observations:
+	  <ul>
+	    <li>Today, backchannel communications are often used (e.g., between payment server and payee server).</li>
+	    <li>The payee could provide a callback URL (identified as such in a standard way). This would allow (but not require) the payment app to communicate with the payee server until such time as all parties are satisfied they share the same view of the payment response.</li>
+	    <li>An alternative is to ensure that the payment app and the browser have a channel so that communication continues until all aprties are satisfied they share the same view of the payment response. This might involve caching payment responses.</li>
+	    <li>What happens in Payment Request API if the browser closes before the promise resolves?</li>
+	  </ul>
+	</li>
       </ul>
     </section>
   </section>
