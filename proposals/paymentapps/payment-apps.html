@@ -258,10 +258,11 @@
     <dd>a payment app that, per user configuration, the browser does included in matching computations and does not invoke for payment. A payment app may be ignored for some transactions and not for others.</dd>
     -->
     <dt><dfn id="dfn-recommended-payment-app">recommended payment app</dfn></dt>
-    <dd>a payment app suggested by the payee or browser to be registered and used to handle a specific payment request.</dd>
+    <dd>a payment app suggested by the payee or browser to be registered and used to handle a specific payment request.
       <p class="note" title="Recommended Payment Apps is still under discussion">
           The Working Group has not yet agreed that the system should support recommended payment apps.
-          Inclusion might involve small changes to payment request API.</p>
+          Inclusion might involve small changes to payment request API. See <a class="issue" href="https://github.com/w3c/webpayments/issues/112">issue 112</a>.</p>
+    </dd>
     <dt><dfn id="">matching payment app</dfn></dt>
     <dd>an available payment app that has at least one enabled payment method accepted by the payee, or a recommended
         payment app with at least one supported payment method accepted by the payee.</dd>
@@ -306,7 +307,7 @@
     <dt><dfn id="">selected payment instrument</dfn></dt>
     <dd>the payment instrument selected by the user within the payment app to make a payment.</dd>
     <dt><dfn id="">payment app invocation data</dfn></dt>
-    <dd>Data provided to the invoked payment app by the browser. This data is a subset of data input to the Payment Request API. <strong>Note:</strong> We expect this data to be serialized as JSON.</dd>
+    <dd>Data provided to the invoked payment app by the browser. This data is a subset of data input to the Payment Request API. <p class="note" title="JSON serialization">We expect this data to be serialized as JSON.</p></dd>
     <dt><dfn id="">payment app response data</dfn></dt>
     <dd>Data provided by an invoked payment app to the browser, typically after payment authorization or other action taken through the payment app. This data, which will vary according to payment method, is then passed through the Payment Request API as the payment response.</dd>
   </dl>
@@ -370,7 +371,7 @@
   <section>
     <h3>Registration</h3>
 
-    <p><strong>Note:</strong> The <code>start_url</code> in the PaymentApp dictionary assumes an HTTP approach to communication between the browser and the payment app. The Working Group is currently exploring other approaches to communication as well; this particular proposal has been included to foster discussion.</p>
+    <p class="note" title="HTTP assumptions">The <code>start_url</code> in the PaymentApp dictionary assumes an HTTP approach to communication between the browser and the payment app. The Working Group is currently exploring other approaches to communication as well; this particular proposal has been included to foster discussion. See also <a class="issue" href="https://github.com/w3c/webpayments/issues/110">issue 110</a>.</p>
 
      <section>
         <h4>The PaymentApp dictionary</h4>
@@ -382,6 +383,7 @@
                 sequence&lt;DOMString&gt; enabled_methods;
             };
 </pre>
+
 <dl>
   <dt><code>name</code> member</dt>
   <dd>
@@ -454,10 +456,10 @@
      <section>
        <h4>Discussion Notes on Registration</h4>
        <ul>
-	 <li>At each registration, the browser <span class='rfc2119'>MUST</span> replace all previous registration information with the new registration information. Payment apps  <span class='rfc2119'>MAY</span> use this feature to provide updates.</li>
+	 <li>At each registration, the browser <span class='rfc2119'>MUST</span> replace all previous registration information with the new registration information. Payment apps  <span class='rfc2119'>MAY</span> use this feature to provide updates (see <a class="issue" href="https://github.com/w3c/webpayments/issues/111">issue 111</a></li>
 	 <li>Todo: Confirm that is the registration approach we wish to take. HTTP or JavaScript? What is the role of service workers?</li>
-	 <li><strong>Question</strong>. Should the registration data also include details about payment instruments? This would allow the browser to display more detail and facilitate selection. The details might not be "all the information" but enough (e.g., a user-provided label) to guide user selection. The browser might also use this information to improve per-instrument pricing.</li>
-	 <li><strong>Question</strong>: What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
+	 <li><a class="issue" href="https://github.com/w3c/webpayments/issues/142">Issue 142</a>:  Registration: Should payment instrument details be included? This would improve the user experience for UIs that provide direct selection of payment instruments (otherwise multiple clicks required).</li>
+	 <li><span class="note" title="Registration of native payment apps?">What, if anything, should we say about registering native payment apps? Should we publish separate "good practices" documents for different platforms?</span></li>
        </ul>
      </section>
   </section>
@@ -476,6 +478,7 @@
 	<li>enabled payment methods across all registered payment apps.</li>
 	<li>supported payment methods of recommended but unregistered payment apps</li>
       </ul>
+      See also <a class="issue" href="https://github.com/w3c/webpayments/issues/110">issue 110</a>.
     </li>
   </ul>
 </section>
@@ -491,8 +494,10 @@
       <li>The browser <span class='rfc2119'>MAY</span> allow the user to configure the display of matching payment apps.</li>
       <li>The browser <span class='rfc2119'>MUST</span> display matching payment apps in an order that corresponds to the order of supported payment methods supplied by the payee, except where the browser enables the user to override this order.</li>
       <li>The browser <span class='rfc2119'>SHOULD</span> display any payee-recommended apps in the order specified by the payee.</li>
-      <li><strong>Question</strong> What information is needed by the browser to display selectable apps? Should instrument-specific information (e.g., mnemonic labels) be passed through to help with selection?</li>
-      <li><strong>Question</strong> Which of these scenarios do we expect to support through the set of technologies, and should we seek to harmonize the user experience across them?
+      <li><a class="issue" href="https://github.com/w3c/webpayments/issues/142">Issue 142</a>: Should payment instrument details be included?. What information is needed by the browser to display selectable apps?</li>
+    </ul>
+
+    <p class="note" title="Payment app selection user experience consistency">Which of these scenarios do we expect to support through the set of technologies, and should we seek to harmonize the user experience across them?
 	<ol>
 	  <li>User has no registered payment apps.</li>
 	  <li>User has apps with supported but no enabled payment methods.</li>
@@ -502,8 +507,7 @@
 	  <li>Browser wishes to recommend a payment app that supports a payment method for which the user does not currently have a supporting payment app.</li>
 	</ol>
 	Current ideas for supporting 4 and 5 include (1) using the "recommended payment apps" approach of this spec (2) using payment method identifiers to designated recommended payment apps</li>
-      </li>
-    </ul>
+</p>
 
     <section>
       <h4>Examples of Ordering of Selectable Payment Apps</h4>
@@ -537,11 +541,11 @@
   <section>
     <h3>Payment App Invocation</h3>
 
-    <p><strong>Note:</strong> The Working Group is still discussing
+    <p class="note" title="HTTP assumptions">The Working Group is still discussing
       how to invoke payment apps (e.g., via an HTTP POST
       to <code>start_url</code> or by executing a piece of JS provided
       at registration). The following algorithm assumes an HTTP POST
-      approach.</p>
+      approach. See <a class="issue" href="https://github.com/w3c/webpayments/issues/130">issue 130</a>.</p>
 
       <ol>
         <li>Let <var>payment request</var> be the string that is the
@@ -601,28 +605,32 @@
       <h4>Discussion Notes on Payment App Invocation</h4>
       <ul>
 	<li>Todo: Review the approach to invoking payment apps. HTTP or JS? Role of service workers?</li>
-	<li><strong>Question</strong>: What, if anything, should we say about launching native payment apps? Should we publish separate "good practices" documents for different platforms?</li>
-	<li><strong>Question</strong>: Communication mail fail at various points in the flow, including between server and payment app:
+	<li>Cancelation is treated as an ordinary response; see <a class="issue" href="https://github.com/w3c/webpayments/issues/128">issue 128</a>.</li>
+	<li><span class="note" title="Launching native apps">What, if anything, should we say about launching native payment apps? Should we publish separate "good practices" documents for different platforms?</span></li>
+      </ul>
+    </section>
+    <div class="note" title="Handling network and other failures">
+      <p>Communication mail fail at various points in the flow, including between server and payment app:</p>
 	  <ul>
 	    <li>Payment server to payment app</li>
 	    <li>Payment app to browser</li>
 	    <li>Payee Web app to payee server</li>
 	  </ul>
+	  <p>
 	  What sort of guarantees should we endeavor to provide, if any, for any of these points in the flow? If, for examle, a proof of payment is lost
-	  along the communication flow, then, for instance, a merchant might not shiop goods. Some observations:
+	  along the communication flow, then, for instance, a merchant might not shiop goods. Some observations:</p>
 	  <ul>
 	    <li>Today, backchannel communications are often used (e.g., between payment server and payee server).</li>
 	    <li>The payee could provide a callback URL (identified as such in a standard way). This would allow (but not require) the payment app to communicate with the payee server until such time as all parties are satisfied they share the same view of the payment response.</li>
 	    <li>An alternative is to ensure that the payment app and the browser have a channel so that communication continues until all aprties are satisfied they share the same view of the payment response. This might involve caching payment responses.</li>
 	    <li>What happens in Payment Request API if the browser closes before the promise resolves?</li>
 	  </ul>
-	</li>
-      </ul>
-    </section>
+    </div>
+
   </section>
   <section>
     <h3>Payment App Display</h3>
-    <p><strong>Note:</strong> The Working Group is still discussing how payment apps are instantiated for user interaction.</p>
+    <p class="note" class="Payment app instantiation">The Working Group is still discussing how payment apps are instantiated for user interaction.</p>
     
     <section>
       <h4>Browser-based Payment Apps</h4>
@@ -636,7 +644,7 @@
 	<li>When the user has authorized payment, the payment app
 	  returns a <a>PaymentResponse</a> to the browser
 	  calling<code>submitPaymentResponse</code> (see below).</li>
-	<li><strong>Question</strong> How should the browser render the browser-based payment app? Should this be in an iframe, in a special modal dialogue or just a new tab? Is this an implementation detail?</li>
+	<li><a class="issue" href="https://github.com/w3c/webpayments/issues/143">Issue 143</a>:  How should third-party payment apps be displayed by the browser?</li>
       </ul>
 
       <pre class="idl">
