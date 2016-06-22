@@ -350,6 +350,11 @@
       <li>The browser may offer features to facilitate selection (e.g., launch a chosen payment app every time the user wants to pay at a given Web site); those features lie outside the scope of this specification.</li>
       <li>The user selects a payment app to make a payment. If the user selected a recommended payment app, behavior depends on whether the payment app is unregistered or registered.</li>
     </ul>
+    <p class="issue" title="Matching Payment Instruments rather than Apps">
+      The current payment request works on a selection by the user at the payment intrument level (i.e. the user selects a specific card, not a card brand). To be consistent with this user experience,
+      payment apps should register their active payment instruments, so that the browser can present a UI enabling selection of both the payment app and payment instrument at the same time.
+      Payment instruments as registered to the browser do not need to contain any private financial data, just an identifier that can be displayed in the mediator UI. 
+    </p>
   </section>
   <section>
     <h3>Payment App Invocation and Response</h3>
@@ -428,6 +433,13 @@
                         lists the <a>payment method identifiers</a> of the supported payment methods.
             </dd>
         </dl>
+        <p class="issue" title="Matching Payment Instruments rather than Apps">
+            PaymentApp dictionary could be extended with a "Sequence&lt;PaymentInstrument&gt; instruments" containing the active payment instruments. 
+            An instrument would contain an id unique to the payment app and a short displayable name for the mediator UI.
+        </p>
+        <p class="issue">
+            Should the disctionary also contain graphical elements for payment apps and instruments? For instance an icon to be displayed in payment mediator UI. 
+        </p>
      </section>
      <section>
        <h4>registerPaymentApp()</h4>
@@ -697,6 +709,11 @@
         accepts the payment request" algorithm (e.g., setting the payment repsonse in step 5 to be the payment app's
         response).
     </p>
+     <p class="issue" title="Generic callback back-channel for the payment response transmission">
+       Some payment methods might require a back channel to guarantee payment response delivery (especially push payment methods).
+       Should it be part of the generic portion of paymentRequest and paymentResponse?
+
+     </p>
   </section>
 </section>
 <section id="security">
