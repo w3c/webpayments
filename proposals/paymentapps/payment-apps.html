@@ -134,7 +134,36 @@
   <p class="note" title="Browser as payment request mediator">The Web Payments Working Group has used the term "mediator" to refer to the software (here, the browser) that carries out the activities defined in this specification (matching, information display, etc.).</p>
 </section>
 <section id='conformance'>
-  <p>Most of the requirements in this specification are for Web browsers (or any other user agent). Some requirements and good practices are for payment apps.</p>
+    <p>
+        This specification defines one class of products:
+    </p>
+    <dl>
+        <dt><dfn>Conforming user agent</dfn></dt>
+        <dd>
+            <p>
+                A <dfn data-lt="user agents">user agent</dfn> MUST behave as described in this specification
+                in order to be considered conformant. In this specification, <a>user agent</a> means a <em>Web
+                browser or other interactive user agent</em> as defined in [[!HTML5]].
+            </p>
+            <p>
+                User agents MAY implement algorithms given in this
+                specification in any way desired, so long as the end result is
+                indistinguishable from the result that would be obtained by the
+                specification's algorithms.
+            </p>
+            <p>
+                A conforming Payment Request API user agent MUST also be a
+                <em>conforming implementation</em> of the IDL fragments
+                of this specification, as described in the
+                “Web IDL” specification. [[!WEBIDL]]
+            </p>
+
+            <aside class="note">
+                This specification uses both the terms "conforming user agent(s)"
+                and "user agent(s)" to refer to this product class.
+            </aside>
+        </dd>
+    </dl>
 </section>
 <section id="dependencies">
   <h3>Dependencies</h3>
