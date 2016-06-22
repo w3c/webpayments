@@ -55,14 +55,6 @@
                     ],
                     status:   "FPWD"
                 },
-                "PAYMENT-ARCH": {
-                    title:    "A Role-based Architecture for Processing Payment Requests",
-                    href:     "https://w3c.github.io/webpayments/proposals/architecture/",
-                    authors:  [
-                        "Adrian Hope-Bailie"
-                    ],
-                    status:   "unofficial"
-                },
                 "METHOD-IDENTIFIERS": {
                     title:    "Payment Method Identifiers",
                     href:     "https://www.w3.org/TR/payment-method-id/",
@@ -119,19 +111,19 @@
   API [[!PAYMENT-REQUEST-API]] as a standard way to initiate payment
   requests from Web pages and applications. This specification adds
   payment apps to the experience. It
-  defines:<p>
-
+  defines:</p>
     <ul>
       <li>How users register and unregister payment apps with the user agent.</li>
       <li>How the user agent matches payment methods supported by the payee with those enabled in registered payment apps.</li>
       <li>How the user agent displays information about payment apps to the user for selection, to handle a payment request.</li>
       <li>How the user agent invokes a payment app, communicates input/response data with it, and returns the response data to the underlying Payment Request API.</li>
     </ul>
-
-
-  <p>Payment apps may be implemented in a variety of ways: as Web applications, native operating system applications, browser extensions, built-in user agent components, interface-less Web services, or a combination. This specification does not cover every aspect of communication on every platform.</p>
-
-  <p class="note" title="User agent as payment request mediator">The Web Payments Working Group has used the term "mediator" to refer to the software (here, the user agent) that carries out the activities defined in this specification (matching, information display, etc.).</p>
+  <p>Payment apps may be implemented in a variety of ways: as Web applications, native operating system applications,
+      browser extensions, built-in user agent components, interface-less Web services, or a combination.
+      This specification does not cover every aspect of communication on every platform.</p>
+  <p class="note" title="User agent as payment request mediator">The Web Payments Working Group has used the term
+      "mediator" to refer to the software (here, the user agent) that carries out the activities defined in this
+      specification (matching, information display, etc.).</p>
 </section>
 <section id='conformance'>
     <p>
@@ -184,64 +176,64 @@
             <dfn data-lt="payment method identifier|payment method identifiers">payment
             method identifier</dfn> are defined by the Payment Method
             Identifiers specification [[!METHOD-IDENTIFIERS]].</dd>
-	<!--
         <dt>HTML5</dt>
         <dd>The terms <dfn>global object</dfn>, <dfn>queue a task</dfn>,
             <dfn>browsing context</dfn>, and <dfn>top-level browsing
                 context</dfn> are defined by [[!HTML5]].</dd>
-        <dt>ECMA-262 6th Edition, The ECMAScript 2015 Language
-            Specification</dt>
-        <dd>The terms <dfn>Promise</dfn>, <dfn>internal slot</dfn>,
-            <dfn><code>TypeError</code></dfn>, <dfn>JSON.stringify</dfn>,
-            <dfn>JSON.parse</dfn>, <dfn><code>Array</code></dfn>,
-            <dfn><code>type</code></dfn> and the <dfn>[[\GetOwnProperty]]</dfn>
-            operation are defined by [[!ECMA-262-2015]].
-            <p>This document uses the format <em>object</em>@[[\slotname]] to
-                mean the internal slot [[\slotname]] of the object
-                <em>object</em>.</p>
-            <p>The term <dfn>JSON-serializable object</dfn> used in this
-                specification means an object that can be serialized to a string
-                using <a>JSON.stringify</a> and later deserialized back to an
-                object using <a>JSON.parse</a> with no loss of data.</p>
-            <p>When instructed to <dfn>Trim</dfn>(<var>x</var>), a user agent
-                MUST behave as if [[!ECMA-262-2015]]'s
-                <code>String.prototype.trim()</code> function had been called on
-                the string <var>x</var>.</p>
-        </dd>
-        <dt>DOM4</dt>
-        <dd>The <code><dfn>Event</dfn></code> type and the terms <dfn>fire
-            an event</dfn>, <dfn>dispatch flag</dfn>, <dfn>stop propagation
-            flag</dfn>, and <dfn>stop immediate propagation flag</dfn> are
-            defined by [[!DOM4]].
-            <p><dfn>DOMException</dfn> and the following DOMException types
-                from [[!DOM4]] are used:</p>
-            <table>
-                <tr>
-                    <th>Type</th>
-                    <th>Message (optional)</th>
-                </tr>
-                <tr>
-                    <td><code><dfn>InvalidStateError</dfn></code></td>
-                    <td>The object is in an invalid state</td>
-                </tr>
-                <tr>
-                    <td><code><dfn>NotSupportedError</dfn></code></td>
-                    <td>The payment method was not supported</td>
-                </tr>
-                <tr>
-                    <td><code><dfn>SecurityError</dfn></code></td>
-                    <td>The operation is only supported in a secure context</td>
-                </tr>
-            </table>
-        </dd>
-        <dt>WebIDL</dt>
-        <dd>When this specification says to <dfn>throw</dfn> an error, the
-            <a>user agent</a> must throw an error as described in [[!WEBIDL]].
-            When this occurs in a sub-algorithm, this results in termination of
-            execution of the sub-algorithm and all ancestor algorithms until
-            one is reached that explicitly describes procedures for catching
-            exceptions.</dd>
-	-->
+        <!--
+            <dt>ECMA-262 6th Edition, The ECMAScript 2015 Language
+                Specification</dt>
+            <dd>The terms <dfn>Promise</dfn>, <dfn>internal slot</dfn>,
+                <dfn><code>TypeError</code></dfn>, <dfn>JSON.stringify</dfn>,
+                <dfn>JSON.parse</dfn>, <dfn><code>Array</code></dfn>,
+                <dfn><code>type</code></dfn> and the <dfn>[[\GetOwnProperty]]</dfn>
+                operation are defined by [[!ECMA-262-2015]].
+                <p>This document uses the format <em>object</em>@[[\slotname]] to
+                    mean the internal slot [[\slotname]] of the object
+                    <em>object</em>.</p>
+                <p>The term <dfn>JSON-serializable object</dfn> used in this
+                    specification means an object that can be serialized to a string
+                    using <a>JSON.stringify</a> and later deserialized back to an
+                    object using <a>JSON.parse</a> with no loss of data.</p>
+                <p>When instructed to <dfn>Trim</dfn>(<var>x</var>), a user agent
+                    MUST behave as if [[!ECMA-262-2015]]'s
+                    <code>String.prototype.trim()</code> function had been called on
+                    the string <var>x</var>.</p>
+            </dd>
+            <dt>DOM4</dt>
+            <dd>The <code><dfn>Event</dfn></code> type and the terms <dfn>fire
+                an event</dfn>, <dfn>dispatch flag</dfn>, <dfn>stop propagation
+                flag</dfn>, and <dfn>stop immediate propagation flag</dfn> are
+                defined by [[!DOM4]].
+                <p><dfn>DOMException</dfn> and the following DOMException types
+                    from [[!DOM4]] are used:</p>
+                <table>
+                    <tr>
+                        <th>Type</th>
+                        <th>Message (optional)</th>
+                    </tr>
+                    <tr>
+                        <td><code><dfn>InvalidStateError</dfn></code></td>
+                        <td>The object is in an invalid state</td>
+                    </tr>
+                    <tr>
+                        <td><code><dfn>NotSupportedError</dfn></code></td>
+                        <td>The payment method was not supported</td>
+                    </tr>
+                    <tr>
+                        <td><code><dfn>SecurityError</dfn></code></td>
+                        <td>The operation is only supported in a secure context</td>
+                    </tr>
+                </table>
+            </dd>
+            <dt>WebIDL</dt>
+            <dd>When this specification says to <dfn>throw</dfn> an error, the
+                <a>user agent</a> must throw an error as described in [[!WEBIDL]].
+                When this occurs in a sub-algorithm, this results in termination of
+                execution of the sub-algorithm and all ancestor algorithms until
+                one is reached that explicitly describes procedures for catching
+                exceptions.</dd>
+        -->
         <dt>Secure Contexts</dt>
         <dd>The term <dfn>secure context</dfn> is defined by the Secure
           Contexts specification [[!POWERFUL-FEATURES]].</dd>
@@ -405,61 +397,48 @@
 <section id="registration">
   <h2>Payment App Registration and Unregistration</h2>
 
-  <p>To support registration and unregistration, the user agent provides
-  primitives that may be called from within a Web page or
-  application. For example, the user might visit a Web-based payment
-  app and push a "Register payment app" to invoke the user agent
-  primitives.</p>
+  <p>To support registration and unregistration, the user agent provides primitives that may be called from within a Web
+      page.</p>
 
   <section>
-    <h3>Registration</h3>
-
-    <p class="note" title="HTTP assumptions">
-        The <code>start_url</code> in the PaymentApp dictionary assumes an HTTP approach to communication between the user agent and the payment app. The Working Group is currently exploring other approaches to communication as well; this particular proposal has been included to foster discussion. See also <a class="issue" href="https://github.com/w3c/webpayments/issues/110">issue 110</a>.</p>
-
+    <h3>Registration, Updates and Unregistration</h3>
+      <p>Payment apps are registered with the user agent through a call to the <code>register()</code> method of the API.
+          The input to the registration process is a <code>request_url</code> which uniquely identifies the app and is
+          the endpoint that payment requests will be submitted to and a sequence of <code>PaymentOption</code>
+          dictionaries that represent the options that can be presented to the user during payment app selection.
+      </p>
      <section>
-        <h4>The PaymentApp dictionary</h4>
+         <h4>The PaymentApp interface</h4>
 <pre class="idl">
-            dictionary PaymentApp {
-                DOMString name;
-                URLString start_url;
-                sequence&lt;DOMString&gt; supported_methods;
-                sequence&lt;DOMString&gt; enabled_methods;
+            partial interface PaymentApp {
+                Promise&lt;void&gt; register (URLString request_url, sequence&lt;PaymentOption&gt; payment_options);
             };
 </pre>
         <dl>
-          <dt><code>name</code> member</dt>
-          <dd>
-                        The <dfn id="payment-app-name"><code>name</code> member</dfn> is a
-                        string that represents the name of the payment app as it
-                        is usually displayed to the user (e.g., among a list of other
-                        payment apps, or as a label for an icon).
-          </dd>
-          <dt><code>start_url</code> member</dt>
-            <dd><p>
-                            The <dfn id="payment-app-start-url"><code>start_url</code></dfn> is a string that
-                            represents the <dfn>start URL</dfn>, which is the <a>URL</a> that accepts
-                            payment request messages via HTTP POST.
+            <dt><code>request_url</code> member</dt>
+            <dd>
+                <p>
+                    The <dfn id="payment-app-request-url"><code>request_url</code></dfn> is a string that
+                    represents the <dfn>request URL</dfn>, which is the <a>URL</a> that accepts
+                    payment request messages via HTTP POST.
                 </p>
                 <p>
-                            The <code><a>start_url</a></code> is the API entry point for the payment
-                            app and must have the same origin as the web application that attempts
-                            to register the payment app.
+                    The <code><a>request_url</a></code> is the API entry point for the payment
+                    app and MUST have the same origin as the web application that attempts
+                    to register the payment app.
                 </p>
                 <p>
-                            The <code><a>start_url</a></code> is also the unique identifier for the payment app.
-                            If a payment app is already installed with the same <code><a>start_url</a></code>
-                            it will be replaced if a new payment app is registered with the same URL.
+                    The <code><a>request_url</a></code> is also the unique identifier for the payment app.
+                    If a payment app is already installed with the same <code><a>request_url</a></code>
+                    the registered payment options will be replaced with the new sequence of options provided.
                 </p>
             </dd>
-            <dt><code>enabled_methods</code> member</dt>
+            <dt><code>payment_options</code> member</dt>
             <dd>
-                        The <dfn id="payment-app-enabled-methods"><code>enabled_methods</code></dfn> member
-                        lists the <a>payment method identifiers</a> of the enabled payment methods.</dd>
-            <dt><code>supported_methods</code> member</dt>
-            <dd>
-                        The <dfn id="payment-app-supported-methods"><code>supported_methods</code></dfn> member
-                        lists the <a>payment method identifiers</a> of the supported payment methods.
+                <p>
+                    The <dfn id="payment-app-options"><code>payment_options</code></dfn> is a sequence of one or more
+                    options that can be presented to the user for selection when the [[!PAYMENT-REQUEST-API]] is invoked.
+                </p>
             </dd>
         </dl>
         <p class="issue" title="Matching Payment Instruments rather than Apps">
@@ -471,53 +450,106 @@
         </p>
      </section>
      <section>
-       <h4>registerPaymentApp()</h4>
-       <pre class="idl">
-         partial interface Navigator {
-         readonly attribute PaymentsApi payments;
-         };
-	 
-         partial interface PaymentsApi {
-         void registerPaymentApp (PaymentApp payment_app);
-         };
-       </pre>
-       <p>The <dfn>steps for installing a payment app</dfn> are given by
-         the following algorithm. The algorithm takes a <a>PaymentApp</a> argument
-         (<var>payment_app</var>) as input.
-         The algorithm, if successful, returns nothing; otherwise, it terminates
-         prematurely and throws an exception.</p>
-       <div class="issue" title="TODO: Define install algorithm"></div>
+         <h4>The PaymentOption dictionary</h4>
+<pre class="idl">
+            dictionary PaymentOption {
+                DOMString label;
+                DOMString icon;
+                sequence&lt;DOMString&gt; enabled_methods;
+            };
+</pre>
+          <dl>
+              <dt><code>label</code> member</dt>
+              <dd>
+                  The <dfn id="payment-app-option-label"><code>label</code> member</dfn> is a
+                  string that represents the lable for this option as it is usually displayed to the user when
+                  selecting a payment app.
+              </dd>
+              <dt><code>icon</code> member</dt>
+              <dd class="issue">
+                  Need to define how an icon would be represented in this data. Url? Data URL? Size options?
+              </dd>
+              <dt><code>enabled_methods</code> member</dt>
+              <dd>
+                  The <dfn id="payment-app-option-enabled-methods"><code>enabled_methods</code></dfn> member
+                  lists the <a>payment method identifiers</a> of the payment methods enabled by this option.
+              </dd>
+          </dl>
+      </section>
+      <section>
+          <h2>register()</h2>
+          <p>
+              The <code><dfn>register</dfn></code> method may be called if the web page wishes to register a
+              payment app with the <a>user agent</a>, update the registered information about an already registered
+              payment app or unregister a payment app.
+          </p>
+          <p>
+              Payment apps are uniquely identifed by their <code>request_url</code>. To update the payment options
+              offered by a registered payment app a website must simply call <code>register()</code> using the same
+              <code>request_url</code> as was used when registering the app and pass in the new sequence of options. To
+              unregister a payment app the website calls <code>register()</code> with an empty sequence of options.
+          </p>
+
+          <p>The <a><code>register</code></a> method MUST act as follows:</p>
+          <ol>
+              <li>Let <em>promise</em> be a new <a>Promise</a>.</li>
+              <li>Return <em>promise</em> and asynchronously perform the remaining steps.</li>
+              <li>If the origin of <em>request_url</em> does not match the origin of the current document
+                  reject <em>promise</em> with a <a><code>SecurityError</code></a>.</li>
+              <li>Let <em>registered_app</em> be the registered payment app where
+                  <em>registered_app</em>@[[\request_url]] is equal to <em>request_url</em>.</li>
+              <li>If <em>registered_app</em> is null, let <em>new_app</em> be a new registered payment app and:</li>
+              <ol>
+                  <li>Set <em>new_app</em>@[[\\request_url]] to <em>request_url</em>.</li>
+                  <li>Set <em>new_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
+                  <li>Store <em>new_app</em> as a registered payment app.</li>
+              </ol>
+              <li>Else</li>
+              <ol>
+                  <li>If <em>payment_options</em> is an empty sequence, unregister <em>registered_app</em>.</li>
+                  <li>Else, set <em>registered_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
+              </ol>
+              <li>Resolve <em>promise</em> with <code>undefined</code>.</li>
+          </ol>
        <p>The following example shows how to register a payment app:</p>
        <pre class="example highlight">
-         try {
-         navigator.payments.registerPaymentApp(payment_app);
-         // Do any custom post-processing
-         // Example: Install ServiceWorker to handle offline payment requests
-         }).catch(function(err) {
-         console.error("Uh oh, something bad happened", err.message);
-         });
-	 
+         PaymentApp.register(
+           "https://example.com/paymentapp/v1",
+           [
+            {
+                label: "Visa ending ****4756",
+                icon: "...",
+                enabled_methods: ["https://webpayments.org/payment-methods/card/visa"]
+            },
+            {
+                label: "New credit/debit card",
+                icon: "...",
+                enabled_methods: [
+                    "https://webpayments.org/payment-methods/card/visa",
+                    "https://webpayments.org/payment-methods/card/mastercard",
+                    "https://webpayments.org/payment-methods/card/amex"
+                ]
+            },
+            {
+                label: "Bob Pay ",
+                icon: "...",
+                enabled_methods: ["https://bobpay.com/"]
+            },
+           ]).then(function(value) {
+              console.log("Installed https://example.com/paymentapp/v1 payment app"); // Success!
+            }, function(reason) {
+              console.log(reason); // Error!
+           });
      </pre>
      </section>
-      <p class="issue" data-number="111" title="App Updates">
-          At each registration, the user agent <span class='rfc2119'>MUST</span> replace all previous registration
-          information with the new registration information. Payment apps  <span class='rfc2119'>MAY</span> use this
-          feature to provide updates.</p>
       <p class="issue" title="Invocation model">
-      We need to confirm the registration approach we wish to take. HTTP or JavaScript? What is the role of service
-      workers?</p>
-      <p class="issue" data-number="142" title="Should payment instrument details be included in registration?">This would
-          improve the user experience for UIs that provide direct selection of payment instruments (otherwise multiple
-          clicks required).</p>
-      <p class="issue" title="Registration of native payment apps?">What, if anything, should we say about
-          registering native payment apps? Should we publish separate "good practices" documents for different
-          platforms?</p>
-  </section>
-  <section>
-    <h3>Unregistration</h3>
-    <ul>
-      <li>The user agent <span class='rfc2119'>MUST</span> enable a user to unregister a payment app.</li>
-    </ul>
+          We need to confirm the registration approach we wish to take. HTTP or JavaScript? What is the role of service
+          workers?
+      </p>
+      <p class="issue" title="Registration of native payment apps?">
+          What, if anything, should we say about registering native payment apps? Should we publish separate
+          "good practices" documents for different platforms?
+      </p>
   </section>
 </section>
 <section id="matching">
