@@ -133,7 +133,7 @@
         <dt><dfn>Conforming user agent</dfn></dt>
         <dd>
             <p>
-                A <dfn data-lt="user agents">user agent</dfn> MUST behave as described in this specification
+                A <a>user agent</a> MUST behave as described in this specification
                 in order to be considered conformant. In this specification, <a>user agent</a> means a <em>Web
                 browser or other interactive user agent</em> as defined in [[!HTML5]].
             </p>
@@ -167,15 +167,19 @@
 	    is defined by the Payment Request Architecture document
         [[PAYMENT-ARCH]].</dd>
         -->
+        <!--
         <dt>Payment Request API</dt>
         <dd>The terms <dfn>Payment Request API</dfn>,
             <dfn>PaymentRequest</dfn> and <dfn>PaymentResponse</dfn> are defined by the
             Payment Request API specification [[!PAYMENT-REQUEST-API]].</dd>
+        -->
+        <!--
         <dt>Payment Method Identifiers</dt>
         <dd>The terms <dfn data-lt="payment method|payment methods">payment method</dfn> and
             <dfn data-lt="payment method identifier|payment method identifiers">payment
             method identifier</dfn> are defined by the Payment Method
             Identifiers specification [[!METHOD-IDENTIFIERS]].</dd>
+        -->
         <dt>HTML5</dt>
         <dd>The terms <dfn>global object</dfn>, <dfn>queue a task</dfn>,
             <dfn>browsing context</dfn>, and <dfn>top-level browsing
@@ -252,16 +256,18 @@
 </section>
 <section id="definitions">
   <h2>Definitions</h2>
-    <dl>
-        <dt><dfn id="dfn-payment-app">payment app</dfn></dt>
-        <dd>a payment app is a system that handles payment requests and returns a payment response.</dd>
-    </dl>
+  <div data-include="https://w3c.github.io/webpayments-ig/latest/common/terms.html"
+       data-oninclude="restrictReferences">
+  </div>
+
   <h3>Payment App Implementation Technology</h3>
   <dl>
     <dt><dfn id="dfn-browser-based-payment-app">browser-based payment app</dfn></dt>
-    <dd>a payment app that runs in a user agent.</dd>
+    <dd>a <a>payment app</a> that runs in a <a>browser</a>.</dd>
+
     <dt><dfn id="dfn-headless-payment-app">headless Web payment app</dfn></dt>
     <dd>a payment app that has no user interface.</dd>
+
     <!-- This adds no value
     <dt><dfn id="">web-based payment app</dfn></dt>
     <dd>a payment app that communicates using Web technology (such as HTTP).</dd>
@@ -275,23 +281,46 @@
   <dl>
       <dt><dfn id="dfn-registered-payment-app">registered payment app</dfn></dt>
       <dd>a payment app that is "known" to the user agent for the purposes of the interactions described in this document.</dd>
+
       <div class="note" title="Platform-specific registration">
           This specification defines a registration mechanism. Other registration mechanisms might co-exist with this one
           (e.g., on some platforms there may be a way to register a payment app directly with the operating system).</div>
       <dt><dfn id="dfn-unregistered-payment-app">unregistered payment app</dfn></dt>
       <dd>a payment app that is not known to the user agent, either because it has never been registered, or because it has been unregistered.</dd>
+
+	  <dt><dfn id="dfn-enabled-payment-app">enabled payment app</dfn></dt>
+	  <dd>A <a>registered payment app</a> with at least one <a>enabled
+	  payment method</a>.</dd>
+
+	  <dt><dfn id="dfn-matching-payment-app">matching payment app</dfn></dt>
+	  <dd>An <a>enabled payment app</a> that:
+		<ul>
+		  <li>has at least one <a>enabled payment method</a> that the
+		  <a>payee</a> accepts.</li>
+
+		  <li>is not an <a>ignored payment app</a>.</li>
+		</ul>
+	  </dd>
+
+
       <!--
       <dt><dfn id="">ignored payment app</dfn></dt>
       <dd>a payment app that, per user configuration, the user agent does included in matching computations and does not invoke for payment. A payment app may be ignored for some transactions and not for others.</dd>
       -->
+
       <dt><dfn id="dfn-recommended-payment-app">recommended payment app</dfn></dt>
       <dd>a payment app suggested by the payee or user agent to be registered and used to handle a specific payment request.
           <p class="issue" data-number="112" title="Recommended Payment Apps is still under discussion">
               The Working Group has not yet agreed that the system should support recommended payment apps.
               Inclusion might involve small changes to payment request API.</p>
       </dd>
+
+	  <dt><dfn id="dfn-displayed-payment-app">displayed payment app</dfn></dt>
+	  <dd>A <a>matching payment app</a> or <a>recommended payment app</a> presented by the browser for user selection.</dd>
+
       <dt><dfn id="">selected payment app</dfn></dt>
       <dd>the app selected by the user to make a payment, but not yet invoked.</dd>
+
       <dt><dfn id="">invoked payment app</dfn></dt>
       <dd>the selected payment app that the user agent has invoked (executed) and passed payment app input data.</dd>
   </dl>
@@ -299,9 +328,11 @@
   <dl>
       <dt><dfn id="dfn-available-payment-app">available payment option</dfn></dt>
       <dd>a payment option from a registered payment app with at least one enabled payment method.</dd>
+
       <dt><dfn id="">matching payment option</dfn></dt>
       <dd>an available payment option that has at least one enabled payment method accepted by the payee, or a recommended
           payment app with at least one supported payment method accepted by the payee.</dd>
+
       <dt><dfn id="">selectable payment option</dfn></dt>
       <dd>a matching payment option for which information has been displayed by the user agent to facilitate user selection,
           but that has not yet been selected. <strong>Note:</strong> Information about selectable payment apps may be
@@ -312,12 +343,15 @@
       <dt><dfn id="">supported payment method</dfn></dt>
       <dd>a payment method that a payment app has been designed to support however, this payment method may or may
           not currently be enabled. A payment app may support more than one payment method.</dd>
+
       <dt><dfn id="">unsupported payment method</dfn></dt>
       <dd>a payment method that can noit be enabled by a payment app. Updates to a payment app may cause an
           unsupported payment method to become supported.</dd>
-      <dt><dfn id="">enabled payment method </dfn></dt>
+
+      <dt><dfn id="">enabled payment method</dfn></dt>
       <dd>a payment method that the currently registered payment app is able to handle. The set of enabled payment
           methods for a payment app is either the set or a subset of the supported payment methods.</dd>
+
       <p class="note" title="Supported vs enabled Payment Methods">
           The difference between <strong>supported</strong> and <strong>enabled</strong> payment methods is one of design-time vs runtime consideration.
           A payment app supports all the payment methods it was designed to support however at runtime only a subset
@@ -339,13 +373,13 @@
     <dt><dfn id="">selected payment option</dfn></dt>
     <dd>the payment option selected by the user to handle the payment request.</dd>
     <dt><dfn id="">payment app request data</dfn></dt>
-    <dd>data provided to the invoked payment app by the user agent to initiate a payment request. This data is a subset
+    <dd>data provided to the <a>invoked payment app</a> by the user agent to initiate a payment request. This data is a subset
         of data input to the Payment Request API.</dd>
     <p class="note" title="JSON serialization">
         The data passed between the user agent and the payment app will serializedas JSON data.
     </p>
     <dt><dfn id="">payment app response data</dfn></dt>
-    <dd>data returned by an invoked payment app to the user agent, typically after payment authorization or other action
+    <dd>data returned by an <a>invoked payment app</a> to the user agent, typically after payment authorization or other action
         taken through the payment app. This data, which will vary according to payment method, is then passed through
         the Payment Request API as the payment response.</dd>
   </dl>
@@ -357,7 +391,7 @@
     <h3>General Considerations</h3>
     <ul>
       <li>This specification builds on PaymentRequest API.</li>
-      <li>It defines mechanisms that may be used to support both Web-based and native payment apps. However, we anticipate
+      <li>It defines mechanisms that may be used to support both Web-based and <a>native payment apps</a>. However, we anticipate
           that the ecosystem will also include proprietary approaches to some of the functionality defined here
           (e.g., for payment app registration or invocation).</li>
     </ul>
@@ -648,7 +682,7 @@ partial interface PaymentApp {
   <section>
     <h3>Selection by the User</h3>
     <ul>
-      <li>The user agent  <span class='rfc2119'>MUST</span> enable the user to select any displayed payment app.</li>
+      <li>The user agent  <span class='rfc2119'>MUST</span> enable the user to select any <a>displayed payment app</a>.</li>
       <li>If the user selects an unregistered recommended payment app, the user agent <span class='rfc2119'>SHOULD</span>
           offer the user an opportunity to register it.</li>
     </ul>
