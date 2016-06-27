@@ -150,26 +150,21 @@ architecture also strives to:
   <h2>The Structure of Payment Messages</h2>
 
   <p>
-A payment instruction is composed of the following parts:
+A payment request is composed of the following parts:
   </p>
 
   <dl>
-    <dt><strong><em>Instruction Type</em></strong></dt>
-    <dd>
-The type of transaction that should be executed if the message is processed.
-Examples include: request, subscription, hold, and refund.
-    </dd>
     <dt><strong><em>Payment Methods</em></strong></dt>
     <dd>
-The methods of payment that may be used for processing the payment instruction.
+The methods of payment that may be used for processing the payment request.
 Examples include: credit card, ACH, SEPA, and Bitcoin.
     </dd>
-    <dt><strong><em>Transaction Details</em></strong></dt>
+    <dt><strong><em>Payment Details</em></strong></dt>
     <dd>
 Specific information pertaining to the transaction. Examples include: price,
 transaction reference number, and items being purchased.
     </dd>
-    <dt><strong><em>Transaction Options</em></strong></dt>
+    <dt><strong><em>Payment Options</em></strong></dt>
     <dd>
 A set of information that needs to be collected from the payer in order for
 the transaction to be fulfilled. Examples include: shipping options,
@@ -178,11 +173,20 @@ requests for shipping address, and requests for contact information.
   </dl>
 
   <figure>
-    <img style="margin: auto; display: block;" width="50%" src="instruction.svg">
+    <img style="margin: auto; display: block;" width="50%" src="request.svg">
     <figcaption style="text-align: center;">
-- The structure of a payment instruction.
+- The structure of a payment request.
     </figcaption>
   </figure>
+
+  <p class="issue">
+A concern has been raised over the structure of a payment request, notably
+that there are other forms of messages that may be initiated by a payer. There
+is currently a proposal to modify payment request to a more generalized
+"payment instruction" that would be capable of expressing other messages like
+subscriptions, preauthorizations, refunds, and other sorts of payment-related
+instructions.
+  </p> 
 
   <p>
 A payment response is composed of the following parts:
@@ -202,7 +206,7 @@ transaction reference number, price, and items purchased.
     <dt><strong><em>Response Details</em></strong></dt>
     <dd>
 Information that pertains to the result of processing the payment including
-all information requested in the initial payment instruction. Examples include:
+all information requested in the initial payment request. Examples include:
 selected shipping option, shipping address, and contact email.
     </dd>
   </dl>
@@ -241,11 +245,11 @@ An entity receiving value from the Payer.
     </dd>
     <dt><strong><em>Mediator</em></strong></dt>
     <dd>
-Routes payment instructions between the Payee and the Payment App.
+Routes payment requests between the Payee and the Payment App.
     </dd>
     <dt><strong><em>Payment App</em></strong></dt>
     <dd>
-Processes payment instructions sent via the Mediator and returns
+Processes payment request sent via the Mediator and returns
 payment responses to the Mediator. It may communicate with Payment Networks
 to execute a payment instruction or it may return data so that another
 entity can execute a payment instruction.
@@ -270,18 +274,18 @@ following concerns:
 
   <ul>
     <li>
-The role that creates the payment instruction (Payee) is separated from the
-role that routes the payment instruction to the entity that will process it
+The role that creates the payment request (Payee) is separated from the
+role that routes the payment request to the entity that will process it
 (Mediator).
     </li>
     <li>
-The role that routes the payment instruction (Mediator) is separated from
-the role that processes the payment instruction (Payment App).
+The role that routes the payment request (Mediator) is separated from
+the role that processes the payment request (Payment App).
     </li>
     <li>
-The role that processes the payment instruction/response
+The role that processes the payment request/response
 (Payment App/Payee) is separated from the role that transfers the value
-associated with the instruction/response (Payment Network).
+associated with the request/response (Payment Network).
     </li>
   </ul>
 
@@ -301,6 +305,12 @@ credit card.
   </p>
 
   <h3>Payer Registers Payment App</h3>
+
+  <p class="issue">
+Note that this section is currently speculative and will be updated once
+consensus forms around a corresponding payment application registration
+specification, which is currently under development.
+  </p>
 
   <p>
 In order for Quinn (Payer) to use her new security-enhanced credit card, she
