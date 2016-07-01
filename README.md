@@ -21,3 +21,4 @@ This WG is currently working on the following specifications which are all in th
 These are incubated in the proposals folder of this repo until being abandoned or adopted as editor's drafts by the WG.
 
 * Payment Apps - https://w3c.github.io/webpayments/proposals/paymentapps/payment-apps.html
+* Alipay Payment Method - https://w3c.github.io/webpayments/proposals/Alipay-payment-method.html
