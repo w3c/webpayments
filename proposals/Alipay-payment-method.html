@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Alipay Payment Method</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          shortName:  "alipay-payment-method",
+          //edDraftURI:   "https://w3c.github.io/browser-payment-api/basic-card-payment.html",
+
+          specStatus: "WD",
+          publishDate: "2016-06-30",
+          editors: [
+                {   name:       "Dapeng Liu",
+                    company:    "Alibaba" },
+                {
+                    name:      "Jiajia Li",
+                    company:   "Alibaba"
+                },
+                {   name:      "Kepeng Li",
+                    company:   "Alibaba", 
+                },
+                {   name:      "Jun Yang",
+                    company:   "Alibaba",
+                }
+          ],
+
+          license:      "w3c-software-doc",
+          noRecTrack:   true,
+
+          //previousMaturity: "FPWD",
+          //previousPublishDate:  "1977-03-15",
+
+          wg:           "Web Payments Working Group",
+          wgURI:        "https://www.w3.org/Payments/WG/",
+          wgPublicList: "public-payments-wg",
+          wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
+
+          issueBase:    "https://github.com/w3c/browser-payment-api/issues/",
+
+          localBiblio:  {
+              "PAYMENTARCH": {
+                  title:    "Payment Request Architecture"
+              ,   href:     "https://w3c.github.io/browser-payment-api/specs/architecture.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "ED"
+              },
+              "PAYMENTREQUESTAPI": {
+                  title:    "Payment Request API"
+              ,   href:     "https://www.w3.org/TR/payment-request/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+              "METHODIDENTIFIERS": {
+                  title:    "Payment Method Identifiers"
+              ,   href:     "https://www.w3.org/TR/payment-method-id/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+			  "WEBIDL": {
+                  title:    "WebIDL Level 1"
+              ,   href:     "http://www.w3.org/TR/WebIDL-1/"
+              ,   authors:  [
+                      "Cameron McCormack"
+                  ,   "Boris Zbarsky"
+                  ]
+              ,   status:   "Rec"
+              }
+          }
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        The Alipay payment method specification describes the data formats used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by Alipay.
+      </p>
+    </section>
+
+    <section id='sotd'>
+    </section>
+    
+    <section class='informative'>
+      <h2>Introduction</h2>
+      <p>
+        This specification is a Alipay <a>Payment Method Specification</a> used by the PaymentRequest API
+        [[!PAYMENTREQUESTAPI]] to support payment by Alipay. It is intended
+        to provide compatibility for merchants who currently request card details from customers to ease adoption
+        of the PaymentRequest API.
+      </p>
+      <p>
+        In the future, merchants should favor payment methods that provide a tokenized response.
+      </p>
+    </section>
+
+    <section id="dependencies"> 
+      <h2>Dependencies</h2> 
+      <p> 
+      This specification relies on several other underlying specifications. 
+      </p> 
+      <dl> 
+        <dt>Payment Request Architecture</dt>
+        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
+        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
+        Message Specification</dfn> are defined by the Payment Request Architecture document
+        [[!PAYMENTARCH]].</dd>
+        <dt>Payment Request API</dt>
+        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
+        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+        Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+        [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web IDL</dt>
+        <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+      </dl>
+    </section>
+
+    <section id="method-id">
+      <h2>Payment Method Identifier</h2>
+      <p>The following <a>payment method identifier</a> strings are supported by the Alipay data formats.</p>
+
+      <table>
+        <tr><th>Identifier String</th><th>Description</th></tr>
+        <tr><td>alipay</td><td>Alipay</td></tr>
+        
+      </table>
+    </section>
+	
+	<section id="payment-flows">
+      <h2>Alipay Payment flows</h2>
+      
+    </section>
+
+    <section id="init-data">
+      <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
+      <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
+      argument to the PaymentRequest constructor.</p>
+      <p>The following is the payment method specific data used by the PaymentRequest constructor when processing
+      Alipay Payment methods.</p>
+	  
+	  <section>
+      <h2>Payment Method Specific Data </h2>
+      <pre class="idl">
+        dictionary PaymentMethodSpecificData  {
+          required DOMString service;
+          required DOMString partner;
+          required DOMString _input_charset;
+          required DOMString sign_type;
+		  required DOMString sign;
+          required DOMString notify_url;
+
+		  DOMString out_trade_no;
+		  DOMString subject;
+		  DOMString payment_type;
+		  DOMString seller_id;
+		  DOMString total_fee;
+		  DOMString body;
+		  DOMString goods_type;
+		  DOMString it_b_pay;
+
+        };
+      </pre>
+	  
+	  <p>
+        The <code>PaymentMethodSpecificData</code> dictionary contains the following fields:
+      </p>
+	  
+	  <dl>
+        <dt><dfn><code>service</code></dfn></dt>
+        <dd>The <code>service</code> field contains interface name which is a Fixed value.</dd><dt><dfn><code>partner</code></dfn></dt>
+        <dd>The <code>partner</code> field contains the merchant's account.</dd>
+        <dt><dfn><code>input_charset</code></dfn></dt>
+        <dd>The <code>_input_charset</code> field contains the encoding type of merchant’s website, default value is utf-8.</dd>
+        <dt><dfn><code>sign_type</code></dfn></dt>
+        <dd>The <code>sign_type</code> field contains the signature type.</dd>
+        <dt><dfn><code>sign</code></dfn></dt>
+        <dd>The <code>sign</code> field contains the signature content.</dd>
+		<dt><dfn><code>notify_url</code></dfn></dt>
+        <dd>The <code>notify_url</code> field contains the asynchronous notification URL.</dd>
+
+        <dt><dfn><code>out_trade_no</code></dfn></dt>
+        <dd>The <code>out_trade_no</code> field contains the unique order number in merchant website.</dd>
+        <dt><dfn><code>subject</code></dfn></dt>
+        <dd>The <code>subject</code> contains the key word for the merchandise,transaction, order etc.</dd>
+		<dt><dfn><code>payment_type</code></dfn></dt>
+        <dd>The <code>payment_type</code> field contains the payment type.</dd>
+        <dt><dfn><code>seller_id</code></dfn></dt>
+        <dd>The <code>seller_id</code> field contains the seller's account.</dd>
+        <dt><dfn><code>total_fee</code></dfn></dt>
+        <dd>The <code>total_fee</code> field contains the total amount of an order (RMB). Value range is [0.01, 100000000.00].</dd>
+        <dt><dfn><code>body</code></dfn></dt>
+        <dd>The <code>body</code> field contains the description information of one transaction.</dd>
+        
+		<dt><dfn><code>goods_type</code></dfn></dt>
+        <dd>The <code>goods_type</code> field contains the merchandise type. 1: physical; 0: virtual.
+        </dd>
+        
+        <dt><dfn><code>it_b_pay</code></dfn></dt>
+        <dd>The <code>it_b_pay</code> field contains the time out value for unfinished transaction.</dd>
+        
+       
+		
+	  </dl>
+	  
+	  
+	  </section>
+	  
+    </section>
+
+    <section id="response">
+      <h2>Payment Method Response</h2>
+      <p>The <dfn><code>AlipayResponse</code></dfn> dictionary contains the response from the
+      PaymentRequest API when a user accepts payment with a Alipay payment method.</p>
+
+      <section>
+      <h2>AlipayPaymentResponse</h2>
+      <pre class="idl">
+        dictionary AlipayPaymentResponse {
+          required DOMString success;
+          required DOMString notify_id;
+          required DOMString notify_time;
+          required DOMString notify_type;
+		  required DOMString sign_type;
+          required DOMString sign;
+		  
+		  DOMString out_trade_no;
+		  DOMString subject;
+		  DOMString payment_type;
+		  DOMString trade_no;
+		  DOMString trade_status;
+		  DOMString seller_id;
+		  DOMString seller_email;
+		  DOMString buyer_id;
+		  DOMString buyer_email;
+		  DOMString total_fee;
+		  DOMString quantity;
+		  DOMString price;
+		  DOMString body;
+		  DOMString gmt_create;
+		  DOMString gmt_payment;
+		  DOMString refund_status;
+		  DOMString gmt_refund;
+
+        };
+      </pre>
+
+      <p>
+        The <code>AlipayPaymentResponse</code> dictionary contains the following fields:
+      </p>
+
+      <dl>
+        <dt><dfn><code>success</code></dfn></dt>
+        <dd>The <code>success</code> field contains indication whether the transaction is successful. </dd>
+        <dt><dfn><code>notify_id</code></dfn></dt>
+        <dd>The <code>notify_id</code> field contains the notification ID. </dd>
+        <dt><dfn><code>notify_time</code></dfn></dt>
+        <dd>The <code>notify_time</code> field contains the notification time. </dd>
+        <dt><dfn><code>notify_type</code></dfn></dt>
+        <dd>The <code>notify_type</code> field contains the notification type. </dd>
+        <dt><dfn><code>sign_type</code></dfn></dt>
+        <dd>The <code>sign_type</code>field contains the signature type.</dd>
+		<dt><dfn><code>sign</code></dfn></dt>
+        <dd>The <code>sign</code>field contains the signature content.</dd>
+		<dt><dfn><code>out_trade_no</code></dfn></dt>
+        <dd>The <code>out_trade_no</code> field contains the order number in merchant website.</dd>
+        <dt><dfn><code>subject</code></dfn></dt>
+        <dd>The <code>subject</code> field contains the key word for the merchandise,transaction, order etc .</dd>
+		<dt><dfn><code>payment_type</code></dfn></dt>
+        <dd>The <code>payment</code>field contains the payment_type . </dd>
+        <dt><dfn><code>trade_no</code></dfn></dt>
+        <dd>The <code>trade_no</code>field contains the order number of the transaction. </dd>
+		<dt><dfn><code>trade_status</code></dfn></dt>
+        <dd>The <code>trade_status</code> field contains the trade status. </dd>
+		<dt><dfn><code>seller_id</code></dfn></dt>
+        <dd>The <code>seller_id</code> field contains seller's account.</dd>
+		<dt><dfn><code>seller_email</code></dfn></dt>
+        <dd>The <code>seller_email</code> field contains the seller's email.</dd>
+		<dt><dfn><code>buyer_id</code></dfn></dt>
+        <dd>The <code>buyer_id</code> field contains the buyer ID to indentify the buyer's account.</dd>
+		<dt><dfn><code>buyer_email</code></dfn></dt>
+        <dd>The <code>buyer_email</code> field contains the buyer's email.</dd>
+		<dt><dfn><code>total_fee</code></dfn></dt>
+        <dd>The <code>total_fee</code> field contains total amount of an order (RMB).</dd>
+		<dt><dfn><code>quantity</code></dfn></dt>
+        <dd>The <code>quantity</code> field contains the quantity of the merchandise. </dd>
+		<dt><dfn><code>price</code></dfn></dt>
+        <dd>The <code>price</code> field contains the price of merchandise.</dd>
+		<dt><dfn><code>body</code></dfn></dt>
+        <dd>The <code>body</code> field contains description of the merchandise.</dd>
+		<dt><dfn><code>gmt_create</code></dfn></dt>
+        <dd>The <code>gmt_create</code> field contains the time of the creation of the transaction.</dd>
+		<dt><dfn><code>gmt_payment</code></dfn></dt>
+        <dd>The <code>gmt_payment</code> field contains time of the payment.</dd>
+		<dt><dfn><code>refund_status</code></dfn></dt>
+        <dd>The <code>refund_status</code> field contains the status of refund.</dd>
+		<dt><dfn><code>gmt_refund</code></dfn></dt>
+        <dd>The <code>gmt_refund</code> field contains the time of refund.</dd>
+      </dl>
+
+      
+
+      </section>
+
+      
+    </section>
+
+
+
+  </body>
+</html>
