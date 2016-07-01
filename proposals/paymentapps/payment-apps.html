@@ -258,6 +258,7 @@
   <div data-include="https://w3c.github.io/webpayments-ig/latest/common/terms.html"
        data-oninclude="restrictReferences">
   </div>
+  <p class="issue">Updates needed for payment method option definition.</p>
 
   <h3>Payment App Implementation Technology</h3>
   <dl>
@@ -276,7 +277,7 @@
   </dl>
   <p class="note" title="Payment Apps in scope">
     The Web Payments Working Group intends for this specification to apply to any payment app that the may be invoked by the user agent, whatever technologies have been used to implement the payment app.</p>
-  <h3>Payment App Status</h3>
+  <h3>Payment App Registration States</h3>
   <dl>
       <dt><dfn id="dfn-registered-payment-app">registered payment app</dfn></dt>
       <dd>a payment app that is "known" to the user agent for the purposes of the interactions described in this document.</dd>
@@ -290,7 +291,8 @@
 	  <dt><dfn id="dfn-enabled-payment-app">enabled payment app</dfn></dt>
 	  <dd>A <a>registered payment app</a> with at least one <a>enabled
 	  payment method</a>.</dd>
-
+  <h3>Payment App Selection States</h3>
+  
 	  <dt><dfn id="dfn-matching-payment-app">matching payment app</dfn></dt>
 	  <dd>An <a>enabled payment app</a> that:
 		<ul>
@@ -314,11 +316,11 @@
               Inclusion might involve small changes to payment request API.</p>
       </dd>
 
-	  <dt><dfn id="dfn-displayed-payment-app">displayed payment app</dfn></dt>
-	  <dd>A <a>matching payment app</a> or <a>recommended payment app</a> presented by the browser for user selection.</dd>
+      <dt><dfn id="dfn-displayed-payment-app">displayed payment app</dfn></dt>
+	  <dd>A <a>matching payment app</a> or <a>recommended payment app</a> with at least one selectable payment option (i.e. presented by the browser for user selection).</dd>
 
       <dt><dfn id="">selected payment app</dfn></dt>
-      <dd>the app selected by the user to make a payment, but not yet invoked.</dd>
+      <dd>the payment app whose option has been selected by the user to make a payment, but not yet invoked.</dd>
 
       <dt><dfn id="">invoked payment app</dfn></dt>
       <dd>the selected payment app that the user agent has invoked (executed) and passed payment app input data.</dd>
@@ -326,7 +328,7 @@
   <h3>Payment Options</h3>
   <dl>
       <dt><dfn id="dfn-available-payment-app">available payment option</dfn></dt>
-      <dd>a payment option from a registered payment app with at least one enabled payment method.</dd>
+      <dd>a payment option from a registered payment app available for selection, corresponding to at least one enabled payment method.</dd>
 
       <dt><dfn id="">matching payment option</dfn></dt>
       <dd>an available payment option that has at least one enabled payment method accepted by the payee, or a recommended
@@ -336,10 +338,14 @@
       <dd>a matching payment option for which information has been displayed by the user agent to facilitate user selection,
           but that has not yet been selected. <strong>Note:</strong> Information about selectable payment apps may be
           displayed in a variety of modalities, including visual and aural.</dd>
+
+    <dt><dfn id="">selected payment option</dfn></dt>
+    <dd>the payment option selected by the user to handle the payment request.</dd>
+	  
   </dl>
   <h3>Payment Method Support</h3>
   <dl>
-      <dt><dfn id="">supported payment method</dfn></dt>
+      <dt><dfn id="dfn-supported-payment-method">supported payment method</dfn></dt>
       <dd>a payment method that a payment app has been designed to support however, this payment method may or may
           not currently be enabled. A payment app may support more than one payment method.</dd>
 
@@ -348,8 +354,9 @@
           unsupported payment method to become supported.</dd>
 
       <dt><dfn id="">enabled payment method</dfn></dt>
-      <dd>a payment method that the currently registered payment app is able to handle. The set of enabled payment
-          methods for a payment app is either the set or a subset of the supported payment methods.</dd>
+      <dd>a payment method that the currently registered payment app is able to handle. The payment app must have at least
+          one available payment option with the corresponding enabled payment method. 
+          The set of enabled payment methods for a payment app is either the set or a subset of the supported payment methods.</dd>
 
       <p class="note" title="Supported vs enabled Payment Methods">
           The difference between <strong>supported</strong> and <strong>enabled</strong> payment methods is one of design-time vs runtime consideration.
@@ -369,13 +376,11 @@
   </dl>
   <h3>Payment App Invocation and Response Data</h3>
   <dl>
-    <dt><dfn id="">selected payment option</dfn></dt>
-    <dd>the payment option selected by the user to handle the payment request.</dd>
     <dt><dfn id="">payment app request data</dfn></dt>
     <dd>data provided to the <a>invoked payment app</a> by the user agent to initiate a payment request. This data is a subset
         of data input to the Payment Request API.</dd>
     <p class="note" title="JSON serialization">
-        The data passed between the user agent and the payment app will serializedas JSON data.
+        The data passed between the user agent and the payment app will be serialized as JSON data.
     </p>
     <dt><dfn id="">payment app response data</dfn></dt>
     <dd>data returned by an <a>invoked payment app</a> to the user agent, typically after payment authorization or other action
@@ -401,8 +406,8 @@
       <li>The user registers a payment app with the user agent, which provides developers with primitives for this
           purpose. For example, when using a Web-based payment app, the user can push a button to register the payment app.
           When using a native app, the native app can open a Web page that supports registration.</li>
-      <li>During registration, information about enabled payment methods is provided to the user agent. The user agent
-          stores this information for subsequent actions (e.g., when matching merchant-accepted payment methods). In this
+      <li>During registration, information about enabled payment methods and available payment options is provided to the user agent. 
+          The user agent stores this information for subsequent actions (e.g., when matching merchant-accepted payment methods). In this
           proposal, there are no requirements for a payment app to be able to respond to user agent queries for updated
           registration information. We expect payment apps to update the information that a user agent has stored about them
           by re-calling the registration API.</li>
@@ -413,18 +418,18 @@
     <ul>
       <li>When the user invokes the Payment Request API (by, for example, "pushing the Buy button"), the user agent
           computes the intersection between merchant-accepted payment methods and user-registered payment methods. It
-          does this by comparing Payment Request API data (from the payee) and payment app registration data, invoking
-          the comparison algorithm defined in the Payment Method Identifier specification. The result is a list of
-          matching payment apps.</li>
+          does this by comparing Payment Request API data (from the payee) and payment apps' available options registration data, 
+          invoking the comparison algorithm defined in the Payment Method Identifier specification. The result is a list of
+          matching payment options and recommended payment apps.</li>
       <li>Using information provided during registration (e.g.:an app name, icon etc.),the user agent displays matching
-          payment apps for selection by the user. </li>
+          payment options for selection by the user. </li>
       <li>The user agent may also display merchant-specified or user agent-specified recommended payment apps, which are
           displayed distinctly for the user. This mechanism is intended to support use cases such as a merchant
           recommending their own payment app to the user, or the user agent helping the user find payment apps that are
-          relevant for a transaction but that the user has not yet registered.</li>
-      <li>The user agent may offer features to facilitate selection (e.g., launch a chosen payment app every time the
+          relevant for a transaction but that the user has not yet registered or enabled.</li>
+      <li>The user agent may offer features to facilitate selection (e.g., launch a chosen payment app or option every time the
           user wants to pay at a given Web site); those features lie outside the scope of this specification.</li>
-      <li>The user selects a payment app to make a payment. If the user selected a recommended payment app, behavior
+      <li>The user selects a payment option to make a payment. If the user selected a recommended payment app, behavior
           depends on whether the payment app is unregistered or registered.</li>
     </ul>
   </section>
@@ -508,7 +513,7 @@ dictionary PaymentOption {
         </p>
 <pre class="idl">
 partial interface PaymentApp {
-    static Promise&lt;void&gt; register (URLString request_url, sequence&lt;PaymentOption&gt; payment_options);
+    static Promise&lt;void&gt; register (URLString request_url, sequence&lt;PaymentOption&gt; payment_options, PaymentOption supported_methods);
 };
 </pre>
         <dl>
@@ -537,6 +542,15 @@ partial interface PaymentApp {
                     options that can be presented to the user for selection when the [[!PAYMENT-REQUEST-API]] is invoked.
                 </p>
             </dd>
+            <dt><code>supported_methods</code> parameter</dt>
+            <dd>
+                <p>
+                    A PaymentOption value used for passing <dfn id="supported-payment-method">supported payment methods</dfn>.
+                    The registered payment app is a recommended payment app for all supported methods in this parameter. 
+                    The User Agent SHOULD use the <code>icon</code> and <code>label</code> parameters to construct the UI when 
+                    presenting the registered payment app as a recommended payment app.
+                </p>
+            </dd>
         </dl>
 
         <p>The <a><code>register</code></a> method MUST act as follows:</p>
@@ -551,11 +565,12 @@ partial interface PaymentApp {
             <ol>
                 <li>Set <em>new_app</em>@[[\\request_url]] to <em>request_url</em>.</li>
                 <li>Set <em>new_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
+                <li>Set <em>new_app</em>@[[\\supported_methods]] to <em>supported_methods</em>.</li>
                 <li>Store <em>new_app</em> as a registered payment app.</li>
             </ol>
             <li>Else</li>
             <ol>
-                <li>If <em>payment_options</em> is an empty sequence, unregister <em>registered_app</em>.</li>
+                <li>If <em>payment_options</em> and <em>supported_methods</em> are empty sequences, unregister <em>registered_app</em>.</li>
                 <li>Else, set <em>registered_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
             </ol>
             <li>Resolve <em>promise</em> with <code>undefined</code>.</li>
@@ -571,20 +586,21 @@ partial interface PaymentApp {
                     enabled_methods: ["https://webpayments.org/payment-methods/card/visa"]
                 },
                 {
-                    label: "New credit/debit card",
+                    label: "My Bob Pay Account",
+                    icon: "...",
+                    enabled_methods: ["https://bobpay.com/"]
+                },
+               ], 
+               {
+                    label: "Add new credit/debit card to ExampleApp",
                     icon: "...",
                     enabled_methods: [
                         "https://webpayments.org/payment-methods/card/visa",
                         "https://webpayments.org/payment-methods/card/mastercard",
                         "https://webpayments.org/payment-methods/card/amex"
                     ]
-                },
-                {
-                    label: "Bob Pay ",
-                    icon: "...",
-                    enabled_methods: ["https://bobpay.com/"]
-                },
-               ]).then(function(value) {
+               }
+               ).then(function(value) {
                   console.log("Installed https://example.com/paymentapp/v1 payment app"); // Success!
                 }, function(reason) {
                   console.log(reason); // Error!
@@ -681,7 +697,7 @@ partial interface PaymentApp {
   <section>
     <h3>Selection by the User</h3>
     <ul>
-      <li>The user agent  <span class='rfc2119'>MUST</span> enable the user to select any <a>displayed payment app</a>.</li>
+      <li>The user agent  <span class='rfc2119'>MUST</span> enable the user to select any <a>displayed payment option</a>.</li>
       <li>If the user selects an unregistered recommended payment app, the user agent <span class='rfc2119'>SHOULD</span>
           offer the user an opportunity to register it.</li>
     </ul>
@@ -690,7 +706,7 @@ partial interface PaymentApp {
 <section id="invocation">
   <h2>Payment App Invocation, Display and Response</h2>
   <p>
-      Once the user has selected a payment app, the user agent is responsible for preparing payment app request data,
+      Once the user has selected a payment option, the user agent is responsible for preparing payment app request data,
       invoking the payment app, providing the request data to the payment app, and returning the payment app response
       through the Payment Request API.
   </p>
