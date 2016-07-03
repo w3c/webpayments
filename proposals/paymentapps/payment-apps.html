@@ -183,7 +183,7 @@
             Identifiers specification [[!METHOD-IDENTIFIERS]].</dd>
         -->
         <dt>HTML5</dt>
-        <dd>The terms <dfn>global object</dfn>, <dfn>queue a task</dfn>,
+        <dd>The terms <dfn>global object</dfn>,<dfn>origin</dfn>, <dfn>queue a task</dfn>,
             <dfn>browsing context</dfn>, and <dfn>top-level browsing
                 context</dfn> are defined by [[!HTML5]].</dd>
         <!--
@@ -533,7 +533,7 @@ partial interface PaymentApp {
                 </p>
                 <p>
                     The <code><a>request_url</a></code> is the API entry point for the payment
-                    app and MUST have the same origin as the web application that attempts
+                    app and MUST have the same <a>origin</a> as the web application that attempts
                     to register the payment app.
                 </p>
 		<p class="note" title="Origin for native apps">Native apps could be registered from Web pages, thus allowing the association of an origin to a native app.</p>
@@ -565,7 +565,7 @@ partial interface PaymentApp {
         <ol>
             <li>Let <em>promise</em> be a new <a>Promise</a>.</li>
             <li>Return <em>promise</em> and asynchronously perform the remaining steps.</li>
-            <li>If the origin of <em>request_url</em> does not match the origin of the current document
+            <li>If the <a>origin</a> of <em>request_url</em> does not match the <a>origin</a> of the current document
                 reject <em>promise</em> with a <a><code>SecurityError</code></a>.</li>
             <li>Let <em>registered_app</em> be the registered payment app where
                 <em>registered_app</em>@[[\request_url]] is equal to <em>request_url</em>.</li>
