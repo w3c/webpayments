@@ -84,7 +84,7 @@
     to select a way to handle the payment request, after which
     the user agent returns a payment response to the originating site.
     This specification adds <strong>payment apps</strong>
-    to this user experience. It defines how users
+    to that user experience. It defines how users
     register payment apps with user agents, how user agents support the display of
     information about payment options the user can select to handle the
     payment request, how the user selects a payment app, and how communication takes
@@ -109,12 +109,15 @@
   new payment methods on the Web. It has published the Payment Request
   API [[!PAYMENT-REQUEST-API]] as a standard way to initiate payment
   requests from Web pages and applications. This specification adds
-  payment apps to the experience. It
-  defines:</p>
+    payment apps to that user experience. A payment app is software that
+    enables the user to fulfill a payment request using the user's
+    preferred payment method.</p>
+
+    <p>This specification defines:</p>
     <ul>
       <li>How users register and unregister payment apps with the user agent.</li>
       <li>How the user agent matches payment methods supported by the payee with those enabled in registered payment apps.</li>
-      <li>How the user agent displays information about payment apps to the user for selection, to handle a payment request.</li>
+      <li>How the user agent displays information about payment options to the user for selection.</li>
       <li>How the user agent invokes a payment app, communicates input/response data with it, and returns the response data to the underlying Payment Request API.</li>
     </ul>
   <p>Payment apps may be implemented in a variety of ways: as Web applications, native operating system applications,
@@ -253,6 +256,77 @@
         [[SERVICE-WORKERS]].</dd>
     </dl>
 </section>
+<section id="model">
+  <h2>Payment App Model and Design Considerations</h2>
+  <p>This section (which may be temporary) intends to help build shared understanding of the capabilities and limitations of the specified model.</p>
+  <section>
+    <h3>General Considerations</h3>
+    <ul>
+      <li>This specification builds on PaymentRequest API.</li>
+      <li>It defines mechanisms that may be used to support both Web-based and <a>native payment apps</a>. However, we anticipate
+          that the ecosystem will also include proprietary approaches to some of the functionality defined here
+          (e.g., for payment app registration or invocation).</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Registration and Unregistration</h3>
+    <ul>
+      <li>The user registers a payment app with the user agent, which provides developers with primitives for this
+          purpose. For example, when using a Web-based payment app, the user can push a button to register the payment app.
+          When using a native app, the native app can open a Web page that supports registration.</li>
+      <li>During registration, information about enabled payment methods and available payment options is provided to the user agent. 
+          The user agent stores this information for subsequent actions (e.g., when matching merchant-accepted payment methods). In this
+          proposal, there are no requirements for a payment app to be able to respond to user agent queries for updated
+          registration information. We expect payment apps to update the information that a user agent has stored about them
+          by re-calling the registration API.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Payment App Matching</h3>
+    <ul>
+      <li>When the user invokes the Payment Request API (by, for example, "pushing the Buy button"), the user agent
+          computes the intersection between merchant-accepted payment methods and user-registered payment methods. It
+          does this by comparing Payment Request API data (from the payee) and data provided during registration, 
+          invoking the comparison algorithm defined in the Payment Method Identifier specification. The result is a list of
+          matching payment options and recommended payment apps.</li>
+      <li>Using information provided during registration (e.g., an app name or icon),the user agent displays matching
+          payment options for selection by the user. The user agent may also display merchant-specified or user agent-specified recommended payment apps, which are
+          displayed distinctly for the user. This mechanism is intended to support use cases such as a merchant
+          recommending their own payment app to the user, or the user agent helping the user find payment apps that are
+        relevant for a transaction but that the user has not yet registered or enabled.
+	<p class="note" title="Browser selection features not in scope">The user agent may offer features to facilitate selection (e.g., launch a chosen payment app or option every time the
+          user wants to pay at a given Web site); those features lie outside the scope of this specification.</p></li>
+      <li>The user selects a payment option to make a payment. If the user selected a recommended payment app, behavior
+          depends on whether the payment app is unregistered or registered.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Payment App Invocation and Response</h3>
+    <ul>
+      <li>Based on information provided at registration, the user agent "launches" the payment app and provides it with
+          input data drawn from the Payment Request API.</li>
+      <li>This specification defines an HTTP-based mechanism for providing input data to the payment app. In some
+          systems, payment apps may bypass this mechanism entirely, but that behavior lies outside the scope of this
+          specification.</li>
+      <li>The user may interact with the payment app in a variety of ways to authorize payment, cancel the transaction,
+          or carry out other activities supported by the payment app. This specification does not address payment app
+          behavior other than accepting requests and returning responses to the user agent.</li>
+      <li>This specification defines a means for the user agent to receive a response asynchronously once the user has
+          authorized payment. The response becomes the response of the Payment Request API.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Network Considerations</h3>
+    <ul>
+      <li>This specification only describes communication between the user agent and the payment app. This includes an
+          asynchronous mechanism for a payment app to return a payment response to the user agent. This specification
+          does not address scenarios where the user agent does not receive the response (e.g., due to a crash our
+          network outage).</li>
+      <li>This specification does not address communication between the payee server and the payee Web app, or between
+          the payment app and other parties (e.g., the payment app distibutor, or directly to the merchant).</li>
+    </ul>
+  </section>
+</section>
 <section id="definitions">
   <h2>Definitions</h2>
   <div data-include="https://w3c.github.io/webpayments-ig/latest/common/terms.html"
@@ -326,6 +400,8 @@
       <dd>the selected payment app that the user agent has invoked (executed) and passed payment app input data.</dd>
   </dl>
   <h3>Payment Options</h3>
+  <p class="note">We need a clearer introduction to the concept of a payment option, and how it relates to payment apps.</p>
+    
   <dl>
       <dt><dfn id="dfn-available-payment-app">available payment option</dfn></dt>
       <dd>a payment option from a registered payment app available for selection, corresponding to at least one enabled payment method.</dd>
@@ -350,13 +426,13 @@
           not currently be enabled. A payment app may support more than one payment method.</dd>
 
       <dt><dfn id="">unsupported payment method</dfn></dt>
-      <dd>a payment method that can noit be enabled by a payment app. Updates to a payment app may cause an
-          unsupported payment method to become supported.</dd>
+      <dd>a payment method that cannot be enabled by a payment app. Updates to a payment app may cause an
+          unsupported payment method to become supported, or vice-versa.</dd>
 
       <dt><dfn id="">enabled payment method</dfn></dt>
-      <dd>a payment method that the currently registered payment app is able to handle. The payment app must have at least
+      <dd>a supported payment method that a registered payment app is able to handle. The payment app must have at least
           one available payment option with the corresponding enabled payment method. 
-          The set of enabled payment methods for a payment app is either the set or a subset of the supported payment methods.</dd>
+</dd>
 
       <p class="note" title="Supported vs enabled Payment Methods">
           The difference between <strong>supported</strong> and <strong>enabled</strong> payment methods is one of design-time vs runtime consideration.
@@ -388,78 +464,6 @@
         the Payment Request API as the payment response.</dd>
   </dl>
 </section>
-<section id="model">
-  <h2>Payment App Model and Design Considerations</h2>
-  <p>This section (which may be temporary) intends to help build shared understanding of the capabilities and limitations of the specified model.</p>
-  <section>
-    <h3>General Considerations</h3>
-    <ul>
-      <li>This specification builds on PaymentRequest API.</li>
-      <li>It defines mechanisms that may be used to support both Web-based and <a>native payment apps</a>. However, we anticipate
-          that the ecosystem will also include proprietary approaches to some of the functionality defined here
-          (e.g., for payment app registration or invocation).</li>
-    </ul>
-  </section>
-  <section>
-    <h3>Registration and Unregistration</h3>
-    <ul>
-      <li>The user registers a payment app with the user agent, which provides developers with primitives for this
-          purpose. For example, when using a Web-based payment app, the user can push a button to register the payment app.
-          When using a native app, the native app can open a Web page that supports registration.</li>
-      <li>During registration, information about enabled payment methods and available payment options is provided to the user agent. 
-          The user agent stores this information for subsequent actions (e.g., when matching merchant-accepted payment methods). In this
-          proposal, there are no requirements for a payment app to be able to respond to user agent queries for updated
-          registration information. We expect payment apps to update the information that a user agent has stored about them
-          by re-calling the registration API.</li>
-    </ul>
-  </section>
-  <section>
-    <h3>Payment App Matching</h3>
-    <ul>
-      <li>When the user invokes the Payment Request API (by, for example, "pushing the Buy button"), the user agent
-          computes the intersection between merchant-accepted payment methods and user-registered payment methods. It
-          does this by comparing Payment Request API data (from the payee) and payment apps' available options registration data, 
-          invoking the comparison algorithm defined in the Payment Method Identifier specification. The result is a list of
-          matching payment options and recommended payment apps.</li>
-      <li>Using information provided during registration (e.g.:an app name, icon etc.),the user agent displays matching
-          payment options for selection by the user. </li>
-      <li>The user agent may also display merchant-specified or user agent-specified recommended payment apps, which are
-          displayed distinctly for the user. This mechanism is intended to support use cases such as a merchant
-          recommending their own payment app to the user, or the user agent helping the user find payment apps that are
-          relevant for a transaction but that the user has not yet registered or enabled.</li>
-      <li>The user agent may offer features to facilitate selection (e.g., launch a chosen payment app or option every time the
-          user wants to pay at a given Web site); those features lie outside the scope of this specification.</li>
-      <li>The user selects a payment option to make a payment. If the user selected a recommended payment app, behavior
-          depends on whether the payment app is unregistered or registered.</li>
-    </ul>
-  </section>
-  <section>
-    <h3>Payment App Invocation and Response</h3>
-    <ul>
-      <li>Based on information provided at registration, the user agent "launches" the payment app and provides it with
-          input data drawn from the Payment Request API.</li>
-      <li>This specification defines an HTTP-based mechanism for providing input data to the payment app. In some
-          systems, payment apps may bypass this mechanism entirely, but that behavior lies outside the scope of this
-          specification.</li>
-      <li>The user may interact with the payment app in a variety of ways to authorize payment, cancel the transaction,
-          or carry out other activities supported by the payment app. This specification does not address payment app
-          behavior other than accepting requests and returning responses to the user agent.</li>
-      <li>This specification defines a means for the user agent to receive a response asynchronously once the user has
-          authorized payment. The response becomes the response of the Payment Request API.</li>
-    </ul>
-  </section>
-  <section>
-    <h3>Network Considerations</h3>
-    <ul>
-      <li>This specification only describes communication between the user agent and the payment app. This includes an
-          asynchronous mechanism for a payment app to return a payment response to the user agent. This specification
-          does not address scenarios where the user agent does not receive the response (e.g., due to a crash our
-          network outage).</li>
-      <li>This specification does not address communication between the payee server and the payee Web app, or between
-          the payment app and other parties (e.g., the payment app distibutor, or directly to the merchant).</li>
-    </ul>
-  </section>
-</section>
 <section id="registration">
   <h2>Payment App Registration, Updates and Unregistration</h2>
 
@@ -467,10 +471,13 @@
       page.</p>
 
   <p>Payment apps are registered with the user agent through a call to the <code>register()</code> method of the API.
-      The input to the registration process is a <code>request_url</code> which uniquely identifies the app and is
-      the endpoint that payment requests will be submitted to and a sequence of <code>PaymentOption</code>
-      dictionaries that represent the options that can be presented to the user during payment app selection.
-  </p>
+    The input to the registration process consists of:</p>
+  <ol>
+    <li>a <code>request_url</code> which uniquely identifies the app and is
+      the endpoint for the user agent to submit payment requests</li>
+    <li>a sequence of <code>PaymentOption</code>
+      dictionaries to provide information displayed to the user to facilitate payment app selection.</li>
+  </ol>
     <section>
         <h3>The PaymentOption dictionary</h3>
 <pre class="idl">
@@ -507,7 +514,7 @@ dictionary PaymentOption {
         </p>
         <p>
             Payment apps are uniquely identifed by their <code>request_url</code>. To update the payment options
-            offered by a registered payment app a website must simply call <code>register()</code> using the same
+            offered by a registered payment app, a website calls <code>register()</code> using the same
             <code>request_url</code> as was used when registering the app and pass in the new sequence of options. To
             unregister a payment app the website calls <code>register()</code> with an empty sequence of options.
         </p>
@@ -529,6 +536,7 @@ partial interface PaymentApp {
                     app and MUST have the same origin as the web application that attempts
                     to register the payment app.
                 </p>
+		<p class="note" title="Origin for native apps">Native apps could be registered from Web pages, thus allowing the association of an origin to a native app.</p>
                 <p>
                     The <code><a>request_url</a></code> is also the unique identifier for the payment app.
                     If a payment app is already installed with the same <code><a>request_url</a></code>
@@ -612,8 +620,7 @@ partial interface PaymentApp {
       workers?
   </p>
   <p class="issue" title="Registration of native payment apps?">
-      What, if anything, should we say about registering native payment apps? Should we publish separate
-      "good practices" documents for different platforms?
+      What, if anything, should we say about registering native payment apps?
   </p>
 </section>
 <section id="matching">
@@ -715,8 +722,7 @@ partial interface PaymentApp {
       a variety of mechanisms to handle the incoming data, including server-side processing, or client-side interception
       of the HTTP message by a <a>ServiceWorker</a>.
   </p>
-  <p>
-      See <a href="#developing">Developing Payment Apps</a> for some implementation examples and sample payment app code.
+  <p class="note" title="Developing payment apps">The Working Group should discuss how to capture good practice for payment app development, with examples that illustrate common payment flows, different platforms, etc.. A public resource (e.g., on github) could foster contributions of good practice information from the developer community.</p>
   </p>
   <section>
     <h3>Payment App Request Data</h3>
@@ -827,24 +833,22 @@ partial interface PaymentApp {
     </p>
     <p>
         Payment apps are invoked via an HTTP request. If the resulting HTTP response body is text/html then the user agent
-        MUST render this document for the user.
+        MUST render this content for the user.
     </p>
-    <p>
-        This specification does not prescribe how user agents render the payment app. This may be in a new tab/window, in
+    <ol>
+      <li>The user agent MUST render the <a>Response</a> in a new secure context.</li>
+      <li>The user agent MUST make the <code>PaymentApp.respond()</code> method available to the page that is
+        rendered.</li>
+    </ol>
+        <p>
+        This specification does not otherwise prescribe how user agents render the payment app. This may be in a new tab/window, in
         a special modal dialogue specifically for this purpose, in an iframe embedded in the web page of the payee
         website or any other mechanism the user agent defines.
     </p>
-    <p>
-        There are two conformance requirements for user agents when rendering a payment app in response to a payment
-        request:
-    </p>
-      <li>The user agent must render the <a>Response</a> in a new secure context.</li>
-      <li>The user agent must make the <code>PaymentApp.respond()</code> method available to the page that is
-          rendered.</li>
     <section>
         <h4>The PaymentAppResponse dictionary</h4>
         <p>
-            A payment app that runs in the user agent will respond to a payment request by returning a new
+            A payment app that runs in the user agent responds to a payment request by returning a new
             <code>PaymentAppResponse</code> via the <code>PaymentApp.respond()</code> method.
         </p>
 <pre class="idl">
@@ -869,7 +873,7 @@ dictionary PaymentAppResponse {
     <section>
       <h4>PaymentApp.respond()</h4>
       <p>
-        The payment app can submit the <code>PaymentAppResponse</code> by calling the <code>respond()</code> method and
+        The payment app submits the <code>PaymentAppResponse</code> by calling the <code>respond()</code> method and
           passing this in as a parameter.
       </p>
 <pre class="idl">
@@ -897,10 +901,13 @@ partial interface PaymentApp {
   <section>
     <h3>Payment App Response</h3>
     <p>
-        The user agent will either get a response from the payment app in the form of a JSON serialized
-        <code>PaymentAppResponse</code> sent as a response to the HTTP request that invoked the app or, as a
-        <code>PaymentAppResponse</code> dictionary instance submitted via the <code>PaymentApp.respond()</code> method.
-    </p>
+      The user agent receives a response from the payment app in one of two forms:</p>
+    <ol>
+      <li>a JSON serialized
+        <code>PaymentAppResponse</code> sent as a response to the HTTP request that invoked the app</li>
+      <li>a
+        <code>PaymentAppResponse</code> dictionary instance submitted via the <code>PaymentApp.respond()</code> method</li>
+    </ol>
       <p>
           The user agent MUST use this <code>PaymentAppResponse</code> to resolve the promise that was created
           by <a>PaymentRequest.show</a> when the user agent executed the <a>user accepts the payment request algorithm</a>
@@ -934,21 +941,6 @@ partial interface PaymentApp {
       <li>Payees should validate that the data they have received through the paymentRequest API is what they expect (e.g., the total that was paid, etc.).</li>
     </ul>
   </section>
-</section>
-<section id="developing">
-    <h2>Developing Payment Apps</h2>
-    <section>
-        <h3>Remote Payment Apps</h3>
-    </section>
-    <section>
-        <h3>Locally Installed Payment Apps</h3>
-    </section>
-    <section>
-        <h3>Native Payment Apps</h3>
-    </section>
-    <section>
-        <h3>Headless Payment Apps</h3>
-    </section>
 </section>
 </body>
 </html>
