@@ -568,7 +568,7 @@ partial interface PaymentApp {
             </ol>
             <li>Else</li>
             <ol>
-                <li>If <em>payment_options</em> and <em>supported_methods</em> are empty sequences, unregister <em>registered_app</em>.</li>
+                <li>If <em>payment_options</em> is an empty sequences, unregister <em>registered_app</em>.</li>
                 <li>Else, set <em>registered_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
             </ol>
             <li>Resolve <em>promise</em> with <code>undefined</code>.</li>
