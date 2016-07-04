@@ -520,7 +520,7 @@ dictionary PaymentOption {
         </p>
 <pre class="idl">
 partial interface PaymentApp {
-    static Promise&lt;void&gt; register (URLString request_url, sequence&lt;PaymentOption&gt; payment_options, PaymentOption supported_methods);
+    static Promise&lt;void&gt; register (URLString request_url, sequence&lt;PaymentOption&gt; payment_options);
 };
 </pre>
         <dl>
@@ -550,15 +550,6 @@ partial interface PaymentApp {
                     options that can be presented to the user for selection when the [[!PAYMENT-REQUEST-API]] is invoked.
                 </p>
             </dd>
-            <dt><code>supported_methods</code> parameter</dt>
-            <dd>
-                <p>
-                    A PaymentOption value used for passing <dfn id="supported-payment-method">supported payment methods</dfn>.
-                    The registered payment app is a recommended payment app for all supported methods in this parameter. 
-                    The User Agent SHOULD use the <code>icon</code> and <code>label</code> parameters to construct the UI when 
-                    presenting the registered payment app as a recommended payment app.
-                </p>
-            </dd>
         </dl>
 
         <p>The <a><code>register</code></a> method MUST act as follows:</p>
@@ -573,7 +564,6 @@ partial interface PaymentApp {
             <ol>
                 <li>Set <em>new_app</em>@[[\\request_url]] to <em>request_url</em>.</li>
                 <li>Set <em>new_app</em>@[[\\payment_options]] to <em>payment_options</em>.</li>
-                <li>Set <em>new_app</em>@[[\\supported_methods]] to <em>supported_methods</em>.</li>
                 <li>Store <em>new_app</em> as a registered payment app.</li>
             </ol>
             <li>Else</li>
@@ -598,16 +588,15 @@ partial interface PaymentApp {
                     icon: "...",
                     enabled_methods: ["https://bobpay.com/"]
                 },
-               ], 
-               {
+                {
                     label: "Add new credit/debit card to ExampleApp",
                     icon: "...",
                     enabled_methods: [
                         "https://webpayments.org/payment-methods/card/visa",
                         "https://webpayments.org/payment-methods/card/mastercard",
-                        "https://webpayments.org/payment-methods/card/amex"
-                    ]
-               }
+                        "https://webpayments.org/payment-methods/card/amex" ]
+                }
+               ]
                ).then(function(value) {
                   console.log("Installed https://example.com/paymentapp/v1 payment app"); // Success!
                 }, function(reason) {
