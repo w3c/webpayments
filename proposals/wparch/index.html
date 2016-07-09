@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Web Payments Architecture Summary 1.0</title>
+    <title>Web Payments Overview 1.0</title>
     <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
     <!--
       === NOTA BENE ===
@@ -14,17 +14,17 @@
     <script type="text/javascript" class="remove">
 var respecConfig = {
     // specification status (e.g. WD, LCWD, NOTE, etc.). If in doubt use ED.
-    specStatus:           "UNOFFICIAL",
+    specStatus:           "ED",
 
     // the specification's short name, as in http://www.w3.org/TR/short-name/
-    shortName:            "web-payments-architecture",
+    shortName:            "web-payments-overview",
 
     // if you wish the publication date to be other than today, set this
     // publishDate:  "2009-08-06",
 
     // if there is a previously published draft, uncomment this and set its YYYY-MM-DD date
     // and its maturity status
-    previousPublishDate:  "2016-06-16",
+    previousPublishDate:  "2016-07-08",
     previousMaturity:  "UNOFFICIAL",
 
     // if there a publicly available Editor's Draft, this is the link
@@ -37,38 +37,44 @@ var respecConfig = {
     // only "name" is required
     editors: [
       { name: "Manu Sporny", url: "https://manu.sporny.org/",
-        company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/" }
+        company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/" },
+      { name: "Adrian Hope-Bailie", url: "https://www.linkedin.com/in/adrianhopebailie",
+        company: "Ripple", companyURL: "https://ripple.com/" },
+      { name: "Nick Telford-Reed", url: "https://www.linkedin.com/in/nicktr",
+        company: "Worldpay", companyURL: "http://www.worldpay.com/" },
+      { name: "Roy McElmurry", url: "https://www.linkedin.com/in/roy-mcelmurry-73349040",
+        company: "Facebook", companyURL: "https://www.facebook.com/" },
+      { name: "Dapeng Liu", url: "https://www.linkedin.com/in/dapeng-liu-77471823",
+        company: "Alibaba", companyURL: "https://www.alibaba.com/" }
     ],
 
     // authors, add as many as you like.
     // This is optional, uncomment if you have authors as well as editors.
     // only "name" is required. Same format as editors.
 
-    // authors: [
-    //   { name: "Manu Sporny", url: "https://manu.sporny.org/",
-    //     company: "Digital Bazaar, Inc.", companyURL: "http://digitalbazaar.com/" },
-    //   { name: "Adrian Hope Bailie", url: "https://www.linkedin.com/in/adrianhopebailie",
-    //     company: "Ripple", companyURL: "https://ripple.com/" }
-    // ],
+    authors: [
+       { name: "Manu Sporny", url: "https://manu.sporny.org/",
+         company: "Digital Bazaar", companyURL: "http://digitalbazaar.com/" }
+    ],
 
     // extend the bibliography entries
     //localBiblio: {},
 
     // name of the WG
-    wg:           "W3C Web Payments Community Group",
+    wg:           "W3C Web Payments Working Group",
 
     // URI of the public WG page
-    wgURI:        "http://www.w3.org/community/webpayments/",
+    wgURI:        "https://www.w3.org/Payments/WG/",
 
     // name (with the @w3c.org) of the public mailing to which comments are due
-    wgPublicList: "public-webpayments@w3.org",
+    wgPublicList: "public-payments-wg@w3.org",
 
     // URI of the patent status for this WG, for Rec-track documents
     // !!!! IMPORTANT !!!!
     // This is important for Rec-track documents, do not copy a patent URI from a random
     // document unless you know what you're doing. If in doubt ask your friendly neighbourhood
     // Team Contact.
-    wgPatentURI:  "",
+    wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
     maxTocLevel: 4,
     preProcess: [ ] /*,
     alternateFormats: [ {uri: "diff-20111214.html", label: "diff to previous version"} ],
@@ -85,10 +91,10 @@ var respecConfig = {
 <body>
 <section id="abstract">
   <p>
-This document outlines the Web Payments Architecture by introducing readers
-to the goals of the architecture, messages, roles, and information flow in
+This document outlines the Web Payments ecosystem by introducing readers
+to the goals of the ecosystem, messages, roles, and information flow in
 the system. Links to specifications that detail each aspect of the
-architecture in more detail are also provided for implementers.
+ecosystem in more detail are also provided for implementers.
   </p>
 </section>
 
@@ -102,21 +108,21 @@ This is an experimental specification.
   <h1>Introduction</h1>
 
   <p>
-This document outlines the Web Payments Architecture. It starts by highlighting
-the goals of the architecture, then covers the primary types of messages
+This document outlines the Web Payments ecosystem. It starts by highlighting
+the goals of the ecosystem, then covers the primary types of messages
 exchanged and the roles of participants in the system. An example use case
 is then used to demonstrate how roles in the system communicate. Finally,
-specifications that detail each aspect of the architecture in more detail
+specifications that detail each aspect of the ecosystem in more detail
 are also provided for implementers.
   </p>
 
 </section>
 
 <section>
-  <h2 id="goals">Web Payments Architecture Goals</h2>
+  <h2 id="goals">Web Payments Goals</h2>
 
   <p>
-The Web Payments architecture strives to support fundamental Web principles
+The Web Payments ecosystem strives to support fundamental Web principles
 by:
   </p>
 
@@ -130,7 +136,7 @@ by:
 
   <p>
 In addition to the fundamental Web principles above, the Web Payments
-architecture also strives to:
+ecosystem also strives to:
   </p>
 
   <ul>
@@ -157,7 +163,7 @@ A payment request is composed of the following parts:
     <dt><strong><em>Payment Methods</em></strong></dt>
     <dd>
 The methods of payment that may be used for processing the payment request.
-Examples include: credit card, ACH, SEPA, and Bitcoin.
+Examples include: credit card, direct debit, SEPA Credit Transfer, and Bitcoin.
     </dd>
     <dt><strong><em>Payment Details</em></strong></dt>
     <dd>
@@ -223,15 +229,14 @@ selected shipping option, shipping address, and contact email.
 
 <section>
 
-  <h2>Roles in the Architecture</h2>
+  <h2>Roles in the Ecosystem</h2>
 
   <p>
-An architecture for web payments must distinguish the essential
-roles of core actors and the relationships between them; how do they interact?
+There are a number of roles and interactions in the Web Payments ecosystem.
 A role is an abstraction that might be implemented in many different ways. The
 separation of roles suggests likely interfaces and/or protocols for
 standardization. The following roles exist in the Web Payments
-Architecture:
+ecosystem:
   </p>
 
   <dl>
@@ -261,14 +266,14 @@ A system that is responsible for transferring value from one entity to another.
   </dl>
 
   <figure>
-    <img style="margin: auto; display: block;" src="architecture.svg">
+    <img style="margin: auto; display: block;" src="ecosystem.svg">
     <figcaption style="text-align: center;">
-- Roles in the Web Payments architecture
+- Roles in the Web Payments ecosystem
     </figcaption>
   </figure>
 
   <p>
-As the diagram above depicts, the Web Payments architecture separates the
+As the diagram above depicts, the Web Payments ecosystem separates the
 following concerns:
   </p>
 
@@ -347,11 +352,11 @@ and is notified that her purchase is successful and is on its way.
 
 <section>
 
-  <h2>Implementing the Architecture</h2>
+  <h2>Implementing Web Payments Software</h2>
 
   <p>
 There are a number of specifications that are of interest to developers
-implementing portions of the architecture outlined in this document.
+implementing portions of the ecosystem outlined in this document.
   </p>
 
   <dl>
