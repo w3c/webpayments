@@ -20,6 +20,8 @@ You may find it useful to know that Github by default presents files in their "r
 
 to the beginning of the URL of that document. This is particular helpful for looking at documents which are still draft.
 
+The following links are to the Working Group's source files for specifications.
+
 ## First Public Working Draft or Later
 
 * Payment Method Identifiers - https://github.com/w3c/webpayments-method-identifiers
