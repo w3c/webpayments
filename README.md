@@ -31,7 +31,7 @@ This WG is currently working on the following specifications which are all in th
 
 ## Payment Method Specifications
 
-* Card - https://w3c.github.io/webpayments-methods-card/
+* Card - https://github.com/w3c/webpayments-methods-card
 * Credit Transfer and Direct Debit - https://github.com/w3c/webpayments-methods-credit-transfer-direct-debit
 
 ## Proposed Specifications
