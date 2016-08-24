@@ -27,8 +27,8 @@ This solution can solve both problem 1 and problem 2 as described in section 1.1
 
 	File verify.sign:
 	{
-	   name: 'alicePay',
-	   identifier: ['https://alicePay.com/pay'],
+	   name: 'AlicePay',
+	   identifier: ['https://AlicePay.com/pay'],
 	   certificate: '.....',
 	   signature: '...'
 	 }
