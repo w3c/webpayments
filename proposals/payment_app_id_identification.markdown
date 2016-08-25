@@ -20,7 +20,7 @@ In this case, recommended payment apps may be used as a channel for phishing att
 
 Using origin based authenticity management can not solve this problem, since the payment API will indeed access the same origin of the malicious payment app as its registered.
 
-Use Case 2: ß
+Use Case 2:
 
 When the user install a payment app through some other mechanism that does not involve origin (e.g., native app), origin based authenticity management can not work.  
 
