@@ -5,14 +5,14 @@
 The payment app spec should provide mechanism to ensure the authenticity of the payment app. This includes several aspects:
 
 * Problem 1: The payment app should be the one as it claims to be.
-* Problem 2: How to prevent fake/malicious payment app to do malicious things, for example, fishing etc.
+* Problem 2: How to prevent fake/malicious payment app to do malicious things, for example, phishing etc.
     
 
 #2 Solution proposal
 ##2.1 Problem analyze
 Draft [Payment Method Identifiers](https://github.com/w3c/webpayments/blob/gh-pages/proposals/zach-pmi.md) discusses the identifiers of payment apps. For the proprietary systems, the draft proposes to use URL as the identifier of the payment app. Origin is used to ensure the authenticity of the payment app. However, origin based authenticity management can only solve problem 1 and can not solve problem 2.
 
-Use Case 1: Fishing attack
+Use Case 1: Phishing attack
 
 For example, let us assume AlicePay.com is a famous payment service provider, AlicePay1.com is a fake one of AlicePay.com, the hacker may hack the merchant website and insert AlicePay1.com in the merchant website. The merchant website will recommend AlicePay1.com to the user to register it. 
 
