@@ -7,8 +7,8 @@
             async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
-          shortName:  "payment-method-best-practice",
-          //edDraftURI:   "https://w3c.github.io/browser-payment-api/basic-card-payment.html",
+          shortName:  "method-practice",
+          //edDraftURI:   "https://w3c.github.io/webpayments/proposals/method-practice/",
 
           specStatus: "WD",
           publishDate: "2016-08-30",
@@ -120,10 +120,18 @@
     
     <section class='informative'>
       <h2>Introduction</h2>
-      <p>
-        The PaymentRequest API sepc [[!PAYMENTREQUESTAPI]] currently only support open payment method. How to use the PaymentRequest API for property payment method is not covered. 
-        This document describes the practices of supporting property payment method using PaymentRequest API. The property payment method itself could be documented by the property payment method service provider.  
-      </p>
+
+      <p>The Payment Request API [[!PAYMENT-REQUEST-API]] provides a
+      standard way to initiate payment requests from Web pages and
+      applications. The Web Payments Working Group is designing the
+      API so that it may be used with a broad variety of payment
+      methods, including card payments, direct debits and credits,
+      proprietary payment methods, and distributed ledgers.  The
+      purpose of this document is to assist those who wish to describe
+      how to use a given payment method with
+	[[!PAYMENT-REQUEST-API]].</p>
+
+      <p class="note">This is an early draft and we recognize that we need more experience with payment method specifications to strengthen the document.</p>
     </section>
 
     <section id="dependencies"> 
@@ -149,91 +157,96 @@
       </dl>
     </section>
 
-    <section id="Requeirment of payment method specs">
-      <h2>Requeirment of payment method specs</h2>
-      <p>
-        The PaymentRequest API [[!PAYMENTREQUESTAPI]] defined by W3C uses methodData, details, options as parameters.  Except for thoes parameters, the PaymentRequest API also needs to know the payment method specific informatioin/logic to finish the payment. For example, for the basic card payment [[!CARDPAYMENT]], the PaymentRequest API needs to know the card details to show the card details information in the browser (Step 13 in [[!CARDPAYMENT]]). 
-      </p>
-      <p>
-        For other payment method, the PaymentRequest API also need to know the payment method specific information. For this reason, the W3C should publish payment method specification.
-      </p>
-    </section>
-    
-    <section id="Types of payment method">
-      <h2>Types of payment method</h2>
-      <p>
-         <a href="https://github.com/w3c/webpayments/blob/gh-pages/proposals/zach-pmi.md">Some discussion</a> 
-        in W3C suggests to classify payment method to two categories: 'open systems' and 'proprietary systems'. Open systems refers to the payment method that documented by the W3C Web Payments Working Group and can be supported by any third party payment app. Prorietary systems refers to the system that are not documented by the Web Payments Working Group and can not be supported by third party payment apps other that those associated with the origin of the payment service provider.
-      </p>
-      <p>
-        For the 'proprietary systems', there is open question: whether W3C Web Payments Working Group also should document the generic payment method for certain types. For example, for electronic payment, although there are different details of different electronic payment method, but there may have some common architecture, parameters etc among them. 
-      </p>
-    </section>
+    <section id="artifacts">
+      <h2>Payment Method Artifacts</h2>
+      <p>A payment method is a system and set of rules for payments. A number of "artifacts" make it possible use a payment method with the PaymentRequest API:</p>
 
-    <section id="Structure of payment method specification">
-      <h2>Structure of payment method specification</h2>
-      <p>
-        Payment method specification is used to work with the PaymentReqeust API specification to provide payment method specific information to implement the PaymentRequest API. It needs to include the following information:
-      </p>
-        <section>
-        <h3>Payment Method Identifier</h3>
-          <p>
-             This is the identifer of the payment method and used to construct the PaymentMethodData of the PaymentReqeust API.
-          </p>
-        </section>
-        <section>
-          <h3>Payment method response</h3>
-            <p>
-              The payment method specific response information that needed after the invoking of PaymentRequest API: This response information is used by the PaymentRequest.show() to display the payment method specific information in the browser. For example, for the card payment, this could include the PAN, Name, Exiry, CSC, BillingAddess etc.
-            </p>
-        </section>
-        <section>
-          <h3>Payment method data</h3>
-            <p>
-              Payment method specific data for the PaymentRequest constructor: This is the payment method specific data used as the data parameter of the PaymentRequest constructor. 
-            </p>
-        </section>
-        <section>
-          <h3>Payment details</h3>
-            <p>
-              Payment details is the payment method specific information used as the PaymentDetails parameter of the PaymentRequest API.
-            </p>
-        </section>
-        <section>
-        <h3>Payment options</h3>
-          <p>
-            Payment options is the payment method specific information used as the PaymentOptions parameter of the PaymentRequest API.
-          </p>
-        </section>
-      
+      <ul>
+	<li>A "payment method specification," which is a description of the request and response data exchanged between the browser and payment apps when the payment method is invoked.</li>
+	<li>A machine-readable manifest (available when dereferencing the payment method identifier) with instructions about using the payment method in practice (e.g., with information about payment apps that support the payment method). <strong>Note:</strong> The Web Payments Working Group expects to specify a vocabulary for this manifest file; see the <a href="https://github.com/zkoch/zkoch.github.io/blob/master/payment-manifest.md">proposal under consideration</a>.</li>
+	<li>An payment method identifier that serves two purposes: it is used in the matching algorithm of [[!PAYMENTREQUESTAPI]] and can be dereferenced for the manifest. For syntax and other information about payment method identifiers, see [[!METHODIDENTIFIERS]].</li>
+      </ul>
+
+      <section>
+	<h3 id="structure">Structure of a Payment Method Specification</h3>
+	<p>A payment method specification SHOULD include:</p>
+	<ul>
+	  <li>A payment method identifier.</li>
+	  <li>Information that parties must provide as input to the payment request API that is specific to the payment method (and not general information about the transaction). This is done via the <code>data</code> parameter of the <code>PaymentRequest</code> constructor.</li>
+	  <li>Information that will be in the response from the payment request API. This will typically be information collected from the user (e.g., card number for card payments) through user interface displayed by the browser.</li>
+	  <li>Any other payment method-specific requirements that are not addressed by the underlying payment request API, and that developers of payment apps need to take into account when building support for the payment method. See the next section for some payment method specific considerations.</li>
+ <li>Recommended behavior to handle exceptions (e.g., in case of network failures)</li>
+      </section>
     </section>
 
-    <section id="Common considerations for payment method">
-      <h2>Common considerations for payment method</h2>
-      <p>
-        There are some consideration that are common for all the payment method.
-      </p>
+    <section id="specifics">
+      <h2>Payment Method Specific Considerations</h2>
 
-      <li>
-        <p>
-          Consideration of the network connection: There are some special cases that the payment method design need to consider. For example, the network connection may lost during the process of PaymentRequest API. The user may close the browser when the PaymentRequest API is invoked. The payment method specification needs to consider how to deal with this situation.
-        </p>
-      </li>
-      <li>
-        <p>
-          Consideration of notification mechanism: The payment service provider may need to notify the merchant website about the status of the payment process. Sometimes, callback URL is needed for asynchronous notification mechanism.
-        </p>
-      </li>
-      
-    </section>
+      <section>
+	<h3 id="ux">User Experience</h3>
+	<p>For some payment methods that require a variety of
+	  data from the user (that will figure in the payment
+	  response), some of that data may not be required for
+	  all transactions. To enable payment apps to provide
+	  a streamlined user experience, uthors of payment method specifications may wish to address topics such as:</p>
 
-    <section id="Security considerations">
-      <h2>Security considerations</h2>
-      <p>
-        Security considerations, such as how to protect user data, how to secure the data that transmitted in the network is needed for the payment method spec. Furthermore, different countries may have different user data protection regulations, that is also need to be considered. For example, some country's regulation policy does not allow the credit card information been stored in the client side.
-      </p>
+	<ul>
+	  <li>Allowing the payee to specify which data is required to be able to process the transaction. This information allows the payment app to only request required information from the user, decreasing the risk of abandonment.</li>
+	</ul>
+      </section>
+
+
+      <section>
+	<h3 id="security">Security and Privacy</h3>
+	<p>It is important to protect user data and ensure that
+	  it is exchanged securely throughout the network.</p>
+	<p>Authors of payment method specifications may wish to address topics such as:</p>
+	<ul>
+	  <li>tokenization of information in the payment response</li>
+	  <li>topics that may vary by regulatory regime, such as whether
+	    data may be stored by a payment app.</li>
+	  <li>links for developers to relevant rules defined for the payment method</li>
+	</ul>
+      </section>
+
+      <section>
+	<h3 id="network">Network Failures</h3>
+	<p>Some payment methods may be more sensitive to network failures
+	  than others (e.g., push payments may be more sensitive than
+	  pull payments such as card payments).
+	<p>Authors of payment method specifications may wish to address topics such as:</p>
+
+	<ul>
+	  <li>Asynchronous notifications to the payee about the status of processing a payment. Thus, the payment request API can provide one response to the payee ("through the front end") and the payment app or payment processor can provide a redundant response directly to a payee server ("through the backend"). This may be implemented in a variety of ways. For example:
+	    <ul>
+	      <li>If a payment app is associated with the origin of the payee, the payment app may encode how back end communication will take place.</li>
+	      <li>If a payment app is not associated with the origin of the payee, the payee may provide a callback URL via the payment request API that the payment app may use to contact the payee. Or, the payment app can pass that data along to a payment server for that purpose.</li>
+	    </ul>
+	  </li>
+	</ul>
+      </section>
     </section>
 
 
-  </body>
+      <section id="publishing">
+      <h2>W3C Publishing Policy</h2>
+      <p>W3C does <strong>not</strong> intend to define any payment
+	methods. However, W3C does plan to publish a small number of payment method
+	specifications (such as [[!CARDPAYMENT]]) that capture common
+	practice of existing payment methods. This is to:</p>
+
+      <ul>
+	<li>bootstrap the payment request API ecosystem</li>
+	<li>ensure that the design of payment request API will work in practice with a variety of payment flows</li>
+	<li>provide an example of how to write a payment method specification<li>
+      </ul>
+
+      <p>W3C only anticipates publishing payment method specifications
+	as formal technical reports for open payment methods. <strong>Note:</strong> The Working Group is still developing a definition for "open payment method" but a key aspect is that anybody can write a (third party) payment app that implements the payment method, without a prior business agreement.</p>
+
+
+      <p><strong>Note</strong>: It may be that the Web Payments Working Group identifies payment method patterns across a set of proprietary payment methods, in which case, the group may wish to publish a generic "open" payment method specification analogous to the way that [[!CARDPAYMENT]] abstracts data requirements from different card networks.</p>
+    </section>
+
+</body>
 </html>
