@@ -8,4 +8,5 @@ Please use appropriate *"Proposal: XXX"*  labels for new issues to help us sort 
 
 ## Current Proposals
 
-* A proposal for a new architecture specification [**Architecture**](https://w3c.github.io/webpayments/proposals/architecture/)
+* [**Architecture**](https://w3c.github.io/webpayments/proposals/architecture/)
+* [**Payment Method Best Practice**](https://w3c.github.io/webpayments/proposals/method-practice/)
