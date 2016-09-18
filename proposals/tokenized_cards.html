@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tokenized Card Payment</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          shortName:  "tokenized-card",
+          specStatus: "unofficial",
+          publishDate: "2016-09-15",
+          editors: [
+                {   name:       "Kevin Hurley",
+                    company:    "Facebook" },
+                {
+                    name:      "Roy McElmurry",
+                    company:   "Facebook"
+                },
+          ],
+          license:      "w3c-software-doc",
+          localBiblio:  {
+              "BASICCARD": {
+                  title: "Basic Card Payment"
+              ,   href: "https://w3c.github.io/webpayments-methods-card"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status: "ED"
+              },
+              "PAYMENTARCH": {
+                  title:    "Payment Request Architecture"
+              ,   href:     "https://w3c.github.io/browser-payment-api/specs/architecture.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "ED"
+              },
+              "PAYMENTREQUESTAPI": {
+                  title:    "Payment Request API"
+              ,   href:     "https://www.w3.org/TR/payment-request/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+              "METHODIDENTIFIERS": {
+                  title:    "Payment Method Identifiers"
+              ,   href:     "https://www.w3.org/TR/payment-method-id/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+          }
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  <body>
+    <section id="abstract">
+      <p>
+        The Tokenized Card Payment specification describes the data formats used by the
+        PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards.
+      </p>
+    </section>
+    <section class="informative">
+      <h2>Introduction</h2>
+      <p>
+        This specification is a <a href="#dfn-payment-transaction-message-specification">Payment Transaction Message Specification</a> used by the PaymentRequest API
+        [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards. Merchants should favor tokenized card payment methods over basic card payments.
+      </p>
+    </section>
+
+    <section id="dependencies">
+      <h2>Dependencies</h2>
+      <p>
+      This specification relies on several other underlying specifications.
+      </p>
+      <dl>
+        <dt>Payment Request Architecture</dt>
+        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
+        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
+        Message Specification</dfn> are defined by the Payment Request Architecture document
+        [[!PAYMENTARCH]].</dd>
+        <dt>Basic Card Payment</dt>
+        <dd>The term <dfn>BillingAddress</dfn> is defined by the Basic Card Payment specification [[!BASICCARD]].</dd>
+        <dt>Payment Request API</dt>
+        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
+        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+        Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+        [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web IDL</dt>
+        <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+      </dl>
+    </section>
+
+    <section id="method-id">
+      <h2>Payment Method Identifier</h2>
+      <p>The following <a>payment method identifier</a> strings are supported by the Tokenized Card Payment data formats.</p>
+      <table>
+        <tr><th>Identifier String</th><th>Description</th></tr>
+        <tr><td>urn:payment-method:tokenized-card-payment:network</td><td>Network Tokenized Cards</td></tr>
+        <tr><td>urn:payment-method:tokenized-card-payment:gateway</td><td>Gateway Tokenized Cards</td></tr>
+        <tr><td>urn:payment-method:tokenized-card-payment:issuer</td><td>Issuer Tokenized Cards</td></tr>
+      </table>
+      <p>
+        The payment method can be further specified by using the optional <code>supportedTokenTypes</code> data attribute.
+        Payment Mediators will take the supported token types into consideration when presenting Payment Apps to the user.
+      </p>
+    </section>
+
+    <section id="init-data">
+      <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
+      <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
+      argument to the PaymentRequest constructor.</p>
+      <pre class="idl">
+        dictionary TokenizedCardSpecificData  {
+          required sequence&lt;DOMString&gt; supportedTokenTypes;
+          DOMString? merchantID;
+        };
+      </pre>
+      <p>
+        The <code>TokenizedCardSpecificData</code> dictionary contains the following fields:
+      </p>
+
+	    <dl>
+        <dt><dfn><code>supportedTokenTypes</code></dfn></dt>
+        <dd>The <code>supportedTokenTypes</code> specifies which network, gateway, or issuer token providers you support.</dt>
+
+        <dt><dfn><code>merchantID</code></dfn></dt>
+        <dd>The <code>merchantID</code> is used for gateway tokenization to determine if the merchant has been onboarded to support gateway tokens via this Payment App.</dt>
+	    </dl>
+
+      <div class="issue" title="Token encryption">
+				Apps that provide tokenization will likely prefer to encrypt the response data with the merchant's public key. How/should that be specified in the input data?
+			</div>
+
+      <div class="issue" title="Supported token types">
+				The exact list of supported token types and how this list is updated needs thought.
+			</div>
+
+      <p>As an example, you might construct a Payment Request with supported payment methods as follows:</p>
+
+      <pre class="example highlight">
+        var supportedMethods = [{
+          supportedMethods: ['urn:payment-method:tokenized-card-payment:gateway'],
+          data: {
+            supportedTokenTypes: ['roypay'],
+            merchantID: '12345abcdef'
+          },
+        }];
+      </pre>
+    </section>
+
+    <section id="response">
+      <h2>Payment Method Response</h2>
+      <p>The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the
+      PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.</p>
+
+      <pre class="idl">
+        dictionary TokenizedCardResponse {
+            DOMString          cardholderName;
+            required DOMString          cardLast4;
+            DOMString          cardType;
+            DOMString          tokenType;
+            required DOMString          tokenNumber;
+            required DOMString          expiryMonth;
+            required DOMString          expiryYear;
+            DOMString        tokenCryptogram;
+            DOMString        tokenRequesterId;
+            DOMString        gatewayToken;
+            DOMString        gatewayTokenType;
+            BillingAddress?  billingAddress;
+        };
+      </pre>
+
+      <div class="issue" title="Split response into three structures">
+        The response should be broken into three different response types,
+        one network tokens, gateway tokens and issuer tokens respectively.
+			</div>
+
+      <p>
+        The <code>TokenizedCardResponse</code> dictionary contains the following fields:
+      </p>
+
+      <dl>
+        <dt><dfn><code>cardholderName</code></dfn></dt>
+        <dd>The <code>cardholderName</code> field contains the cardholder's name as it appears on the card.</dd>
+        <dt><dfn><code>cardLast4</code></dfn></dt>
+        <dd>The <code>cardLast4</code> field contains the last 4 digits of the original (non-token) primary account number (PAN) for the payment card.</dd>
+        <dt><dfn><code>cardType</code></dfn></dt>
+        <dd>The <code>cardType</code> field contains the type (Visa, Mastercard, etc.) of the original (non-token) payment card.</dd>
+        <dt><dfn><code>tokenType</code></dfn></dt>
+        <dd>The <code>tokenType</code> field contains the type (Network, Issuer, Gateway) of token.</dd>
+        <dt><dfn><code>tokenNumber</code></dfn></dt>
+        <dd>The <code>tokenNumber</code> field contains the token number for the payment card.</dd>
+        <dt><dfn><code>expiryMonth</code></dfn></dt>
+        <dd>The <code>expiryMonth</code> field contains a two-digit string for the expiry month
+        of the token in the range <code>01</code> to <code>12</code>.</dd>
+        <dt><dfn><code>expiryYear</code></dfn></dt>
+        <dd>The <code>expiryYear</code> field contains a two-digit string for the expiry year
+        of the token in the range <code>00</code> to <code>99</code>.</dd>
+        <dt><dfn><code>tokenCryptogram</code></dfn></dt>
+        <dd>The <code>tokenCryptogram</code> field contains the cryptogram for the token.  The cryptogram+token combination establishes a one time use credential.  This field is only applicable to network tokenization and issuer tokenization.  For issuer tokenization, this field should be a CVV.</dd>
+        <dt><dfn><code>tokenRequesterId</code></dfn></dt>
+        <dd>The <code>tokenRequesterId</code> field contains ID of the requester of the token (likely the creator of the payment app).  This field is only applicable to network tokenization.</dd>
+        <dt><dfn><code>gatewayToken</code></dfn></dt>
+        <dd>The <code>gatewayToken</code> field contains the gateway token used to process the payment.</dd>
+        <dt><dfn><code>gatewayTokenType</code></dfn></dt>
+        <dd>The <code>gatewayTokenType</code> field contains the type of gateway tokenization used (i.e. braintree, stripe, etc.)</dd>
+      </dl>
+    </section>
+  </body>
+</html>

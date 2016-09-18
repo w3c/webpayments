@@ -15,4 +15,4 @@ Use Case 1:
 
 #2. Proposal 
 ##2.1: JS API to influence payment app selection
-In the above example, the merchant website also need an API to influence the payment app selection.  
+In the above example, the merchant website also need an API to influence the payment app display order.  
