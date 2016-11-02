@@ -36,4 +36,5 @@ The following links are to the Working Group's source files for specifications.
 * Credit Transfer and Direct Debit - https://github.com/w3c/webpayments-methods-credit-transfer-direct-debit
 * Alipay Payment Method - https://w3c.github.io/webpayments/proposals/Alipay-payment-method.html
 * 360Pay Payment Method - https://github.com/cncuckoo/w3c/blob/master/360Pay-Payment-Method.html
+* Interledger SPSP Payment Method - https://w3c.github.io/webpayments/proposals/interledger-payment-method.html
 
