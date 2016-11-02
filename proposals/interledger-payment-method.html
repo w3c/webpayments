@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interledger - Simple Payment Setup Protocol - Payment Method</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          shortName:  "spsp-payment-method",
+          edDraftURI:   "https://w3c.github.io/webpayments/proposals/interledger-payment-method.html",
+          specStatus: "unofficial",
+          publishDate: "2016-10-31",
+          editors: [
+                {   name:       "Adrian Hope-Bailie",
+                    company:    "Ripple" },
+          ],
+
+          license:      "w3c-software-doc",
+          noRecTrack:   false,
+
+          //previousMaturity: "FPWD",
+          //previousPublishDate:  "1977-03-15",
+
+          wg:           "Web Payments Working Group",
+          wgURI:        "https://www.w3.org/Payments/WG/",
+          wgPublicList: "public-payments-wg",
+          wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
+
+          issueBase:    "https://github.com/w3c/webpayments/issues/",
+
+          localBiblio:  {
+              "PAYMENTARCH": {
+                  title:    "Payment Request Architecture"
+              ,   href:     "https://w3c.github.io/browser-payment-api/specs/architecture.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "ED"
+              },
+              "PAYMENTREQUESTAPI": {
+                  title:    "Payment Request API"
+              ,   href:     "https://www.w3.org/TR/payment-request/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+              "METHODIDENTIFIERS": {
+                  title:    "Payment Method Identifiers"
+              ,   href:     "https://www.w3.org/TR/payment-method-id/"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Richard Barnes"
+                  ,   "Roy McElmurry"
+                  ]
+              ,   status:   "WD"
+              },
+              "WEBIDL": {
+                  title:    "WebIDL Level 1"
+                  ,   href:     "http://www.w3.org/TR/WebIDL-1/"
+                  ,   authors:  [
+                      "Cameron McCormack"
+                      ,   "Boris Zbarsky"
+                  ]
+                  ,   status:   "Rec"
+              },
+              "SPSP": {
+                  title:    "Simple Payment Setup Protocol"
+                  ,   href:     "https://github.com/interledger/rfcs/blob/master/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md"
+                  ,   authors:  [
+                      "Evan Schwaartz"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+              "IPR": {
+                  title:    "Interledger Payment Request"
+                  ,   href:     "https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md"
+                  ,   authors:  [
+                      "Evan Schwaartz"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+          }
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        The Simple Payment Setup Protocol payment method specification describes the data formats used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment using SPSP [[!SPSP]] and the Interledger Protocol.
+      </p>
+    </section>
+
+    <section id='sotd'>
+    </section>
+    
+    <section class='informative'>
+        <div data-number="" title="TODO">
+            <ol>
+                <li>Figure out what should be in response.</li>
+                <li>Consider fixed sender amount</li>
+            </ol>
+        </div>
+      <h2>Introduction</h2>
+      <p>
+        TODO
+      </p>
+    </section>
+
+    <section id="dependencies"> 
+      <h2>Dependencies</h2> 
+      <p> 
+      This specification relies on several other underlying specifications. 
+      </p> 
+      <dl> 
+        <dt>Payment Request Architecture</dt>
+        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
+        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
+        Message Specification</dfn> are defined by the Payment Request Architecture document
+        [[!PAYMENTARCH]].</dd>
+        <dt>Payment Request API</dt>
+        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
+        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+        Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+        [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web IDL</dt>
+        <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+        <dt>Simple Payment Setup Protocol</dt>
+        <dd>This payment method is based on SPSP [[!SPSP]].</dd>
+        <dt>Interledger Payment Request</dt>
+        <dd>The data in the payment request maps directly to the Interledger Payment Request [[!IPR]].</dd>
+      </dl>
+    </section>
+
+    <section id="method-id">
+      <h2>Payment Method Identifier</h2>
+      <p>The following <a>payment method identifier</a> strings are supported by the SPSP data formats.</p>
+
+      <table>
+        <tr><th>Identifier String</th><th>Description</th></tr>
+        <tr><td>https://interledger.org/webpayments/spsp</td><td>Simple Payment Setup Protocol</td></tr>
+        
+      </table>
+    </section>
+	
+	<section id="payment-flows">
+      <h2>Payment flows</h2>
+      
+    </section>
+
+    <section id="init-data">
+      <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
+      <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
+      argument to the PaymentRequest constructor.</p>
+      <p>The following is the payment method specific data used by the PaymentRequest constructor when processing
+      and SPSP payment methods.</p>
+	  <p>The fields in this data structure map directly to those defined in the Interledger Payment Request specification. </p>
+	  <section>
+      <h2>Payment Method Specific Data </h2>
+      <pre class="idl">
+        dictionary PaymentMethodSpecificData  {
+            required DOMString address,
+            required Date expires_at,
+
+            DOMString condition,
+            Object data,
+            DOMString additional_headers
+        };
+      </pre>
+	  
+	  <p>
+        The <code>PaymentMethodSpecificData</code> dictionary contains the following fields:
+      </p>
+	  
+	  <dl>
+        <dt><dfn><code>address</code></dfn></dt>
+        <dd>Request-specific ILP address.</dd>
+        <dt><dfn><code>expires_at</code></dfn></dt>
+        <dd>Expiry of the request.</dd>
+        <dt><dfn><code>condition</code></dfn></dt>
+        <dd>Execution condition for the payment.</dd>
+        <dt><dfn><code>data</code></dfn></dt>
+        <dd>Data to be included in the ILP Packet.</dd>
+        <dt><dfn><code>additional_headers</code></dfn></dt>
+        <dd>Additional headers for the ILP Packet.</dd>
+	  </dl>
+
+	  </section>
+	  
+    </section>
+
+    <section id="response">
+      <h2>Payment Method Response</h2>
+      <p>TODO</p>
+
+      <section>
+      <h2>PaymentResponse</h2>
+      <pre class="idl">
+        dictionary PaymentResponse {
+        };
+      </pre>
+
+      <p>
+        The <code>PaymentResponse</code> dictionary contains the following fields:
+      </p>
+
+      <dl>
+        <dt><dfn><code>success</code></dfn></dt>
+        <dd>The <code>success</code> field contains indication whether the transaction is successful. </dd>
+      </dl>
+
+      
+
+      </section>
+
+      
+    </section>
+
+
+
+  </body>
+</html>
