@@ -123,7 +123,6 @@
       <table>
         <tr><th>Identifier String</th><th>Description</th></tr>
         <tr><td>urn:payment-method:tokenized-card-payment:network</td><td>Network Tokenized Cards</td></tr>
-        <tr><td>urn:payment-method:tokenized-card-payment:gateway</td><td>Gateway Tokenized Cards</td></tr>
         <tr><td>urn:payment-method:tokenized-card-payment:issuer</td><td>Issuer Tokenized Cards</td></tr>
       </table>
       <p>
@@ -146,30 +145,26 @@
         The <code>TokenizedCardSpecificData</code> dictionary contains the following fields:
       </p>
 
-	    <dl>
+      <dl>
         <dt><dfn><code>supportedTokenTypes</code></dfn></dt>
-        <dd>The <code>supportedTokenTypes</code> specifies which network, gateway, or issuer token providers you support.</dt>
-
-        <dt><dfn><code>merchantID</code></dfn></dt>
-        <dd>The <code>merchantID</code> is used for gateway tokenization to determine if the merchant has been onboarded to support gateway tokens via this Payment App.</dt>
-	    </dl>
+        <dd>The <code>supportedTokenTypes</code> specifies which network or issuer token providers you support.</dt>
+      </dl>
 
       <div class="issue" title="Token encryption">
-				Apps that provide tokenization will likely prefer to encrypt the response data with the merchant's public key. How/should that be specified in the input data?
-			</div>
+        Apps that provide tokenization will likely prefer to encrypt the response data with the merchant's public key. How/should that be specified in the input data?
+      </div>
 
       <div class="issue" title="Supported token types">
-				The exact list of supported token types and how this list is updated needs thought.
-			</div>
+        The exact list of supported token types and how this list is updated needs thought.
+      </div>
 
       <p>As an example, you might construct a Payment Request with supported payment methods as follows:</p>
 
       <pre class="example highlight">
         var supportedMethods = [{
-          supportedMethods: ['urn:payment-method:tokenized-card-payment:gateway'],
+          supportedMethods: ['urn:payment-method:tokenized-card-payment:issuer'],
           data: {
             supportedTokenTypes: ['roypay'],
-            merchantID: '12345abcdef'
           },
         }];
       </pre>
@@ -191,16 +186,14 @@
             required DOMString          expiryYear;
             DOMString        tokenCryptogram;
             DOMString        tokenRequesterId;
-            DOMString        gatewayToken;
-            DOMString        gatewayTokenType;
             BillingAddress?  billingAddress;
         };
       </pre>
 
-      <div class="issue" title="Split response into three structures">
-        The response should be broken into three different response types,
-        one network tokens, gateway tokens and issuer tokens respectively.
-			</div>
+      <div class="issue" title="Split response into two structures">
+        The response should be broken into two different response types,
+        one network tokens and one issuer tokens respectively.
+      </div>
 
       <p>
         The <code>TokenizedCardResponse</code> dictionary contains the following fields:
@@ -214,7 +207,7 @@
         <dt><dfn><code>cardType</code></dfn></dt>
         <dd>The <code>cardType</code> field contains the type (Visa, Mastercard, etc.) of the original (non-token) payment card.</dd>
         <dt><dfn><code>tokenType</code></dfn></dt>
-        <dd>The <code>tokenType</code> field contains the type (Network, Issuer, Gateway) of token.</dd>
+        <dd>The <code>tokenType</code> field contains the type (Network, Issuer) of token.</dd>
         <dt><dfn><code>tokenNumber</code></dfn></dt>
         <dd>The <code>tokenNumber</code> field contains the token number for the payment card.</dd>
         <dt><dfn><code>expiryMonth</code></dfn></dt>
@@ -224,13 +217,9 @@
         <dd>The <code>expiryYear</code> field contains a two-digit string for the expiry year
         of the token in the range <code>00</code> to <code>99</code>.</dd>
         <dt><dfn><code>tokenCryptogram</code></dfn></dt>
-        <dd>The <code>tokenCryptogram</code> field contains the cryptogram for the token.  The cryptogram+token combination establishes a one time use credential.  This field is only applicable to network tokenization and issuer tokenization.  For issuer tokenization, this field should be a CVV.</dd>
+        <dd>The <code>tokenCryptogram</code> field contains the cryptogram for the token.  The cryptogram+token combination establishes a one time use credential.  For issuer tokenization, this field should be a CVV.</dd>
         <dt><dfn><code>tokenRequesterId</code></dfn></dt>
         <dd>The <code>tokenRequesterId</code> field contains ID of the requester of the token (likely the creator of the payment app).  This field is only applicable to network tokenization.</dd>
-        <dt><dfn><code>gatewayToken</code></dfn></dt>
-        <dd>The <code>gatewayToken</code> field contains the gateway token used to process the payment.</dd>
-        <dt><dfn><code>gatewayTokenType</code></dfn></dt>
-        <dd>The <code>gatewayTokenType</code> field contains the type of gateway tokenization used (i.e. braintree, stripe, etc.)</dd>
       </dl>
     </section>
   </body>
