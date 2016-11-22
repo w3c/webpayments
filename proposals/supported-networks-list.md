@@ -1,7 +1,6 @@
 # Payment Method Identifiers
 
 Proposed by @ibjacobs
-Discussion at https://github.com/w3c/webpayments/labels/Proposal%3A%20PMIs
 
 ## Intro
 
