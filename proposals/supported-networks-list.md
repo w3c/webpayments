@@ -40,6 +40,7 @@ In alphabetic order:
 
 * Mechanics of publishing. Because changes should only happen as a result of
 a WG decision, I think that write access should be limited to Chairs and Team contacts, at least initially.
+* Do we need to address trademark in some way?
 * Structure of network identifier list. Should include the policy, who owns the policy, the list of identifiers, contact information (the WG).
 
 
