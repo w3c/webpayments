@@ -14,7 +14,7 @@ to publish the list separate from the specification.
 ## Proposal
 
 * The Basic Card Payment specification will link to a list of network identifier published on w3.org, separate from the specification. These identifiers will be short strings.
-* Changes to the list must be approved through a decision of the Web Payments Working Group. 
+* Changes to the list must be approved through a decision of the Web Payments Working Group.
 * If the Web Payments Working Group closes, W3C management will take over responsibility for the network identifier list (including delegation of change authority to another W3C group). NOTE: W3C management has not yet reviewed or approved this proposal; it will need to do so because of the maintenance expectation.
 
 ## Notes on the Proposal
@@ -40,6 +40,6 @@ In alphabetic order:
 
 * Mechanics of publishing. Because changes should only happen as a result of
 a WG decision, I think that write access should be limited to Chairs and Team contacts, at least initially.
-
+* Structure of network identifier list. Should include the policy, who owns the policy, the list of identifiers, contact information (the WG).
 
 
