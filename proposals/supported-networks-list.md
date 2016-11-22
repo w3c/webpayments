@@ -1,4 +1,4 @@
-# Payment Method Identifiers
+# Proposal to Manage Card Network Identifiers Separate from Basic Card Spec
 
 Proposed by @ibjacobs
 
