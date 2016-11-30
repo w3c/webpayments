@@ -21,7 +21,7 @@ to publish the list separate from the specification.
 
 * To avoid confusion, we will not create two lists: one initial list in the specification and one "evolving" list by reference.
 * Each entry in the list will include provenance information (date of approval, link to group decision)
-* Patent policy implications: because list will be published outside the specificaiton and subject to a different update process than the Recommendation Track, it will presumably not be subject to W3C Patent Policy obligations.
+* Patent policy implications: because list will be published outside the specification and subject to a different update process than the Recommendation Track, it will presumably not be subject to W3C Patent Policy obligations.
 
 ## Initial List of Identifiers
 
