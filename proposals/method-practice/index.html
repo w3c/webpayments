@@ -207,22 +207,24 @@
       </section>
 
       <section>
-	<h3 id="network">Network Failures</h3>
-	<p>Some payment methods may be more sensitive to network failures
-	  than others (e.g., push payments may be more sensitive than
-	  pull payments such as card payments).
-	<p>Authors of payment method specifications may wish to address topics such as:</p>
+	<h3 id="network">Failures and Reconciliation</h3>
+	<p>Some payment methods may be more sensitive to various failures
+	  (e.g., network) than others. To help parties with reconciliation of
+	  information after failures, each transaction can be identified with a unique paymentRequestID. <strong>Note:</strong> This is still under discussion; see <a href="https://github.com/w3c/browser-payment-api/issues/224">issue 224</a>) and  <a href="https://github.com/w3c/browser-payment-api/issues/287">issue 287</a>.</p>
+	<p>Payment methods may define additional mechanisms to make use of the paymentRequestID. For example:</p>
 
 	<ul>
-	  <li>Asynchronous notifications to the payee about the status of processing a payment. Thus, the payment request API can provide one response to the payee ("through the front end") and the payment app or payment processor can provide a redundant response directly to a payee server ("through the backend"). This may be implemented in a variety of ways. For example:
-	    <ul>
-	      <li>If a payment app is associated with the origin of the payee, the payment app may encode how back end communication will take place.</li>
-	      <li>If a payment app is not associated with the origin of the payee, the payee may provide a callback URL via the payment request API that the payment app may use to contact the payee. Or, the payment app can pass that data along to a payment server for that purpose.</li>
-	    </ul>
-	  </li>
+	  <li>The payment method may enable payees to provide a URL (in the Payment Request data) so that payment services can send transaction status information asynchronously to the payee. The status information that is useful to communicate (e.g., success, fail, processing, etc.) will depend on the payment method.</li>
+	  <li>Parties may secure the callback channel in a variety of
+ways. Some parties may wish to provide the same data asynchronously
+	    that is available synchronously through Payment Request API. To do this
+	    securely is likely to involve some form of mutual authentication. Establishing mutual authentication may involve a burden (e.g., key or certificate exchange) that some parties do not wish to bear. Therefore, some
+payment servers may prefer to send minimal information to the
+payee, and require the payee to query the payment server for
+	    authoritative status information.</li>
 	</ul>
 
-	<p>See Working Group discussion of <a href="https://github.com/w3c/browser-payment-api/issues/287">transaction identifiers</a>.</p>
+	<p>Reconciliation patterns may differ if software exchanging information is owned by the same entity, such as when an organization manages an E-Commerce site and also distributes the payment app the user has selected to pay.</p>
       </section>
 
       <section>
