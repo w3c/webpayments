@@ -8,5 +8,7 @@ Please use appropriate *"Proposal: XXX"*  labels for new issues to help us sort 
 
 ## Current Proposals
 
-* [**Architecture**](https://w3c.github.io/webpayments/proposals/architecture/)
 * [**Payment Method Best Practice**](https://w3c.github.io/webpayments/proposals/method-practice/)
+* [**Payment Manifest**](https://w3c.github.io/webpayments/proposals/Payment-Manifest-Proposal.html)
+* [**Interledger Payment Method Specification**](https://w3c.github.io/webpayments/proposals/interledger-payment-method.html)
+
