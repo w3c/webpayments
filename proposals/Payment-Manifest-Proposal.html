@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Payment Manifest Proposal</title>
+    <title>Payment Method Manifest</title>
     <meta charset='utf-8'>
     <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
             async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
-          shortName:  "payment-manifest-proposal",
+          shortName:  "payment-method-manifest",
           //edDraftURI:   ,
 
-          specStatus: "WD",
+          specStatus: "unofficial",
           publishDate: "2016-11-25",
           editors: [
           		{	
@@ -36,6 +36,25 @@
 
           issueBase:    "https://github.com/w3c/browser-payment-api/issues/",
 
+          localBiblio: {
+        "METHOD-IDENTIFIERS": {
+          title: "Payment Method Identifiers",
+          href: "https://www.w3.org/TR/payment-method-id/",
+          authors: [
+            "Adrian Bateman", "Zach Koch", "Roy McElmurry"
+          ],
+          status: "WD"
+        }
+        "PAYMENT-APP-API": {
+          title: "Payment App API",
+          href: "https://w3c.github.io/webpayments-payment-apps-api/",
+          authors: [
+      "Adrian Hope-Bailie", "Tommy Thorsen", "Adam Roach", "Jason Normore", "Ian Jacobs"
+          ],
+          status: "unofficial"
+        }
+      }
+
       };
     </script>
     <style>
@@ -50,144 +69,117 @@
   <body>
     <section id='abstract'>
       <p>
-        This proposal is an extension of the Payment Method Identifier proposal.
+        The expectation of the Web Payments Working Group is that those who mint payment method identifiers that are URLs (see [[METHOD-IDENTIFIERS]]) will also publish machine readable information that describes how that method participates in the PaymentRequest ecosystem. This specification defines the format and addressing of payment method manifest files.
       </p>
     </section>
 
     <section id='sotd'>
     </section>
     
-    <section class='informative'>
-      <h2>Introduction</h2>
-      <p>
-       This proposal is an extension of the Payment Method Identifier proposal. 
-      </p>
-	  <blockquote><p>
-	   In that proposal I originally wrote: This proposal does not necessarily assume that anything should exist at the identifying URL, but it is probably really useful to do so.
-	  </p></blockquote>
-      <p>
-        It emerged in subsequent discussions that leaving this open-ended was insufficient (potentially blocked work on payment apps, called into question the value of using URLs as identifiers, etc).
-      </p>
-	  <p>
-	    The purpose of this document is to clearly define what should live at the end of that identifier and why that is necessary.
-	  </p>
-    </section>
-
-    <section id="dependencies"> 
-      <h2>Goals of this Proposal</h2> 
-      <p> 
-      The goal of this proposal is to gain consensus on the following:
-      </p> 
-      <ul>
-	  <li>Given an identifying URL, there must be a way to access a machine-readable manifest file about that payment method in a standard, well-defined way</li>
-	  <li>Every proprietary payment method in the PaymentRequest ecosystem must have a corresponding machine-readable manifest file</li>
-	  </ul>
-	  <p>
-	  The exact contents of this manifest file can be worked out over time in addition to the exact mechanism for what that "standard, well-defined way" is. This proposal contains various strawman proposals to jumpstart this discussion.
-	  </p>
-	  <p> 
-      For now, our goal is to agree on the above bullets in order to unblock current work and drive forward progress.
-      </p> 
-	  <blockquote><p>
-	   Note that this proposal is limited to Payment Methods, but I believe most all of it would hold true and be valuable for Payment Apps as well. That said, such discussion is out of scope for this proposal.
-	  </p></blockquote>
-	  
-    </section>
-
-    <section id="proposal">
-      <h2>Proposal</h2>
-	  <h3>Payment-Manifest</h3>
-      <p>For every payment method, there must be a corresponding payment-manifest.json file describing how that method participates in the PaymentRequest ecosystem.</p>
-	  <p>This manifest contains information about how that payment method can be used. This includes, but is certainly not limited to: the default payment app associated with it (if any), other supported applications (expressed as URLs), platform-specific details required for verifying authenticity of an app, etc.</p>
-
-	  <h3>Accessing the Payment-Manifest (strawman)</h3>
-	  
-      <p>
-	  <code>payment-manifest.json</code> must live in the directory of the identifying URL. It must be fetched with a MIME type of <code>lication/json</code>.
-	  </p>
-	  
-	  <p>
-	  As a concrete example, let's assume I define a payment method with the following identifier: <code>https://bobpay.xyz/pay </code>. The corresponding payment manifest file must live at <code>https://bobpay.xyz/pay/payment-manifest.json </code>.
-	  </p>
-	  
-	  <p>There are a few benefits to this approach:</p>
-	  <ol>
-	  <li>It allows for the method identifier itself to reatain simple, semantic meaning.</li>
-	  <li>The identifier by itself can still resolve to a standard, human-readable HTML page. So a curious developer can simply copy and paste it into a URL bar and discover information about that method (assuming, of course, the method provider supports this).</li>
-	  <li>It allows for a machine-readable version of the payment method to be reached in a single round trip request (i.e. no need to parse an HTML page looking for a manifest link).</li>
-	  </ol>
-	  
-	  <blockquote><p>
-	   Note: This proposal was inspired by Android's <a href="https://developers.google.com/digital-asset-links/v1/getting-started">Digital Asset Links</a>
-	  </p></blockquote>
-	  
-    </section>
-	
-	<section id="use-cases">
+    <section id="use-cases">
       <h2>Use Cases</h2>
-	  <p>There are three primary use cases that this manifest file seeks to address right now, though I suspect more will emerge as the specs progress. These key three are:</p>
-	  <ol>
-	  <li>The ability to confirm the authenticity of payment apps associated with payment methods. Put another way, if a user installs a payment application associated with a proprietary payment method on their platform of choice, we want to verify that the app is who is claims to be.</li>
-	  <li>The ability for proprietary payment methods to control what other payment apps in the system (in addition to themselves) are able to support their payment method.</li>
-	  <li>The ability for payment mediators to offer improved UX in cases where a users wants to use a payment method but doesn't have a necessary app installed.</li>
-	  </ol>
-      
+      <p>This specification intends to address the following use cases:</p>
+      <ol>
+	<li>The owner of a payment method wishes to authorize only certain parties to distribute payment apps that are capable of implementing the payment method. In this use case, the browser helps to ensure that for that payment method, the user can only invoke payment apps from parties authorized by the owner of the payment method.</li>
+	<li>In addition, the owner of a payment method wishes to confirm the
+	  authenticity of a particular payment app (e.g., via a digital signature for that app).</li>
+	<li>When the user has not yet installed a payment app for a payment method, the user agent can provided an improved user experience for procuring a payment app.</li>
+      </ol>
     </section>
 
-    <section id="example">
-      <h2>Example Structure of a Payment-Manifest</h2>
-      
-	    <pre class="example highlight">
-			// payment-manifest.json
-			{
-			  "payment_app": {
-				"android": {
-				  "package": "xyz.bobay.app",
-				  "sha256_cert_fingerprints": ["14:6D:E9:83:C5:73:06:50"],
-				  "platforms": {
-					"play": "https://play.google.com/store/apps/details?id=com.bobspayments.app1"
-				  }
-				},
-				"web": {
-				  "name": "Bob's Payments",
-				  "icons": [{
-					"src": "icon/lowres.webp",
-					"sizes": "48x48",
-					"type": "image/webp"
-				  }, {
-					"src": "icon/lowres",
-					"sizes": "48x48"
-				  }, {
-					"src": "icon/hd_hi.ico",
-					"sizes": "72x72 96x96 128x128 256x256"
-				  }, {
-					"src": "icon/hd_hi.svg",
-					"sizes": "257x257"
-				  }]
-				},
-				"ios": {...}
-			  },
-			  "externally_supported_apps": ["https://alicepay.com/pay"]
-			}
-  </pre>
-	  
-	  
+    <section id="format">
+      <h2>Manifest File Format</h2>
+      <p><em>Define here the overall file format in a way that enables forward and backward compatibility.</em></p>
+      <section>      
+	<h2>Extensibility</h2>
+	<p class="issue">The expectation is that the manifest contents may
+	  change over time. What is our extensibility mechanism?</p>
+      </section>
+      <section>
+	<h2>Error Handling</h2>
+	<p class="issue">How are unrecognized names handled? Bad values?</p>
+      </section>
     </section>
 
-    <section id="response">
-      <h2>Alternative Proposals for Accessing Payment-Manifest</h2>
-      <p>There are a few other ways that we could go about doing this. This is open for discussion. A couple other ideas to get started:</p>
-	  <ul>
-	  <li><code>&lt;link rel="payment-manifest" href="/payment-manifest.json"&gt;</code> at the identifying URL.</li>
-	  <li>Something in the request header of the identifying URL indicating you're looking for the machine-readable version</li>
-	  </ul>
+    <section id="format">
+      <h2>Payment App Data</h2>
 
-      
+      <p>This specification defines two sections of a payment method manifest file:</p>
+      <ul>
+	<li>origins authorized to distribute payment apps for this payment method</li>
+	<li>data about payment apps used to confirm payment app authenticity and display information about payment apps to enable user selection. <strong>Note:</strong> For scenarios where the payment method owner authorized arbitrary parties to distribute payment apps for that payment method, the Web Payments Working Group is also investigating independent publication of payment app manifest data rather than as part of a payment method manifest file.</li>
+      </ul>
 
+      <p>In the following example, the payment method owner has declared that:</p>
+      <ul>
+	<li>The origin alicepay.com is authorized to distribute payment apps that implement the payment method. User agents can use this origin information to improve security.</li>
+	<li>Only certain (versions of) payment applications can be used. The details of what the payment method owner can specify will be platform-specific; the example is not authoritative. For more information about data for Web-based applications, see [[PAYMENT-APP-API]].</li>
+      </ul>
       
+      <pre class="example highlight">
+	{
+	"externally_supported_apps": ["https://alicepay.com/pay"],
+	"payment_app": {
+  	  "android": {
+	     "package": "xyz.bobay.app",
+	     "sha256_cert_fingerprints": ["14:6D:E9:83:C5:73:06:50"],
+	     "platforms": {
+	       "play": "https://play.google.com/store/apps/details?id=com.bobspayments.app1"
+	      }
+ 	     },
+  	  "web": {
+  	      "name": "Bob's Payments",
+	      "icons": [{
+	            "src": "icon/lowres.webp",
+	            "sizes": "48x48",
+	            "type": "image/webp"
+	            }, {
+	            "src": "icon/lowres",
+	            "sizes": "48x48"
+	            }, {
+	            "src": "icon/hd_hi.ico",
+	            "sizes": "72x72 96x96 128x128 256x256"
+	            }, {
+	            "src": "icon/hd_hi.svg",
+	            "sizes": "257x257"
+	           }]
+	      },
+  	  "ios": {...}
+	  }
+	}
+      </pre>
+
+      <section>
+	<h2>Origins Authorized to Distribute Payment Apps</h2>
+	<p><em>Talk here in more detail about externally_supported_apps, etc.</em></p>
+      </section>
+      <section>
+	<h2>Data about Authorized Payment Apps</h2>
+	<p><em>Talk here in more detail about payment_apps, etc.</em></p>
+	<p class="issue">How is a default app identified?</p>
+      </section>
+    </section>
+    
+    <section id="addressing">
+      <h2>Manifest File Addressing</h2>
+      <p>The following algorithm is used to determine the address of a payment manifest file given a payment method identifier <code>PMI</code>:</p>
+      <ol>
+	<li><em>This is in development. It may involve a sequence of checks, or a single mechanism. It may involve some or none of: deterministic construction of a new URL for the JSON, the use of HTTP headers, and the use of Content Negotiation.<em></li>
+      </ol>
+
+      <section>
+	<h2>Design Notes</h2>
+	<ul>
+	  <li>For performance reasons, it is desirable to be able to retrieve all information about a payment method (both human-readable and machine-readable) in a single HTTP request. The Web Payments Working Group intends to look more closely about features of HTTP/2 to achieve this goal.</li>
+	  <li>See the URL construction approach taken by Android's <a href="https://developers.google.com/digital-asset-links/v1/getting-started">Digital Asset Links</a></li>
+	  <li>Using an HTML <code>link</code> element may be too costly an approach as it would require fetching and parsing files.</li>
+	</ul>
+      </section>
     </section>
 
-
-
+    <section>
+      <h2>Security Considerations</h2>
+      <p><em>What happens when there is no payment method manifest available? Is it the responsibility of this specification to define a single error handling behavior? Or at least some security considerations?<em></p>
+    </section>
   </body>
 </html>
