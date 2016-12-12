@@ -27,14 +27,14 @@ The following links are to the Working Group's source files for specifications.
 * Payment Method Identifiers - https://github.com/w3c/webpayments-method-identifiers
 * Payment Request API - https://github.com/w3c/browser-payment-api/
 * Card - https://github.com/w3c/webpayments-methods-card
+* Web Payments HTTP API 1.0 - https://w3c.github.io/webpayments-http-api/
+* Web Payments HTTP Messages 1.0 - https://w3c.github.io/webpayments-http-messages/
 
-## Editors drafts not yet First Public Working Draft status
+##  Editors Drafts
 
 * Payment Apps - https://github.com/w3c/webpayments-payment-apps-api
-* HTTP API - https://github.com/w3c/webpayments-http-api
-* Payments Core Messages - https://github.com/w3c/webpayments-core-messages
-* Credit Transfer and Direct Debit - https://github.com/w3c/webpayments-methods-credit-transfer-direct-debit
-* Alipay Payment Method - https://w3c.github.io/webpayments/proposals/Alipay-payment-method.html
-* 360Pay Payment Method - https://github.com/cncuckoo/w3c/blob/master/360Pay-Payment-Method.html
-* Interledger SPSP Payment Method - https://w3c.github.io/webpayments/proposals/interledger-payment-method.html
+* Sepa Credit Transfer - https://github.com/w3c/webpayments-methods-credit-transfer-direct-debit
 
+## Other proposals
+
+See also [more proposals](https://github.com/w3c/webpayments/tree/gh-pages/proposals) that have not yet been taken up to the Working Group.
