@@ -160,7 +160,7 @@
 
       <ul>
 	<li>A "payment method specification," which is a description of the request and response data exchanged between the browser and payment apps when the payment method is invoked.</li>
-	<li>A machine-readable manifest (available when dereferencing the payment method identifier) with instructions about using the payment method in practice (e.g., with information about payment apps that support the payment method). <strong>Note:</strong> The Web Payments Working Group expects to specify a vocabulary for this manifest file; see the <a href="https://github.com/zkoch/zkoch.github.io/blob/master/payment-manifest.md">proposal under consideration</a>.</li>
+	<li>A machine-readable manifest (available when dereferencing the payment method identifier) with instructions about using the payment method in practice (e.g., with information about payment apps that support the payment method). <strong>Note:</strong> The Web Payments Working Group expects to specify a vocabulary for this manifest file; see the <a href="https://w3c.github.io/webpayments/proposals//Payment-Manifest-Proposal.html">draft Payment Method Manifest specification</a>.</li>
 	<li>An payment method identifier that serves two purposes: it is used in the matching algorithm of [[!PAYMENTREQUESTAPI]] and can be dereferenced for the manifest. For syntax and other information about payment method identifiers, see [[!METHODIDENTIFIERS]].</li>
       </ul>
 
@@ -235,8 +235,18 @@ payee, and require the payee to query the payment server for
       
     </section>
 
+    <section id="operations">
+      <h2>Operational Considerations</h2>
+      <section id="operations">
+	<h2>Payment Method Manifest Files</h2>
+	<ul>
+	  <li>Addressing. Update this based on the outcome of <a href="https://github.com/w3c/webpayments-method-identifiers/issues/19">issue 19</a>.</li>
+	  <li>Performance. Web site managers should set up mechanisms such as caching to ensure that payment manifest files are served efficiently, as they may be frequently fetched. <strong>Note:</strong> Need to add some guidance here.</li>
+	</ul>
+      </section>
+    </section>
 
-      <section id="publishing">
+    <section id="publishing">
       <h2>W3C Publishing Policy</h2>
       <p>W3C does <strong>not</strong> intend to define any payment
 	methods. However, W3C does plan to publish a small number of payment method
