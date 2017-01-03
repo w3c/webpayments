@@ -192,18 +192,46 @@
 	</ul>
       </section>
 
-
+      <section>
+	<h3 id="identity">Identity</h3>
+      </section>
+      
       <section>
 	<h3 id="security">Security and Privacy</h3>
-	<p>It is important to protect user data and ensure that
-	  it is exchanged securely throughout the network.</p>
-	<p>Authors of payment method specifications may wish to address topics such as:</p>
-	<ul>
-	  <li>tokenization of information in the payment response</li>
-	  <li>topics that may vary by regulatory regime, such as whether
-	    data may be stored by a payment app.</li>
-	  <li>links for developers to relevant rules defined for the payment method</li>
-	</ul>
+	<section>
+	  <h3 id="considerations">Considerations in Payment Method Specifications</h3>
+	  <p>It is important to protect user data and ensure that
+	    it is exchanged securely throughout the network.</p>
+	  <p>Authors of payment method specifications may wish to address topics such as:</p>
+	  <ul>
+	    <li>tokenization of information in the payment response</li>
+	    <li>topics that may vary by regulatory regime, such as whether
+	      data may be stored by a payment app.</li>
+	    <li>links for developers to relevant rules defined for the payment method</li>
+	  </ul>
+	</section>
+	<section>
+	  <h3 id="merchant-identity">Payee Identity</h3>
+	  <p>Origin information plays an important role on the Web in identifying the payee. In some use cases, origin information may be necessary but insufficient to identify the payee, including:</p>
+	  <ul>
+	    <li>On hosted checkout pages, and</li>
+	    <li>when a site otherwise provides services for multiple merchants.</li>
+	  </ul>
+
+	  <p>In these cases, it may be useful to provide a "merchantID" in the <code>data</code> field of the payment request. Payment method specific data offers one way to avoid identifier conflicts across payment methods:</p>
+
+	   <pre>
+	    new PaymentRequest(
+              [{
+              supportedMethods: ["https://example.com/method1"],
+              data: {merchantId: "1234567890"}
+           }, {
+              supportedMethods: ["https://example.com/method2"],
+              data: {merchantId: "ASDFGHJKL"}
+            }], shoppingCart).show();
+           </pre>
+
+	</section>
       </section>
 
       <section>
