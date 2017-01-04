@@ -88,8 +88,17 @@
       <h2>Introduction</h2>
       <p>
         This specification is a <a href="#dfn-payment-transaction-message-specification">Payment Transaction Message Specification</a> used by the PaymentRequest API
-        [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards. Merchants should favor tokenized card payment methods over basic card payments.
+        [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards. Tokenization provides some advantages over traditional card payments - tokenized credentials are often narrowly scoped, for example single-use or merchant/amount/time scoped.  Tokenized credentials also help alleviate some concerns about merchant data breaches since the merchant does not have the raw PAN.  This provides some additional security for a consumer.
       </p>
+      <p>
+        This specification covers issuer and network tokens, but does not encompass all types of tokenization.  As an example, gateway tokens are not covered by this specification since they often require merchant onboarding with the token provider.  Network tokens are tokens (typically single-use) provided by card networks (i.e. Visa/MasterCard/American Express/Discover/etc.).  These tokens are a representation of the underlying PAN.  With issuer tokens, a provider serves as a card issuer by generating a new card number (not necessarily of the same type as the original PAN).  During charging of these tokens, the provider translates the generated card number back into the original PAN.
+      </p>
+
+      <p>The flow of issuer tokens is shown in the diagram below:</p>
+      <img src="issuerTokens.png"/>
+
+      <p>The flow of network tokens is shown in the diagram below:</p>
+      <img src="networkTokens.png"/>
     </section>
 
     <section id="dependencies">
@@ -119,105 +128,76 @@
 
     <section id="method-id">
       <h2>Payment Method Identifier</h2>
-      <p>The following <a>payment method identifier</a> strings are supported by the Tokenized Card Payment data formats.</p>
-      <table>
-        <tr><th>Identifier String</th><th>Description</th></tr>
-        <tr><td>urn:payment-method:tokenized-card-payment:network</td><td>Network Tokenized Cards</td></tr>
-        <tr><td>urn:payment-method:tokenized-card-payment:issuer</td><td>Issuer Tokenized Cards</td></tr>
-      </table>
-      <p>
-        The payment method can be further specified by using the optional <code>supportedTokenTypes</code> data attribute.
-        Payment Mediators will take the supported token types into consideration when presenting Payment Apps to the user.
-      </p>
+      <p>The <a>payment method identifier</a> string for the Tokenized Card Payment method is <dfn><code>card-token</code></dfn>.</p>
     </section>
 
-    <section id="init-data">
+    <section id="request">
       <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
       <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
-      argument to the PaymentRequest constructor.</p>
+      argument to the <a>PaymentRequest constructor</a>.</p>
+
+      <section>
+      <h3>TokenCardRequest</h3>
       <pre class="idl">
-        dictionary TokenizedCardSpecificData  {
-          required sequence&lt;DOMString&gt; supportedTokenTypes;
-          DOMString? merchantID;
+        enum TokenCardType { "emv", "issuer" };
+
+        dictionary TokenCardRequest {
+          sequence&lt;DOMString&gt; supportedNetworks;
+          sequence&lt;TokenCardType&gt; supportedTypes;
         };
       </pre>
+
       <p>
-        The <code>TokenizedCardSpecificData</code> dictionary contains the following fields:
+        The <code>TokenCardRequest</code> dictionary contains the following fields:
       </p>
 
       <dl>
-        <dt><dfn><code>supportedTokenTypes</code></dfn></dt>
-        <dd>The <code>supportedTokenTypes</code> specifies which network or issuer token providers you support.</dt>
+        <dt><dfn><code>supportedNetworks</code></dfn></dt>
+        <dd>The <code>supportedNetworks</code> field contains a sequence of identifiers for card networks
+        that the merchant accepts.</dd>
+        <dt><dfn><code>supportedTypes</code></dfn></dt>
+        <dd>The <code>supportedTypes</code> field contains a sequence of token card types that the merchant
+        accepts. Implementations will determine how to match the type values <code>emv</code>,
+        and <code>issuer</code>.</dd>
       </dl>
 
-      <div class="issue" title="Token encryption">
-        Apps that provide tokenization will likely prefer to encrypt the response data with the merchant's public key. How/should that be specified in the input data?
-      </div>
+      <p class="note">
+        The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
+        If neither is provided then any card may be returned. If only <code>supportedNetworks</code>
+        is provided then any card type may be returned provided it matches one of the networks.
+        If only <code>supportedTypes</code> is provided then a card may be returned from any network
+        provided it matches one of the types.  It is expected that supportedTypes will be an evolving list.
+      </p>
 
-      <div class="issue" title="Supported token types">
-        The exact list of supported token types and how this list is updated needs thought.
-      </div>
-
-      <p>As an example, you might construct a Payment Request with supported payment methods as follows:</p>
-
-      <pre class="example highlight">
-        var supportedMethods = [{
-          supportedMethods: ['urn:payment-method:tokenized-card-payment:issuer'],
-          data: {
-            supportedTokenTypes: ['roypay'],
-          },
-        }];
-      </pre>
+      </section>
     </section>
 
     <section id="response">
       <h2>Payment Method Response</h2>
-      <p>The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the
-      PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.</p>
+      <p>
+        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  The intention is for this to extend from the BasicCardResponse with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code) establishes a one-time use credential.
+      </p>
 
       <pre class="idl">
-        dictionary TokenizedCardResponse {
-            DOMString          cardholderName;
+        dictionary TokenizedCardResponse: BasicCardResponse {
             required DOMString          cardLast4;
             DOMString          cardType;
             DOMString          tokenType;
-            required DOMString          tokenNumber;
-            required DOMString          expiryMonth;
-            required DOMString          expiryYear;
-            DOMString        tokenCryptogram;
             DOMString        tokenRequesterId;
-            BillingAddress?  billingAddress;
         };
       </pre>
-
-      <div class="issue" title="Split response into two structures">
-        The response should be broken into two different response types,
-        one network tokens and one issuer tokens respectively.
-      </div>
 
       <p>
         The <code>TokenizedCardResponse</code> dictionary contains the following fields:
       </p>
 
       <dl>
-        <dt><dfn><code>cardholderName</code></dfn></dt>
-        <dd>The <code>cardholderName</code> field contains the cardholder's name as it appears on the card.</dd>
         <dt><dfn><code>cardLast4</code></dfn></dt>
-        <dd>The <code>cardLast4</code> field contains the last 4 digits of the original (non-token) primary account number (PAN) for the payment card.</dd>
+        <dd>The <code>cardLast4</code> field contains the last 4 digits of the original (non-token) primary account number (PAN) for the payment card.  This may be used for display purposes during the purchase.</dd>
         <dt><dfn><code>cardType</code></dfn></dt>
         <dd>The <code>cardType</code> field contains the type (Visa, Mastercard, etc.) of the original (non-token) payment card.</dd>
         <dt><dfn><code>tokenType</code></dfn></dt>
         <dd>The <code>tokenType</code> field contains the type (Network, Issuer) of token.</dd>
-        <dt><dfn><code>tokenNumber</code></dfn></dt>
-        <dd>The <code>tokenNumber</code> field contains the token number for the payment card.</dd>
-        <dt><dfn><code>expiryMonth</code></dfn></dt>
-        <dd>The <code>expiryMonth</code> field contains a two-digit string for the expiry month
-        of the token in the range <code>01</code> to <code>12</code>.</dd>
-        <dt><dfn><code>expiryYear</code></dfn></dt>
-        <dd>The <code>expiryYear</code> field contains a two-digit string for the expiry year
-        of the token in the range <code>00</code> to <code>99</code>.</dd>
-        <dt><dfn><code>tokenCryptogram</code></dfn></dt>
-        <dd>The <code>tokenCryptogram</code> field contains the cryptogram for the token.  The cryptogram+token combination establishes a one time use credential.  For issuer tokenization, this field should be a CVV.</dd>
         <dt><dfn><code>tokenRequesterId</code></dfn></dt>
         <dd>The <code>tokenRequesterId</code> field contains ID of the requester of the token (likely the creator of the payment app).  This field is only applicable to network tokenization.</dd>
       </dl>
