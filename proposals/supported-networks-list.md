@@ -33,6 +33,7 @@ In alphabetic order:
 * jcb
 * maestro
 * mastercard
+* mir
 * unionpay
 * visa
 
