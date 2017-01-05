@@ -31,7 +31,6 @@ In alphabetic order:
 * diners
 * discover
 * jcb
-* maestro
 * mastercard
 * mir
 * unionpay
