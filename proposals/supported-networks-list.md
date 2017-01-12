@@ -2,6 +2,8 @@
 
 Proposed by @ibjacobs. On 5 Jan 2017 the WPWG [resolved](https://www.w3.org/2017/01/05-wpwg-minutes#item03) to adopt this approach, pending discussion of the trademark issue.
 
+Todo: Ian to confirm W3C ok with this.
+
 ## Intro
 
 [Basic Card Payment](https://w3c.github.io/webpayments-methods-card/)
