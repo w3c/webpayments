@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
   <head>
@@ -8,9 +7,9 @@
             async class='remove'></script>
     <script class='remove'>
       var respecConfig = {
-          shortName:  "tokenized-card",
-          specStatus: "unofficial",
-          publishDate: "2016-09-15",
+      shortName:  "tokenized-card",
+      specStatus: "unofficial",
+      edDraftURI:   "https://w3c.github.io/webpayments/proposals/tokenized_cards.html",
           editors: [
                 {   name:       "Kevin Hurley",
                     company:    "Facebook" },
@@ -19,7 +18,8 @@
                     company:   "Facebook"
                 },
           ],
-          license:      "w3c-software-doc",
+      license:      "w3c-software-doc",
+          issueBase:    "https://github.com/w3c/webpayments/issues",
           localBiblio:  {
               "BASICCARD": {
                   title: "Basic Card Payment"
@@ -27,21 +27,9 @@
               ,   authors:  [
                       "Adrian Bateman"
                   ,   "Zach Koch"
-                  ,   "Richard Barnes"
                   ,   "Roy McElmurry"
                   ]
-              ,   status: "ED"
-              },
-              "PAYMENTARCH": {
-                  title:    "Payment Request Architecture"
-              ,   href:     "https://w3c.github.io/browser-payment-api/specs/architecture.html"
-              ,   authors:  [
-                      "Adrian Bateman"
-                  ,   "Zach Koch"
-                  ,   "Richard Barnes"
-                  ,   "Roy McElmurry"
-                  ]
-              ,   status:   "ED"
+              ,   status: "WD"
               },
               "PAYMENTREQUESTAPI": {
                   title:    "Payment Request API"
@@ -49,7 +37,6 @@
               ,   authors:  [
                       "Adrian Bateman"
                   ,   "Zach Koch"
-                  ,   "Richard Barnes"
                   ,   "Roy McElmurry"
                   ]
               ,   status:   "WD"
@@ -60,7 +47,6 @@
               ,   authors:  [
                       "Adrian Bateman"
                   ,   "Zach Koch"
-                  ,   "Richard Barnes"
                   ,   "Roy McElmurry"
                   ]
               ,   status:   "WD"
@@ -84,21 +70,30 @@
         PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards.
       </p>
     </section>
+
+    <section id='sotd'>
+      <p>
+        The working group maintains <a href="https://github.com/w3c/webpayments/issues">a
+        list of all bug reports that the group has not yet addressed</a>.
+        Pull requests with proposed specification text for outstanding issues are strongly encouraged.
+      </p>
+      <div class="note">
+        <p><strong>Sending comments on this document</strong></p>
+        <p>If you wish to make comments regarding this document, please raise them as
+        <a href="https://github.com/w3c/webpayments/issues"">GitHub issues</a>.
+        Only send comments by email if you are unable to raise issues on GitHub (see
+        links below). All comments are welcome.</p>
+      </div>
+    </section>
+    
     <section class="informative">
       <h2>Introduction</h2>
       <p>
         This specification is a <a href="#dfn-payment-transaction-message-specification">Payment Transaction Message Specification</a> used by the PaymentRequest API
-        [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards. Tokenization provides some advantages over traditional card payments - tokenized credentials are often narrowly scoped, for example single-use or merchant/amount/time scoped.  Tokenized credentials also help alleviate some concerns about merchant data breaches since the merchant does not have the raw PAN.  This provides some additional security for a consumer.
-      </p>
-      <p>
-        This specification covers issuer and network tokens, but does not encompass all types of tokenization.  As an example, gateway tokens are not covered by this specification since they often require merchant onboarding with the token provider.  Network tokens are tokens (typically single-use) provided by card networks (i.e. Visa/MasterCard/American Express/Discover/etc.).  These tokens are a representation of the underlying PAN.  With issuer tokens, a provider serves as a card issuer by generating a new card number.  This new card number is backed by the original PAN or by another funding source.  During charging of these tokens, the provider translates the generated card number back into the original PAN or original funding source.
-      </p>
+        [[!PAYMENTREQUESTAPI]] to support payment by tokenized payment cards.</p>
 
-      <p>The flow of issuer tokens is shown in the diagram below:</p>
-      <img src="issuerTokens.png"/>
-
-      <p>The flow of network tokens is shown in the diagram below:</p>
-      <img src="networkTokens.png"/>
+      <p>Tokenization provides some advantages over traditional card payments - tokenized credentials are often narrowly scoped, for example single-use or merchant/amount/time scoped.  Tokenized credentials also help alleviate some concerns about merchant data breaches since the merchant does not have the raw PAN.  This provides some additional security for a consumer.
+      </p>
     </section>
 
     <section id="dependencies">
@@ -107,11 +102,6 @@
       This specification relies on several other underlying specifications.
       </p>
       <dl>
-        <dt>Payment Request Architecture</dt>
-        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
-        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
-        Message Specification</dfn> are defined by the Payment Request Architecture document
-        [[!PAYMENTARCH]].</dd>
         <dt>Basic Card Payment</dt>
         <dd>The term <dfn>BillingAddress</dfn> is defined by the Basic Card Payment specification [[!BASICCARD]].</dd>
         <dt>Payment Request API</dt>
@@ -154,28 +144,33 @@
       <dl>
         <dt><dfn><code>supportedNetworks</code></dfn></dt>
         <dd>The <code>supportedNetworks</code> field contains a sequence of identifiers for card networks
-        that the merchant accepts.</dd>
+        that the merchant accepts. See <a href="https://www.w3.org/Payments/card-network-ids">Card Network Identifiers Approved for use with Payment Request API</a> for approved values.</dd>
         <dt><dfn><code>supportedTypes</code></dfn></dt>
         <dd>The <code>supportedTypes</code> field contains a sequence of token card types that the merchant
-        accepts. Implementations will determine how to match the type values <code>emv</code>,
-        and <code>issuer</code>.</dd>
+        accepts. The values mean the following:
+	  <ul>
+	    <li>"emv": These are tokens (typically single-use) provided by card networks (cf. <code>supportedNetworks</code>) that represent the underlying PAN.</li>
+	    <li>"issuer": With these tokens, a provider serves as a card issuer by generating a new card number.  This new card number is backed by the original PAN or by another funding source.  During charging of these tokens, the provider translates the generated card number back into the original PAN or original funding source.</li>
+	  </ul>
       </dl>
 
-      <p class="note">
-        The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
+      <p>The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
         If neither is provided then any card may be returned. If only <code>supportedNetworks</code>
         is provided then any card type may be returned provided it matches one of the networks.
         If only <code>supportedTypes</code> is provided then a card may be returned from any network
-        provided it matches one of the types.  It is expected that supportedTypes will be an evolving list.
-      </p>
+        provided it matches one of the types.</p>
 
+      <p>Implementations will determine how to match values of <code>supportedTypes</code>.</p>
+
+      <p class="note">
+        This specification covers a limited number of <code>supportedTokens</code>. Although there are other types of tokens such as gateway tokens, because they involve substantially different flows of information (e.g., merchant onboarding), this specification does not cover them.</p>
       </section>
     </section>
 
     <section id="response">
       <h2>Payment Method Response</h2>
       <p>
-        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  The intention is for this to extend from the BasicCardResponse with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code) establishes a one-time use credential.
+        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  The intention is for this to extend from the BasicCardResponse (defined in [[!BASICCARD]]) with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code) establishes a one-time use credential.
       </p>
 
       <pre class="idl">
@@ -194,10 +189,25 @@
         <dt><dfn><code>cardLast4</code></dfn></dt>
         <dd>The <code>cardLast4</code> field contains the last 4 digits of the original (non-token) primary account number (PAN) for the payment card.  This may be used for display purposes during the purchase.</dd>
         <dt><dfn><code>tokenType</code></dfn></dt>
-        <dd>The <code>tokenType</code> field contains the type (Network, Issuer) of token.</dd>
+        <dd>The <code>tokenType</code> field contains the token type selected by the user. This is one of the values of <code>supportedTypes</code>.</dd>
         <dt><dfn><code>tokenRequesterId</code></dfn></dt>
-        <dd>The <code>tokenRequesterId</code> field contains ID of the requester of the token (likely the creator of the payment app).  This field is only applicable to network tokenization.</dd>
+        <dd>The <code>tokenRequesterId</code> field contains ID of the entity that requested the token from the network (likely the creator of the payment app).  This field is only applicable when <code>tokenType</code> is "emv".</dd>
       </dl>
     </section>
+
+    <section id="flow">
+      <h2>Appendix: Flow Diagrams</h2>
+
+      <section>
+	<h3>Issuer Token Flow</h3>
+	<p><img src="issuerTokens.png" alt="issuer token flow"/></p>
+    </section>
+
+      <section>
+	<h3>Network Token Flow</h3>
+	<p.<img src="networkTokens.png" alt="network token flow"/></p>
+      </section>
+    </section>
+
   </body>
 </html>
