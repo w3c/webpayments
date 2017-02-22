@@ -124,7 +124,7 @@
     <section id="request">
       <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
       <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
-      argument to the <a>PaymentRequest constructor.  The intention is for this to extend from the BasicCardRequest (defined in [[!BASICCARD]]) with some additional fields required for tokenization</a>.</p>
+      argument to the <a>PaymentRequest</a> constructor.  This specification extends the BasicCardRequest (defined in [[!BASICCARD]]) with some additional fields required for tokenization.</p>
       <section>
       <h3>TokenCardRequest</h3>
       <pre class="idl">
@@ -148,18 +148,17 @@
 	    <li>"issuer": With these tokens, a provider serves as a card issuer by generating a new card number.  This new card number is backed by the original PAN or by another funding source.  During charging of these tokens, the provider translates the generated card number back into the original PAN or original funding source.</li>
 	  </ul>
       </dl>
-      <p>A payment service may wish to use emv tokens if their infrastructure supports sending a token/cryptogram combination.  Issuer tokens may be preferred in cases where the card isn't emv tokenizable or if the merchant is unable to handle emv tokens.</p>
+      <p>A payment service may wish to use emv tokens if its infrastructure supports sending a token/cryptogram combination.  Issuer tokens may be preferred in cases where the card is not emv-tokenizable or if the merchant is unable to handle emv tokens.</p>
 
       <p>The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
-        If neither is provided then any card may be returned. If only <code>supportedNetworks</code>
-        is provided then any card type may be returned provided it matches one of the networks.
-        If only <code>supportedTypes</code> is provided then a card may be returned from any network
-        provided it matches one of the types.</p>
+        If neither is provided then any card may be returned. If <code>supportedNetworks</code>
+        is provided then any card that matches one of the supported networks is returned.
+        If <code>supportedTypes</code> is provided then any card that matches one of the supported types is returned.</p>
 
       <p>Implementations will determine how to match values of <code>supportedTypes</code>.</p>
 
       <p class="note">
-        This specification covers a limited number of <code>supportedTokens</code>. Although there are other types of tokens such as gateway tokens, because they involve substantially different flows of information (e.g., merchant onboarding), this specification does not cover them.</p>
+        This specification covers a limited number of <code>supportedTokens</code>. There are other types of tokens such as gateway tokens, but because they involve substantially different flows of information (e.g., merchant onboarding), this specification does not cover them.</p>
       </section>
     </section>
 
@@ -199,7 +198,7 @@
         <aside class="example" title='emv request/response data'>
           <pre>
             TokenCardRequest {
-              "supportedNetworks": ["visa", "mastercard", "american express"],
+              "supportedNetworks": ["visa", "mastercard", "amex"],
               "supportedTypes": ["credit", "debit"],
               "supportedTokenTypes": ["emv"]
             }
@@ -223,7 +222,7 @@
         <aside class="example" title='issuer request/response data'>
           <pre>
             TokenCardRequest {
-              "supportedNetworks": ["visa", "mastercard", "american express"],
+              "supportedNetworks": ["visa", "mastercard", "amex"],
               "supportedTypes": ["credit", "debit"],
               "supportedTokenTypes": ["issuer"]
             }
