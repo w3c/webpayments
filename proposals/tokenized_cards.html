@@ -85,7 +85,7 @@
         links below). All comments are welcome.</p>
       </div>
     </section>
-    
+
     <section class="informative">
       <h2>Introduction</h2>
       <p>
@@ -124,16 +124,14 @@
     <section id="request">
       <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
       <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
-      argument to the <a>PaymentRequest constructor</a>.</p>
-
+      argument to the <a>PaymentRequest constructor.  The intention is for this to extend from the BasicCardRequest (defined in [[!BASICCARD]]) with some additional fields required for tokenization</a>.</p>
       <section>
       <h3>TokenCardRequest</h3>
       <pre class="idl">
         enum TokenCardType { "emv", "issuer" };
 
-        dictionary TokenCardRequest {
-          sequence&lt;DOMString&gt; supportedNetworks;
-          sequence&lt;TokenCardType&gt; supportedTypes;
+        dictionary TokenCardRequest : BasicCardRequest {
+          sequence&lt;TokenCardType&gt; supportedTokenTypes;
         };
       </pre>
 
@@ -142,17 +140,15 @@
       </p>
 
       <dl>
-        <dt><dfn><code>supportedNetworks</code></dfn></dt>
-        <dd>The <code>supportedNetworks</code> field contains a sequence of identifiers for card networks
-        that the merchant accepts. See <a href="https://www.w3.org/Payments/card-network-ids">Card Network Identifiers Approved for use with Payment Request API</a> for approved values.</dd>
-        <dt><dfn><code>supportedTypes</code></dfn></dt>
-        <dd>The <code>supportedTypes</code> field contains a sequence of token card types that the merchant
+        <dt><dfn><code>supportedTokenTypes</code></dfn></dt>
+        <dd>The <code>supportedTokenTypes</code> field contains a sequence of token card types that the merchant
         accepts. The values mean the following:
 	  <ul>
 	    <li>"emv": These are tokens (typically single-use) provided by card networks (cf. <code>supportedNetworks</code>) that represent the underlying PAN.</li>
 	    <li>"issuer": With these tokens, a provider serves as a card issuer by generating a new card number.  This new card number is backed by the original PAN or by another funding source.  During charging of these tokens, the provider translates the generated card number back into the original PAN or original funding source.</li>
 	  </ul>
       </dl>
+      <p>A payment service may wish to use emv tokens if their infrastructure supports sending a token/cryptogram combination.  Issuer tokens may be preferred in cases where the card isn't emv tokenizable or if the merchant is unable to handle emv tokens.</p>
 
       <p>The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
         If neither is provided then any card may be returned. If only <code>supportedNetworks</code>
@@ -170,7 +166,7 @@
     <section id="response">
       <h2>Payment Method Response</h2>
       <p>
-        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  The intention is for this to extend from the BasicCardResponse (defined in [[!BASICCARD]]) with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code) establishes a one-time use credential.
+        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  This specification extends the BasicCardResponse (defined in [[!BASICCARD]]) with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code - note that security code can be 3 or 4 digits) establishes a one-time use credential.
       </p>
 
       <pre class="idl">
@@ -194,6 +190,62 @@
         <dd>The <code>tokenRequesterId</code> field contains ID of the entity that requested the token from the network (likely the creator of the payment app).  This field is only applicable when <code>tokenType</code> is "emv".</dd>
       </dl>
     </section>
+
+    <section id="exampleData">
+      <h2>Example request/responses</h2>
+
+      <section>
+        <h3>emv Request/Response</h3>
+        <aside class="example" title='emv request/response data'>
+          <pre>
+            TokenCardRequest {
+              "supportedNetworks": ["visa", "mastercard", "american express"],
+              "supportedTypes": ["credit", "debit"],
+              "supportedTokenTypes": ["emv"]
+            }
+
+            TokenCardResponse {
+              "cardholderName": "Bob Smith",
+              "cardNumber": "4111111111111111",
+              "expiryMonth": "04",
+              "expiryYear": "2020",
+              "cardSecurityCode": "SaDA0Gw9cR37j8xrZP6VFCJpZ",
+              "cardLast4": "1234",
+              "tokenType": "emv",
+              "tokenRequesterId": "40019999900"
+            }
+          </pre>
+        </aside>
+      </section>
+
+      <section>
+        <h3>issuer Request/Response</h3>
+        <aside class="example" title='issuer request/response data'>
+          <pre>
+            TokenCardRequest {
+              "supportedNetworks": ["visa", "mastercard", "american express"],
+              "supportedTypes": ["credit", "debit"],
+              "supportedTokenTypes": ["issuer"]
+            }
+
+            TokenCardResponse {
+              "cardholderName": "Bob Smith",
+              "cardNumber": "4111111111111111",
+              "expiryMonth": "04",
+              "expiryYear": "2020",
+              "cardSecurityCode": "123",
+              "cardLast4": "1234",
+              "tokenType": "issuer",
+            }
+          </pre>
+        </aside>
+      </section>
+    </section>
+
+
+
+
+
 
     <section id="flow">
       <h2>Appendix: Flow Diagrams</h2>
