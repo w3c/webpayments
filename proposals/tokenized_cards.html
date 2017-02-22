@@ -148,7 +148,7 @@
 	    <li>"issuer": With these tokens, a provider serves as a card issuer by generating a new card number.  This new card number is backed by the original PAN or by another funding source.  During charging of these tokens, the provider translates the generated card number back into the original PAN or original funding source.</li>
 	  </ul>
       </dl>
-      <p>A payment service may wish to use emv tokens if their infrastructure supports sending the token/cryptogram combination.  Issuer tokens may be preferred in cases where the card isn't emv tokenizable or if the merchant is unable to handle emv tokens.  There is often a higher cost associated with issuer tokens.</p>
+      <p>A payment service may wish to use emv tokens if their infrastructure supports sending a token/cryptogram combination.  Issuer tokens may be preferred in cases where the card isn't emv tokenizable or if the merchant is unable to handle emv tokens.</p>
 
       <p>The <code>supportedNetworks</code> and <code>supportedTypes</code> fields are both optional.
         If neither is provided then any card may be returned. If only <code>supportedNetworks</code>
@@ -166,7 +166,7 @@
     <section id="response">
       <h2>Payment Method Response</h2>
       <p>
-        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  The intention is for this to extend from the BasicCardResponse (defined in [[!BASICCARD]]) with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code) establishes a one-time use credential.
+        The <dfn id="dom-tokenizedcardresponse"><code>TokenizedCardResponse</code></dfn> dictionary contains the response from the PaymentRequest API when a user accepts payment with a Tokenized Payment Card payment method.  This specification extends the BasicCardResponse (defined in [[!BASICCARD]]) with some additional fields required for tokenization.  It should be noted that the "cardSecurityCode" from the BasicCardResponse will contain a card security code for issuer-based tokens, but will contain the cryptogram for network tokens.  The combination of cardNumber (the token number) + cardSecurityCode (either cryptogram or security code - note that security code can be 3 or 4 digits) establishes a one-time use credential.
       </p>
 
       <pre class="idl">
@@ -199,7 +199,7 @@
         <aside class="example" title='emv request/response data'>
           <pre>
             TokenCardRequest {
-              "supportedNetworks": ["visa", "mastercard"],
+              "supportedNetworks": ["visa", "mastercard", "american express"],
               "supportedTypes": ["credit", "debit"],
               "supportedTokenTypes": ["emv"]
             }
@@ -223,7 +223,7 @@
         <aside class="example" title='issuer request/response data'>
           <pre>
             TokenCardRequest {
-              "supportedNetworks": ["visa", "mastercard"],
+              "supportedNetworks": ["visa", "mastercard", "american express"],
               "supportedTypes": ["credit", "debit"],
               "supportedTokenTypes": ["issuer"]
             }
