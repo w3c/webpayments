@@ -152,6 +152,7 @@
 	    };
 
 	  dictionary BasicSepamailRequest {
+  	    required sequence<DOMString> supportedNetworks;
  	    required Type type;
 	    required DOMString accountCategory;
 	    required DOMString accountRank;
@@ -171,6 +172,9 @@
 	  the following fields:</p>
 	
 	<dl>
+	  <dt><dfn><code>supportedNetworks</code><dfn></dt>
+	  <dd>The supportedNetworks field contains a sequence of identifiers for mobile money networks that the merchant accepts. These identifiers would refer, for example, to branded mobile money services that implement the Mobile Money API.
+	  </dd>
 	  <dt><dfn><code>type</code></dfn></dt>
 	  <dd>The harmonised Transaction Type</dd>
 	  <dt><dfn><code>accountCategory</code></dfn></dt>
