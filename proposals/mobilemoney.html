@@ -173,7 +173,7 @@
 	<dl>
 	  <dt><dfn><code>type</code></dfn></dt>
 	  <dd>The harmonised Transaction Type</dd>
-	  <dt>accountCategory</dt>
+	  <dt><dfn><code>accountCategory</code></dfn></dt>
 	  <dd>Can be used to identify the sources of funds category where there are multiple accounts (wallets) held against an account holder.</dd>
 	  <dt>AND SO ON</dt>
 	  <dd>&hellip;</dd>
@@ -205,10 +205,25 @@
 	<dl>
 	  <dt><dfn><code>transactionReceipt</code></dfn></dt>
 	  <dd>Transaction receipt number as notified to the parties. </dd>
+	  <dt>AND SO ON</dt>
+	  <dd>&hellip;</dd>
 	</dl>
 	
       </section>
+  </section>
+
+    <section id="response">
+      <h2>Data Provided by Payment Apps</h2>
+      <p>In addition to the data from the merchant provided in the <code>MobileMoneyRequest</code>, payment apps will need to compute or gather the following data for use with the [[!MOBILEMONEY]] API:</p>
+
+      <dl>
+	<dt><dfn><code>requestDate</code></dfn></dt>
+	<dd>The creation date and time of the transaction as supplied by the client.</dd>
+	<dt>AND SO ON</dt>
+	<dd>&hellip;</dd>
+      </dl>
+
     </section>
 
-</body>
+  </body>
 </html>
