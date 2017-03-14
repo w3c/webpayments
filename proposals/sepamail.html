@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Basic SEPAmail Payment</title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
+            async class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          shortName:  "webpayments-methods-sepamail",
+          edDraftURI:   "https://w3c.github.io/webpayments/proposals/webpayments-methods-sepamail",
+
+          specStatus: "unofficial",
+          publishDate: "2017-03-14",
+          editors: [
+                {   name:       "Cyril Vignet",
+                    company:    "Groupe BPCE" },
+          ],
+
+          license:      "w3c-software-doc",
+          noRecTrack:   true,
+
+          //previousMaturity: "FPWD",
+          //previousPublishDate:  "1977-03-15",
+
+          wg:           "Web Payments Working Group",
+          wgURI:        "https://www.w3.org/Payments/WG/",
+          wgPublicList: "public-payments-wg",
+          wgPatentURI:  "https://www.w3.org/2004/01/pp-impl/83744/status",
+
+          issueBase:    "https://github.com/w3c/webpayments/issues",
+
+          localBiblio:  {
+              "PAYMENTREQUESTAPI": {
+                  title:    "Payment Request API"
+              ,   href:     "paymentrequest.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Roy McElmurry"
+                  ,   "Marcos Caceres"
+                  ]
+              ,   status:   "WD"
+              },
+              "METHODIDENTIFIERS": {
+                  title:    "Payment Method Identifiers"
+              ,   href:     "method-identifiers.html"
+              ,   authors:  [
+                      "Adrian Bateman"
+                  ,   "Zach Koch"
+                  ,   "Roy McElmurry"
+                  ,   "Marcos Caceres"
+                  ]
+              ,   status:   "WD"
+              },
+              "WEBIDL": {
+                  title:    "WebIDL Level 1"
+              ,   href:     "http://www.w3.org/TR/WebIDL-1/ "
+              ,   authors:  [
+                      "Cameron McCormack"
+                  ,   "Boris Zbarsky"
+                  ]
+              ,   status:   "CR"
+              }
+          }
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  
+  <body>
+    <section id='abstract'>
+      <p>The Basic SEPAmail Payment specification describes the data formats used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment by SEPAmail Applications such as RUBIS, GEMME or JADE.
+	</p>
+    </section>
+
+    <section id='sotd'>
+    </section>
+    
+    <section class='informative'>
+      <h2>Introduction</h2>
+
+      <p>This specification is a Payment Method specification for use
+with the PaymentRequest API [[!PAYMENTREQUESTAPI]]. With it,
+merchants can collect the SEPAmail details (client’s identifier.)
+through the PaymentRequest API that they have traditionally collected
+through Web forms, but with an improved user experience.</p>
+
+    </section>
+
+    <section id="dependencies"> 
+      <h2>Dependencies</h2> 
+      <p> 
+      This specification relies on several other underlying specifications. 
+      </p> 
+      <dl>
+	       <dt>Payment Request API</dt>
+        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
+        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dt>Payment Method Identifiers</dt>
+        <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
+        Method Identifier</dfn> is defined by the Payment Method Identifiers specification
+        [[!METHODIDENTIFIERS]].</dd>
+        <dt>Web IDL</dt>
+        <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+      </dl>
+    </section>
+
+
+    <section id="method-id">
+      <h2>Payment Method Identifier</h2>
+      <p>The <a>payment method identifier</a> string for the Basic SEPAmail Payment Payment method is <dfn><code>sepamail</code></dfn>.</p>
+    </section>
+
+  <section id="request">
+      <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
+      <p>This section describes payment method specific data that is supplied as part of the <code>data</code> argument to the PaymentRequest constructor.</p>
+      
+      <section>		
+	<h2>BasicSepamailRequest</h2>
+
+	<pre class="idl">
+	  enum BasicSepamailType {
+  	    "rubis",
+	    "gemme",
+	    "jade"
+	  };
+
+	  dictionary BasicSepamailRequest {
+	    required sequence<DOMString> supportedNetworks;
+	    required sequence<BasicSepamailType> supportedTypes;
+	  };
+	</pre>
+
+	<p>The <code>BasicSepamailRequest</code> dictionary contains
+	the following fields:</p>
+	
+	<dl>
+	  <dt><dfn><code>supportedNetworks</code><dfn></dt>
+	  <dd>The supportedNetworks field contains a sequence of identifiers for card networks that the merchant accepts. <strong>Note:</strong> Only one network “sepamail.eu” is currently operational. However new ones are under
+construction.
+	  </dd>
+
+	  <dt><dfn><code>supportedTypes</code><dfn></dt>
+	  <dd>The supportedTypes field contains a sequence of SEPAmail
+types that the merchant accepts. Implementations will determine how to
+	    match the type values rubis, gemme, and jade.</dd>
+	</dl>
+      </section>
+  </section>
+    
+  <section id="response">
+      <h2>Payment Method Response</h2>
+
+      <p>The <dfn><code>BasicSepamailResponse</code></dfn> dictionary
+	contains the response from the PaymentRequest API when a user
+	accepts payment with this payment method.</p>
+      
+      <section>
+	
+	<h2>BasicSepamailResponse</h2>
+	
+	<pre class="idl">
+	  dictionary BasicSepamailResponse {
+  	     required DOMString sepamailIdentifier;
+	     required DOMString SelectedNetwork;
+	     required DOMString SelectedType;
+	  };
+	</pre>
+	
+	<p>The <dfn><code>BasicSepamailResponse</code></dfn>
+	dictionary contains the following fields:</p>
+	
+	<dl>
+	  <dt><dfn><code>sepamailIdentifier</code></dfn></dt>
+	  <dd>The sepamailIdentifier field contains the QXBAN given to
+the user when joining a SEPAmail Network.</dd>
+
+	  <dt><dfn><code>selectedNetwork</code></dfn></dt>
+	  <dd>The selectedNetwork field contains the name of the network chosen by the client.</dd>
+	  
+	  <dt><dfn><code>selectedType</code></dfn></dt>
+	  <dd>The selectedType field contains the type selected by the client.</dd>
+		
+	</dl>
+	
+      </section>
+    </section>
+
+    <section id="security">
+      <h2>Security and Privacy Considerations</h2>
+
+      <p>The sepamailIdentifier (QXBAN) is not a sensitive
+information. It cannot be used to transfer funds without additional
+consent from the user. Thus, SEPAmail payments has no security or
+privacy issues on the web. However, owners of web sites SHOULD AVOID
+storing the payer's sepamailIdentifier along with other payment
+identifier like card number, IBAN which are sensitive.</p>
+
+      <p><strong>Note:</strong> There is no regulation under the
+SEPAmail specifications related to security on the Web, but discussion
+of those considerations lies outside the scope of this document.</p>
+    </section>
+    
+    <section id="acks">
+      <h2>Acknowledgments</h2>
+      <p>Manfred Olm (Decibi), Matthieu Dambrin (Skilea), Jacques Vanhautère (Sepamail.eu), Jacques Baillon (Crédit Agricole), Olivier Jousselin (Solago), Gregory Estrade (Lyra-Network).</p>
+    </section>
+</body>
+</html>
