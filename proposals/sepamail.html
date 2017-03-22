@@ -133,8 +133,8 @@ through Web forms, but with an improved user experience.</p>
 	  };
 
 	  dictionary BasicSepamailRequest {
-	    required sequence<DOMString> supportedNetworks;
-	    required sequence<BasicSepamailType> supportedTypes;
+	    required sequence&lt;DOMString&gt; supportedNetworks;
+	    required sequence&lt;BasicSepamailType&gt; supportedTypes;
 	  };
 	</pre>
 
@@ -168,9 +168,9 @@ types that the merchant accepts. Implementations will determine how to
 	
 	<pre class="idl">
 	  dictionary BasicSepamailResponse {
-  	     required DOMString sepamailIdentifier;
-	     required DOMString SelectedNetwork;
-	     required DOMString SelectedType;
+  	     required DOMString id;
+	     required DOMString selectedNetwork;
+	     required DOMString selectedType;
 	  };
 	</pre>
 	
@@ -178,7 +178,7 @@ types that the merchant accepts. Implementations will determine how to
 	dictionary contains the following fields:</p>
 	
 	<dl>
-	  <dt><dfn><code>sepamailIdentifier</code></dfn></dt>
+	  <dt><dfn><code>id</code></dfn></dt>
 	  <dd>The sepamailIdentifier field contains the QXBAN given to
 the user when joining a SEPAmail Network.</dd>
 
