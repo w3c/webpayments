@@ -158,10 +158,10 @@ types that the merchant accepts. Implementations will determine how to
   </section>
     
 		   <p class="note">
-       If only <code>supportedNetworks</code>
-        is provided then any supported type may be returned provided it matches one of the networks.
+       If only <code>supportedNetworks</code> is provided then any supported type may be returned.
         If only <code>supportedTypes</code> is provided then any SEPAmail identifier may be returned from any network
         provided it matches one of the types.
+	If  <code>supportedNetworks</code> and  <code>supportedTypes</code> fields are empty, the browser should wake up the payment App and any SEPAmail idetifier may be returned.		   
       </p>
 		  
   <section id="response">
@@ -179,7 +179,7 @@ types that the merchant accepts. Implementations will determine how to
 	  dictionary BasicSepamailResponse {
   	     required DOMString id;
 	     required DOMString selectedNetwork;
-	     required DOMString selectedType;
+	     DOMString selectedType;
 	  };
 	</pre>
 	
@@ -195,7 +195,7 @@ the user when joining a SEPAmail Network.</dd>
 	  <dd>The selectedNetwork field contains the name of the network chosen by the client.</dd>
 	  
 	  <dt><dfn><code>selectedType</code></dfn></dt>
-	  <dd>The selectedType field contains the type selected by the client.</dd>
+	  <dd>The selectedType field contains the type proposed by the merchant. If empty, this field contains the type attached to the SEPAmail ideitfier (QXBAN)</dd>
 		
 	</dl>
 	
