@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Interledger - Simple Payment Setup Protocol - Payment Method</title>
+    <title>Interledger Payment Method</title>
     <meta charset='utf-8'>
     <script src='https://www.w3.org/Tools/respec/respec-w3c-common'
             async class='remove'></script>
@@ -30,38 +30,26 @@
           issueBase:    "https://github.com/w3c/webpayments/issues/",
 
           localBiblio:  {
-              "PAYMENTARCH": {
-                  title:    "Payment Request Architecture"
-              ,   href:     "https://w3c.github.io/browser-payment-api/specs/architecture.html"
-              ,   authors:  [
-                      "Adrian Bateman"
-                  ,   "Zach Koch"
-                  ,   "Richard Barnes"
-                  ,   "Roy McElmurry"
-                  ]
-              ,   status:   "ED"
-              },
-              "PAYMENTREQUESTAPI": {
+              "PAYMENT-REQUEST-API": {
                   title:    "Payment Request API"
               ,   href:     "https://www.w3.org/TR/payment-request/"
               ,   authors:  [
                       "Adrian Bateman"
                   ,   "Zach Koch"
-                  ,   "Richard Barnes"
                   ,   "Roy McElmurry"
                   ]
               ,   status:   "WD"
               },
-              "METHODIDENTIFIERS": {
+              "METHOD-IDENTIFIERS": {
                   title:    "Payment Method Identifiers"
               ,   href:     "https://www.w3.org/TR/payment-method-id/"
               ,   authors:  [
                       "Adrian Bateman"
                   ,   "Zach Koch"
-                  ,   "Richard Barnes"
                   ,   "Roy McElmurry"
                   ]
               ,   status:   "WD"
+
               },
               "WEBIDL": {
                   title:    "WebIDL Level 1"
@@ -72,23 +60,54 @@
                   ]
                   ,   status:   "Rec"
               },
-              "SPSP": {
-                  title:    "Simple Payment Setup Protocol"
-                  ,   href:     "https://github.com/interledger/rfcs/blob/master/0009-simple-payment-setup-protocol/0009-simple-payment-setup-protocol.md"
+              "INTERLEDGER": {
+                  title:    "The Interledger Protocol"
+                  ,   href:     "https://interledger.org/rfcs/0003-interledger-protocol/"
                   ,   authors:  [
-                      "Evan Schwaartz"
+                      "Evan Schwaartz",
+                      "Stefan Thomas",
+                      "Ben Sharafian"
                   ]
                   ,   status:   "Interledger RFC"
               },
               "IPR": {
                   title:    "Interledger Payment Request"
-                  ,   href:     "https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md"
+                  ,   href:     "https://interledger.org/rfcs/0011-interledger-payment-request"
                   ,   authors:  [
                       "Evan Schwaartz"
                   ]
                   ,   status:   "Interledger RFC"
               },
-          }
+              "SPSP": {
+                  title:    "Simple Payment Setup Protocol"
+                  ,   href:     "https://interledger.org/rfcs/0009-simple-payment-setup-protocol/"
+                  ,   authors:  [
+                      "Evan Schwaartz",
+                      "Stefan Thomas",
+                      "Rome Reginelli"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+              "PSK": {
+                  title:    "Pre-shared Key Transport Protocol"
+                  ,   href:     "https://interledger.org/rfcs/0016-pre-shared-key/"
+                  ,   authors:  [
+                      "Evan Schwaartz",
+                      "Ben Sharfian"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+          },
+          otherLinks: [{
+            key: "Version control",
+            data: [{
+              value: "Github Repository",
+              href: "https://github.com/w3c/webpayments/"
+            }, {
+              value: "Issues",
+              href: "https://github.com/w3c/webpayments/issues"
+            }]
+          }]
       };
     </script>
     <style>
@@ -103,24 +122,34 @@
   <body>
     <section id='abstract'>
       <p>
-        The Simple Payment Setup Protocol payment method specification describes the data formats used by the PaymentRequest API [[!PAYMENTREQUESTAPI]] to support payment using SPSP [[!SPSP]] and the Interledger Protocol.
+        The Interledger Protocol payment method specification describes the data formats used by the PaymentRequest API [[!PAYMENT-REQUEST-API]] to support payments using the Interledger Protocol [[!INTERLEDGER]]. It defines two supported methods for initiating an Interledger payment via the API; using the Simple Payment Setup Protocol [[!SPSP]] and the Interledger Payment Request [[!IPR]].
       </p>
     </section>
 
     <section id='sotd'>
+      <p>
+        The working group maintains <a href="https://github.com/w3c/webpayments/issues">a
+        list of all bug reports that the group has not yet addressed</a>.
+        Pull requests with proposed specification text for outstanding issues are strongly encouraged.
+      </p>
+      <p>
+        This specification was contributed by the
+        <a href="https://www.w3.org/community/interledger/">Interledger Payments Community Group</a>.
+      </p>
+      <div class="note">
+        <p><strong>Sending comments on this document</strong></p>
+        <p>If you wish to make comments regarding this document, please raise them as
+        <a href="https://github.com/w3c/webpayments/issues">GitHub issues</a>.
+        Only send comments by email if you are unable to raise issues on GitHub (see
+        links below). All comments are welcome.</p>
+      </div>
     </section>
     
     <section class='informative'>
-        <div data-number="" title="TODO">
-            <ol>
-                <li>Figure out what should be in response.</li>
-                <li>Consider fixed sender amount</li>
-            </ol>
-        </div>
       <h2>Introduction</h2>
-      <p>
-        TODO
-      </p>
+     <p>
+        This specification is a Payment Method specification for use with the PaymentRequest API [[!PAYMENT-REQUEST-API]].
+        With it, payees can request payers to make payment to them via the Interledger Protocol.</p>
     </section>
 
     <section id="dependencies"> 
@@ -129,111 +158,175 @@
       This specification relies on several other underlying specifications. 
       </p> 
       <dl> 
-        <dt>Payment Request Architecture</dt>
-        <dd>The terms <dfn data-lt="payment method|payment methods">Payment Method</dfn>,
-        <dfn data-lt="payment app|payment apps">Payment App</dfn>, and <dfn>Payment Transaction
-        Message Specification</dfn> are defined by the Payment Request Architecture document
-        [[!PAYMENTARCH]].</dd>
         <dt>Payment Request API</dt>
-        <dd>The term <dfn>PaymentRequest constructor</dfn> is defined by the PaymentRequest API
-        specification [[!PAYMENTREQUESTAPI]].</dd>
+        <dd>The terms <dfn>PaymentRequest constructor</dfn>, and <dfn>PaymentAddress</dfn>
+        are defined by the PaymentRequest API specification [[!PAYMENT-REQUEST-API]].</dd>
         <dt>Payment Method Identifiers</dt>
         <dd>The term <dfn data-lt="payment method identifier|payment method identifiers">Payment
         Method Identifier</dfn> is defined by the Payment Method Identifiers specification
-        [[!METHODIDENTIFIERS]].</dd>
+        [[!METHOD-IDENTIFIERS]].</dd>
         <dt>Web IDL</dt>
         <dd>The IDL in this specification is defined by Web IDL [[!WEBIDL]].</dd>
+        <dt>RFC6920 - Naming Things with Hashes</dt>
+        <dd>[[!RFC6920]] defines the <dfn>named information (ni) format</dfn> for URIs. This format is used to encode the <a>Condition</a> passed in an <a>InterledgerPaymentRequest</a>.</dd>
+        <dt>Interledger Protocol</dt>
+        <dd>The terms <dfn>ILP Packet</dfn>, <dfn>ILP Address</dfn>, <dfn>ILP Addresses</dfn>, <dfn>ILP Error Code</dfn>, <dfn>ILP Error Code Name</dfn>,  <dfn>Fulfillment</dfn> and <dfn>Condition</dfn> are defined in the Interledger Protocol Specification [[!INTERLEDGER]].</dd>
         <dt>Simple Payment Setup Protocol</dt>
-        <dd>This payment method is based on SPSP [[!SPSP]].</dd>
+        <dd>The <dfn>Simple Payment Setup Protocol</dfn> and the term <dfn>SPSP Endpoint</dfn> are defined in the SPSP specification [[!SPSP]].</dd>
         <dt>Interledger Payment Request</dt>
-        <dd>The data in the payment request maps directly to the Interledger Payment Request [[!IPR]].</dd>
+        <dd>The term <dfn>Interledger Payment Request</dfn> is defined in the IPR specification [[!IPR]].</dd>
       </dl>
-    </section>
+
+      <h3>Interledger Types</h3>
+      <p>The Interledger Protocol [[!INTERLEDGER]] defines a number of types. The corresponding WebIDL typedefs represent these:</p>
+      <pre class="idl">
+        typedef DOMString InterledgerAddress;
+        typedef sequence&lt;InterledgerAddress&gt; InterledgerAddresses;
+        typedef unsigned long long InterledgerAmount;
+        typedef sequence&lt;octet&gt; InterledgerPacket;
+        typedef USVString InterledgerConditionUri;
+        typedef sequence&lt;octet&gt; InterledgerFulfillment;
+      </pre>
+      <dl>
+        <dt><dfn><code>InterledgerAddress</code></dfn></dt>
+        <dd>An <code>InterledgerAddress</code> is a restricted DOMString. It is an IA5String string with only the following characters allowed: hyphen "-", period ".", underscore "_", tilde "~" and alpha-numeric characters "0".."9", "A".."Z" and "a".."z".</dd>
+        <dt><dfn><code>InterledgerAddresses</code></dfn></dt>
+        <dd>An <code>InterledgerAddresses</code> object is a sequence of <a>InterledgerAddress</a>.</dd>
+        <dt><dfn><code>InterledgerAmount</code></dfn></dt>
+        <dd>An <code>InterledgerAmount</code> is an unsigned 64-byte integer.</dd>
+        <dt><dfn><code>InterledgerPacket</code></dfn></dt>
+        <dd>An <code>InterledgerPacket</code> is a sequence of octets conforming to the format of an <a>ILP Packet</a> defined in the Interledger Protocol specification.</dd>
+        <dt><dfn><code>InterledgerConditionUri</code></dfn></dt>
+        <dd>An <code>InterledgerConditionUri</code> is a URI conforming to the <a>Named Information (ni) format</a> defined in [[!RFC6920]]. It encodes a hash that is the <a>Condition</a> used for an Interledger payment.</dd>        
+        <dt><dfn><code>InterledgerFulfillment</code></dfn></dt>
+        <dd>An <code>InterledgerFulfillment</code> is a sequence of octets representing the <a>Fulfillment</a> of an Interledger payment.</dd>
+      </dl>
+   </section>
 
     <section id="method-id">
       <h2>Payment Method Identifier</h2>
-      <p>The following <a>payment method identifier</a> strings are supported by the SPSP data formats.</p>
-
-      <table>
-        <tr><th>Identifier String</th><th>Description</th></tr>
-        <tr><td>https://interledger.org/webpayments/spsp</td><td>Simple Payment Setup Protocol</td></tr>
-        
-      </table>
+      <p>The <a>payment method identifier</a> string for the Interledger Payment Method is <dfn><code>interledger</code></dfn>.</p>
     </section>
 	
-	<section id="payment-flows">
-      <h2>Payment flows</h2>
-      
-    </section>
-
-    <section id="init-data">
+   <section id="request">
       <h2>Payment Method Specific Data for the PaymentRequest constructor</h2>
       <p>This section describes payment method specific data that is supplied as part of the <code>data</code>
-      argument to the PaymentRequest constructor.</p>
-      <p>The following is the payment method specific data used by the PaymentRequest constructor when processing
-      and SPSP payment methods.</p>
-	  <p>The fields in this data structure map directly to those defined in the Interledger Payment Request specification. </p>
-	  <section>
-      <h2>Payment Method Specific Data </h2>
-      <pre class="idl">
-        dictionary PaymentMethodSpecificData  {
-            required DOMString address,
-            required Date expires_at,
+      argument to the <a>PaymentRequest constructor</a>.</p>
 
-            DOMString condition,
-            Object data,
-            DOMString additional_headers
+      <section data-dfn-for="InterledgerPaymentRequest" data-link-for="InterledgerPaymentRequest">
+      <h3><dfn>InterledgerPaymentRequest</dfn></h3>
+      <p>Payee's using the <a>Interledger Payment Request</a> payment method must provide an instance of an <a>InterledgerPaymentRequest</a> as the <code>data</code> argument to the <a>PaymentRequest constructor</a>.
+      <div class="issue" title="Get feedback on binary types" >
+        We should get feedback on the best type to use for the <code>packet</code>. It is not intended to be passed by reference so a sequence type seems appropriate but it's not clear how this would be exposed in a browser or used by a developer writing Javascript code that builds an <code>InterledgerPaymentRequest</code> object.
+      </div>
+      <pre class="idl">
+        dictionary InterledgerPaymentRequest {
+          unsigned short version;
+          InterledgerPacket packet;
+          InterledgerCondition condition;
         };
       </pre>
-	  
-	  <p>
-        The <code>PaymentMethodSpecificData</code> dictionary contains the following fields:
+      <p>
+        The <code>InterledgerPaymentRequest</code> dictionary contains the following fields:
       </p>
-	  
-	  <dl>
-        <dt><dfn><code>address</code></dfn></dt>
-        <dd>Request-specific ILP address.</dd>
-        <dt><dfn><code>expires_at</code></dfn></dt>
-        <dd>Expiry of the request.</dd>
+      <dl>
+        <dt><dfn><code>version</code></dfn></dt>
+        <dd>The <code>version</code> field indicates the version of the Interledger Payment Request [[!IPR]] specification that this request conforms to.</dd>
+        <dt><dfn><code>packet</code></dfn></dt>
+        <dd>The <code>packet</code> field contains the <a>ILP Packet</a> constructed by the payee. This is a binary field and should conform to the Interledger Protocol specification [[!INTERLEDGER]] definition for an <a>ILP Packet</a>.</dd>
         <dt><dfn><code>condition</code></dfn></dt>
-        <dd>Execution condition for the payment.</dd>
-        <dt><dfn><code>data</code></dfn></dt>
-        <dd>Data to be included in the ILP Packet.</dd>
-        <dt><dfn><code>additional_headers</code></dfn></dt>
-        <dd>Additional headers for the ILP Packet.</dd>
-	  </dl>
+        <dd>The <code>condition</code> field is the <a>Condition</a> that is used by the payer to send the Interledger payment. The field MUST be a URI conforming to the <a>Named Information (ni) format</a> defined in [[!RFC6920]].</dd>
+      </dl>
+      </section>
 
-	  </section>
-	  
+      <section data-dfn-for="SimplePaymentSetupProtocolRequest" data-link-for="SimplePaymentSetupProtocolRequest">
+      <h3><dfn>SimplePaymentSetupProtocolRequest</dfn></h3>
+      <p>Payee's using the <a>Simple Payment Setup Protocol</a> payment method must provide an instance of a <a>SimplePaymentSetupProtocolRequest</a> as the <code>data</code> argument to the <a>PaymentRequest constructor</a>.
+      <pre class="idl">
+        dictionary SimplePaymentSetupProtocolRequest {
+          unsigned short version;
+          USVString spspEndpoint;
+        };
+      </pre>
+      <p>
+        The <code>SimplePaymentSetupProtocolRequest</code> dictionary contains the following fields:
+      </p>
+      <dl>
+        <dt><dfn><code>version</code></dfn></dt>
+        <dd>The <code>version</code> field indicates the version of the Simple Payment Setup Protocol [[!SPSP]] specification that this request conforms to.</dd>
+        <dt><dfn><code>spspEndpoint</code></dfn></dt>
+        <dd>The <code>spspEndpoint</code> field is the <a>SPSP Endpoint</a> URL that is used by the payer to setup the payment as defined by the Simple Payment Setup Protocol [[!SPSP]].</dd>
+      </dl>
+      </section>
     </section>
 
     <section id="response">
       <h2>Payment Method Response</h2>
-      <p>TODO</p>
+      <p>The <a>InterledgerResponse</a> dictionary contains the response from the
+      PaymentRequest API when a user accepts payment with an Interledger Protocol payment method.</p>
 
-      <section>
-      <h2>PaymentResponse</h2>
-      <pre class="idl">
-        dictionary PaymentResponse {
-        };
-      </pre>
+      <section data-dfn-for="InterledgerResponse" data-link-for="InterledgerResponse">
+        <h3><dfn>InterledgerResponse</dfn></h3>
+        <pre class="idl">
+          interface InterledgerError {
+            attribute DOMString errorCode;
+            attribute DOMString errorName;
+            attribute InterledgerAddress triggeredBy;
+            attribute InterledgerAddresses forwardedBy;
+            attribute DOMString triggeredAt;
+          };
 
-      <p>
-        The <code>PaymentResponse</code> dictionary contains the following fields:
-      </p>
+          dictionary InterledgerResponse {
+            InterledgerError? error;
+            InterledgerAddress payeeAddress;
+            InterledgerAmount payeeAmount;
+            InterledgerFulfillment fulfillment;
+          };
+        </pre>
 
-      <dl>
-        <dt><dfn><code>success</code></dfn></dt>
-        <dd>The <code>success</code> field contains indication whether the transaction is successful. </dd>
-      </dl>
+        <p>
+          The <code>InterledgerResponse</code> dictionary contains the following fields:
+        </p>
 
-      
+        <dl>
+          <dt><dfn><code>error</code></dfn></dt>
+          <dd>The <code>error</code> field will contain an <a>InterledgerError</a> if there was an error processing the payment.</dd>
+          <dt><dfn><code>payeeAddress</code></dfn></dt>
+          <dd>The <code>payeeAddress</code> field contains the ILP Address of the payee.</dd>
+          <dt><dfn><code>payeeAmount</code></dfn></dt>
+          <dd>The <code>payeeAmount</code> field contains the amount that was delivered to the payee. The amount is an unsigned UInt64 as described in the Interledger Protocol specification [[!INTERLEDGER]].</dd>
+          <dt><dfn><code>fulfillment</code></dfn></dt>
+          <dd>The <code>fulfillment</code> field contains the <a>Fulfillment</a> that was returned by the payee during the Interledger payment.</dd>
+        </dl>
 
+        <section  data-dfn-for="InterledgerError" data-link-for="InterledgerError">
+          <h4><dfn>InterledgerError</dfn></h4>
+          <p>
+            The <code>InterledgerError</code> interface contains the following attributes:
+          </p>
+
+          <dl>
+            <dt><dfn><code>errorCode</code></dfn></dt>
+            <dd>The <code>errorCode</code> is an <a>ILP Error Code</a>.</dd>
+            <dt><dfn><code>errorName</code></dfn></dt>
+            <dd>The <code>errorName</code> is an <a>ILP Error Code Name</a>.</dd>
+            <dt><dfn><code>triggeredBy</code></dfn></dt>
+            <dd>The <code>triggeredBy</code> member contains the <a>ILP Address</a> of the entities that originally emitted the error.</dd>
+            <dt><dfn><code>forwardedBy</code></dfn></dt>
+            <dd>The <code>forwardedBy</code> member contains the <a>ILP Addresses</a> of the entities that forwarded the error message to the payer.</dd>
+            <dt><dfn><code>triggeredAt</code></dfn></dt>
+            <dd>The <code>triggeredAt</code> member contains the timestamp of error formatted as an ISO 8601 compliant string.</dd>
+          </dl>
+        </section>
       </section>
-
-      
     </section>
 
+    <section id="security">
+      <h2>Security and Privacy Considerations</h2>
+
+      <p>Web sites using the Interledger protocol should understand the security implications of sharing the <a>Fulfillment</a> prematurely and that doing so may put them at risk of non-delivery of funds.</p>
+
+    </section>
 
 
   </body>
