@@ -172,13 +172,42 @@
 	  <li>Information that parties must provide as input to the payment request API that is specific to the payment method (and not general information about the transaction). This is done via the <code>data</code> parameter of the <code>PaymentRequest</code> constructor.</li>
 	  <li>Information that will be in the response from the payment request API. This will typically be information collected from the user (e.g., card number for card payments) through user interface displayed by the browser.</li>
 	  <li>Any other payment method-specific requirements that are not addressed by the underlying payment request API, and that developers of payment apps need to take into account when building support for the payment method. See the next section for some payment method specific considerations.</li>
- <li>Recommended behavior to handle exceptions (e.g., in case of network failures)</li>
-      </section>
+	  <li>Recommended behavior to handle exceptions (e.g., in case of network failures)</li>
+	</ul>
+
+     </section>
     </section>
 
     <section id="specifics">
       <h2>Payment Method Specific Considerations</h2>
 
+      <section>
+	<h3>
+          Conditional Matching Beyond Payment Method Identifier Matching
+	</h3>
+	<p>
+          For some payment methods, merchants may wish to express that they
+          accept a payment method but only under certain conditions (e.g., "I
+          only credit cards from brand A and debit cards from brand B"). The Web
+          Payments Working Group has discussed several ways to support more
+          sophisticated matching beyond initial payment method identifier
+          matching.
+	</p>
+	<ul>
+          <li>Parties may mint payment method identifiers to represent different
+            conditions. This scalable approach may work well for a small number of
+            independent conditions, but may not scale well for complex
+            relationships.
+          </li>
+          <li>A payment method can define "filters" that enable callers of the
+            API to describe in finer detail the conditions under which they accept
+            that payment method. User agents and third party payment apps can
+            similarly scope their support for that payment method with these
+            filters. In this scenario, a match between payee and payer depends
+            first on matching payment method identifiers, then on filter alignment.
+          </li>
+	</ul>
+      </section>	
       <section>
 	<h3 id="ux">User Experience</h3>
 	<p>For some payment methods that require a variety of
