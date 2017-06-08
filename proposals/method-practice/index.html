@@ -222,6 +222,17 @@
       </section>
 
       <section>
+	<h3>
+          Validation
+	</h3>
+	<p>To ensure the best user experience, browsers and other implementations of Payment Request API may perform validation on a payment method's request data. The Web Payments Working Group has the following expectation:</p>
+	<ul>
+	  <li>For payment methods identified by URL, browsers will treat payment request data as opaque data and not perform validation.</li>
+	  <li>For payment methods defined by W3C (and identified with short strings), browsers may validate data according to the normative statements of the payment method specification. This includes both WebIDL requirements (e.g., enum values) and normative statements in prose (e.g., relationships among fields).</li>
+	  <ul>
+      </section>
+
+      <section>
 	<h3 id="security">Security and Privacy</h3>
 	<section>
 	  <h3 id="considerations">Considerations in Payment Method Specifications</h3>
@@ -281,7 +292,7 @@ payee, and require the payee to query the payment server for
       </section>
 
       <section>
-	<h3 id="versionin">Versioning</h3>
+	<h3 id="versioning">Versioning</h3>
 	<p>We anticipate that payment methods will change over time. The Working Group anticipates that the ecosystem will use different payment method identifiers to distinguish versions. A merchant that accepts multiple versions of a payment method can supply multiple identifiers.</p>
       </section>
 
