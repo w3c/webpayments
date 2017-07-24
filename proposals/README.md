@@ -7,8 +7,6 @@ The specifications are discussed on the WG [issue list](https://github.com/w3c/w
 Please use appropriate *"Proposal: XXX"*  labels for new issues to help us sort them.
 
 ## Current Proposals
-
-* [**Payment Method Best Practice**](https://w3c.github.io/webpayments/proposals/method-practice/)
 * [**Payment Manifest**](https://w3c.github.io/webpayments/proposals/Payment-Manifest-Proposal.html)
 * [**Tokenized Card Payment**](https://w3c.github.io/webpayments-methods-tokenization/index.html)
 * [**Bsic SEPAMail Payment**](https://w3c.github.io/webpayments/proposals/sepamail)
