@@ -64,10 +64,12 @@
       </p>
       <ul>
         <li>streamline checkout through the reuse of stored information,
-        simplifying the user experience to matching payment apps (both native and web), and creating
-        consistency across Web sites, browsers, and operating systems. These
-        improvements should help reduce the percentage of transactions
-        abandoned prior to completion ("shopping cart abandonment") by improving consumer confidence in the payment experience;
+        simplifying the user experience to matching payment apps (both native
+        and web), and creating consistency across Web sites, browsers, and
+        operating systems. These improvements should help reduce the percentage
+        of transactions abandoned prior to completion ("shopping cart
+        abandonment") by improving consumer confidence in the payment
+        experience;
         </li>
         <li>improve payment security by fostering digital payment method
         innovation on the Web;
@@ -150,26 +152,35 @@
           Recommendation:
         </p>
         <ul>
-          <li>Payment Request API, which standardizes an API to allow merchants
-          (i.e., Web sites selling physical or digital goods) to utilize one or
-          more payment methods with minimal integration. User agents (e.g.,
-          browsers) facilitate the payment flow between merchant and user, mediating the user experience and providing consistency between different merchants and providers.
+          <li>
+            <a href="https://www.w3.org/TR/payment-request/">Payment Request
+            API</a>, which standardizes an API to allow merchants (i.e., Web
+            sites selling physical or digital goods) to utilize one or more
+            payment methods with minimal integration. User agents (e.g.,
+            browsers) facilitate the payment flow between merchant and user,
+            mediating the user experience and providing consistency between
+            different merchants and providers.
           </li>
-          <li>Payment Handler API, which defines capabilities that enable Web
-          applications to handle payment requests. The specification defines
-          how payment apps register their capabilities with the user agent, how
-          the user agent communicates with them, and what information is
-          exchanged.
+          <li>
+            <a href="https://www.w3.org/TR/payment-handler/">Payment Handler
+            API</a>, which defines capabilities that enable Web applications to
+            handle payment requests. The specification defines how payment apps
+            register their capabilities with the user agent, how the user agent
+            communicates with them, and what information is exchanged.
           </li>payment apps."
-          <li>Payment Method Manifest, which allows the curators of a defined payment method or owners of a proprietory
-          payment method to authorize (via a manifest fiel) which payment apps
-          may be used to fulfill the payment method. The scope of this work
-          extends to all types of payment apps, including native mobile apps
-          and Web apps.
+          <li>
+            <a href="https://w3c.github.io/payment-method-manifest/">Payment
+            Method Manifest</a>, which allows the curators of a defined payment
+            method or owners of a proprietory payment method to authorize (via
+            a manifest fiel) which payment apps may be used to fulfill the
+            payment method. The scope of this work extends to all types of
+            payment apps, including native mobile apps and Web apps.
           </li>
-          <li>Payment Method Identifiers, which defines the validation and
-          (where applicable) registration of identifiers used for matching
-          purposes by other W3C payments specifications.
+          <li>
+            <a href="https://www.w3.org/TR/payment-method-id/">Payment Method
+            Identifiers</a>, which defines the validation and (where
+            applicable) registration of identifiers used for matching purposes
+            by other W3C payments specifications.
           </li>
         </ul>
         <p>
@@ -177,8 +188,10 @@
           method specification, intended to become a Working Group Note:
         </p>
         <ul>
-          <li>Basic Card Payment, which specifies request and response data for
-          making simple card payments with Payment Request API.
+          <li>
+            <a href="https://www.w3.org/TR/payment-method-basic-card/">Basic
+            Card Payment</a>, which specifies request and response data for
+            making simple card payments with Payment Request API.
           </li>
         </ul>
         <h3>
@@ -191,7 +204,8 @@
           Recommendation Track or as Working Group Notes:
         </p>
         <ul>
-          <li>Card Payment Tokenization and/or Encryption (e.g. by Network, Gateway or Acquirer)
+          <li>Card Payment Tokenization and/or Encryption (e.g. by Network,
+          Gateway or Acquirer)
           </li>
           <li>Credit Transfers (e.g. SEPA credit transfers)
           </li>
@@ -230,7 +244,8 @@
           </li>
           <li>
             <a href="https://www.w3.org/Payments/card-network-ids">Card Network
-            Identifiers Approved for use as filters with Payment Request API</a>
+            Identifiers Approved for use as filters with Payment Request
+            API</a>
           </li>
         </ul>
         <p>
@@ -257,7 +272,9 @@
         <p>
           Note: W3C may choose to take up these specifications in a different
           Working Group chartered to develop APIs for out-of-browser payments
-          such as Internet of Things payments. Comments or indications of support for these specifications are invited during both charter review and subsequently.
+          such as Internet of Things payments. Comments or indications of
+          support for these specifications are invited during both charter
+          review and subsequently.
         </p>
         <h3>
           Out of Scope
@@ -277,14 +294,15 @@
           <a href="/Webauthn/">Web Authentication Working Group</a>.
           </li>
           <li>A digital payment scheme is a set of rules for the execution of
-          payment transactions that are followed by adhering entities (payment service providers,
-          processors, issuers, acquirers, payers and payees), where transactions take place over
-          networks (such as the Web). A digital payment instrument is an
-          account, token, or other means of fulfilling the payment provider's
-          role in a digital payment scheme. Some digital payment schemes make
-          use internally of payment instruments from other payment schemes. How
-          they register and communicate with internal payment instruments is
-          beyond the scope of this charter.
+          payment transactions that are followed by adhering entities (payment
+          service providers, processors, issuers, acquirers, payers and
+          payees), where transactions take place over networks (such as the
+          Web). A digital payment instrument is an account, token, or other
+          means of fulfilling the payment provider's role in a digital payment
+          scheme. Some digital payment schemes make use internally of payment
+          instruments from other payment schemes. How they register and
+          communicate with internal payment instruments is beyond the scope of
+          this charter.
           </li>
           <li>Recommendations for loyalty schemes and coupons, digital
           receipts, digital credentials, tickets, and location services are out
@@ -311,15 +329,15 @@
           sensitive information unless required for operational purposes, by
           legal or jurisdictional rules, or when deliberately consented to
           (e.g. as part of a loyalty program) by the owner of the information.
-          The design of any API should guard against the unwanted or inadvertent leakage of
-          such data through exploitation of the API.
+          The design of any API should guard against the unwanted or
+          inadvertent leakage of such data through exploitation of the API.
         </p>
         <h3 id="regulatory">
           Relation to Regulatory Requirements
         </h3>
         <p>
-          The deliverables of this group should enable parties involved in
-          a payment transaction to meet any and all regulatory obligations.
+          The deliverables of this group should enable parties involved in a
+          payment transaction to meet any and all regulatory obligations.
         </p>
       </div>
       <div>
@@ -426,22 +444,40 @@
             </tr>
           </tbody>
         </table>
-
-	<h3>
+        <h3>
           Non-Recommendation Track Milestones
         </h3>
-	<p>Update me</p>
+        <ul>
+          <li>Basic Card Payment. Expected to be published as a Group Note in
+          July 2018 (at the same time Payment Request API advances to
+          Recommendation).
+          </li>
+        </ul>
       </div>
       <div class="dependencies">
         <h2 id="coordination">
           Dependencies and Liaisons
         </h2>
         <h3 id="wpig">
-          Web Payments Interest Group
+          Web Commerce Interest Group
         </h3>
         <p>
-          Update me
+          The mission of the Web Commerce Interest Group (formerly the Web
+          Payments Interest Group) is to improve Commerce on the Web for users,
+          merchants, and other stakeholders. The Working Group expects to work
+          with the Interest Group as follows:
         </p>
+        <ul>
+          <li>The Interest Group may review and comment on Working Group
+          deliverables
+          </li>
+          <li>The Interest Group may play a role as "industry analyst,"
+          understanding and communicating business and technology drivers that
+          help to make the case for functionality enabled by the Working Group.
+          As technology and industry requirements change, the Interest Group
+          should update their analyses and keep the Working Group informed.
+          </li>
+        </ul>
         <h3 id="other-w3c-groups">
           Other W3C Groups
         </h3>
@@ -466,6 +502,12 @@
           <dd>
             To help ensure the protocols provide support for accessibility to
             people with disabilities.
+          </dd>
+          <dt>
+            <a href="http://tag.w3.org/">Technical Architecture Group (TAG)</a>
+          </dt>
+          <dd>
+            For Web architecture reviews.
           </dd>
           <dt>
             <a href="http://www.w3.org/2011/webappsec/">Web Application
@@ -503,7 +545,8 @@
           </dt>
           <dd>
             EMVCo administers many specifications known collectively as EMV,
-            including specifications about card tokenization and secure remote commerce.
+            including specifications about card tokenization and secure remote
+            commerce.
           </dd>
           <dt>
             <a href=
@@ -516,10 +559,14 @@
             between Web protocols and ISO 20022).
           </dd>
           <dt>
-            PCI Security Council
+            PCI Security Standards Council
           </dt>
           <dd>
-            @@Update me@@
+            The PCI Security Standards Council is a global forum for the
+            ongoing development, enhancement, storage, dissemination and
+            implementation of security standards for account data protection.
+            Coordination will help ensure the API can be used securely and meet
+            merchant goals.
           </dd>
         </dl>
         <p>
@@ -621,9 +668,8 @@
         Charter History
       </h3>
       <p>
-        See the <a href=
-        "https://www.w3.org/Payments/WG/charter-201510.html">original charter
-        of the Web Payments Working Group</a>.
+        See the <a href="/Payments/WG/charter-201510.html">original charter of
+        the Web Payments Working Group</a>.
       </p>
       <hr>
       <address>
