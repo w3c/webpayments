@@ -64,10 +64,10 @@
       </p>
       <ul>
         <li>streamline checkout through the reuse of stored information,
-        simplifying the user experience to matching payment apps, and creating
+        simplifying the user experience to matching payment apps (both native and web), and creating
         consistency across Web sites, browsers, and operating systems. These
         improvements should help reduce the percentage of transactions
-        abandoned prior to completion ("shopping cart abandonment");
+        abandoned prior to completion ("shopping cart abandonment") by improving consumer confidence in the payment experience;
         </li>
         <li>improve payment security by fostering digital payment method
         innovation on the Web;
@@ -153,7 +153,7 @@
           <li>Payment Request API, which standardizes an API to allow merchants
           (i.e., Web sites selling physical or digital goods) to utilize one or
           more payment methods with minimal integration. User agents (e.g.,
-          browsers) facilitate the payment flow between merchant and user.
+          browsers) facilitate the payment flow between merchant and user, mediating the user experience and providing consistency between different merchants and providers.
           </li>
           <li>Payment Handler API, which defines capabilities that enable Web
           applications to handle payment requests. The specification defines
@@ -161,7 +161,7 @@
           the user agent communicates with them, and what information is
           exchanged.
           </li>payment apps."
-          <li>Payment Method Manifest, which allows the owner of a proprietary
+          <li>Payment Method Manifest, which allows the curators of a defined payment method or owners of a proprietory
           payment method to authorize (via a manifest fiel) which payment apps
           may be used to fulfill the payment method. The scope of this work
           extends to all types of payment apps, including native mobile apps
@@ -191,9 +191,9 @@
           Recommendation Track or as Working Group Notes:
         </p>
         <ul>
-          <li>Card Payment Tokenization and/or Encryption
+          <li>Card Payment Tokenization and/or Encryption (e.g. by Network, Gateway or Acquirer)
           </li>
-          <li>Credit Transfers
+          <li>Credit Transfers (e.g. SEPA credit transfers)
           </li>
           <li>Direct Debits
           </li>
@@ -230,7 +230,7 @@
           </li>
           <li>
             <a href="https://www.w3.org/Payments/card-network-ids">Card Network
-            Identifiers Approved for use with Payment Request API</a>
+            Identifiers Approved for use as filters with Payment Request API</a>
           </li>
         </ul>
         <p>
@@ -257,7 +257,7 @@
         <p>
           Note: W3C may choose to take up these specifications in a different
           Working Group chartered to develop APIs for out-of-browser payments
-          such as Internet of Things payments.
+          such as Internet of Things payments. Comments or indications of support for these specifications are invited during both charter review and subsequently.
         </p>
         <h3>
           Out of Scope
@@ -276,9 +276,9 @@
           flows defined by this group. These include the deliverables of W3C's
           <a href="/Webauthn/">Web Authentication Working Group</a>.
           </li>
-          <li>A digital payment scheme is set of rules for the execution of
-          payment transactions that are followed by adhering entities (payment
-          processors, payers and payees), where transactions take place over
+          <li>A digital payment scheme is a set of rules for the execution of
+          payment transactions that are followed by adhering entities (payment service providers,
+          processors, issuers, acquirers, payers and payees), where transactions take place over
           networks (such as the Web). A digital payment instrument is an
           account, token, or other means of fulfilling the payment provider's
           role in a digital payment scheme. Some digital payment schemes make
@@ -311,15 +311,15 @@
           sensitive information unless required for operational purposes, by
           legal or jurisdictional rules, or when deliberately consented to
           (e.g. as part of a loyalty program) by the owner of the information.
-          The design of any API should guard against the unwanted leakage of
+          The design of any API should guard against the unwanted or inadvertent leakage of
           such data through exploitation of the API.
         </p>
         <h3 id="regulatory">
           Relation to Regulatory Requirements
         </h3>
         <p>
-          The deliverables of this group should not prevent parties involved in
-          a payment transaction from meeting regulatory obligations.
+          The deliverables of this group should enable parties involved in
+          a payment transaction to meet any and all regulatory obligations.
         </p>
       </div>
       <div>
@@ -497,8 +497,8 @@
             <a href="http://www.emvco.com/">EMVCo</a>
           </dt>
           <dd>
-            EMVCo administers all the original specifications known as EMV,
-            including specifications about card tokenization.
+            EMVCo administers many specifications known collectively as EMV,
+            including specifications about card tokenization and secure remote commerce.
           </dd>
           <dt>
             <a href=
