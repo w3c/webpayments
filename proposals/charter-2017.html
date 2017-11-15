@@ -161,6 +161,12 @@
             different merchants and providers.
           </li>
           <li>
+            <a href="https://www.w3.org/TR/payment-method-id/">Payment Method
+            Identifiers</a>, which defines the validation and (where
+            applicable) registration of identifiers used for matching purposes
+            by other W3C payments specifications.
+          </li>
+          <li>
             <a href="https://www.w3.org/TR/payment-handler/">Payment Handler
             API</a>, which defines capabilities that enable Web applications to
             handle payment requests. The specification defines how payment apps
@@ -174,12 +180,6 @@
             a manifest file) which payment apps may be used to fulfill the
             payment method. The scope of this work extends to all types of
             payment apps, including native mobile apps and Web apps.
-          </li>
-          <li>
-            <a href="https://www.w3.org/TR/payment-method-id/">Payment Method
-            Identifiers</a>, which defines the validation and (where
-            applicable) registration of identifiers used for matching purposes
-            by other W3C payments specifications.
           </li>
         </ul>
         <p>
@@ -209,8 +209,7 @@
           Recommendation Track or as Working Group Notes:
         </p>
         <ul>
-          <li>Card Payment Tokenization and/or Encryption (e.g. by Network,
-          Gateway or Acquirer)
+          <li>Network Tokens
           </li>
           <li>Credit Transfers
           </li>
@@ -232,10 +231,36 @@
           New Topics
         </h3>
         <p>
-          @@The Working Group will discuss new topics at TPAC 2017. These might
-          include new (or postponed) features for version 2 of Payment Request
-          API as well as new payment method specifications.@@
+          The Working Group anticipates further discussion of the following
+          topics:
         </p>
+        <ul>
+          <li>Multi-tender payments
+          </li>
+          <li>Discount codes
+          </li>
+          <li>Access to billing address
+          </li>
+          <li>Data obfuscation prior to user confirmation
+          </li>
+          <li>Payment Request API event model
+          </li>
+          <li>Merchant validation
+          </li>
+          <li>Facilities for improved error reporting to the user
+          </li>
+          <li>Encryption of payment method data
+          </li>
+          <li>The relationship of Payment Request API to EMVCo 3D Secure
+          </li>
+          <li>Facilities to enable merchants to test Payment Request API in
+          their environments.
+          </li>
+          <li>Merchant whitelisting of payment apps
+          </li>
+          <li>Merchant adoption strategies (including visual identity tools)
+          </li>
+        </ul>
         <h3>
           Curation of Working Group Resources
         </h3>
@@ -244,6 +269,8 @@
           has published:
         </p>
         <ul>
+          <li>Test suites for the above specifications.
+          </li>
           <li>
             <a href=
             "https://w3c.github.io/payment-method-id/#registry">Registry of
@@ -253,6 +280,10 @@
             <a href="https://www.w3.org/Payments/card-network-ids">Card Network
             Identifiers Approved for use as filters with Payment Request
             API</a>
+          </li>
+          <li>
+            <a href="https://github.com/w3c/payment-request-info">Developer
+            Portal</a>
           </li>
         </ul>
         <p>
@@ -411,7 +442,7 @@
                 <del>May 2017</del>
               </td>
               <td class="CR" rowspan="1" colspan="1">
-                September 2018
+                <del>September 2018</del>
               </td>
               <td class="PR" rowspan="1" colspan="1">
                 April 2019
@@ -425,7 +456,7 @@
                 Payment Method Manifest
               </th>
               <td class="WD1" rowspan="1" colspan="1">
-                October 2017
+                December 2017
               </td>
               <td class="CR" rowspan="1" colspan="1">
                 September 2018
@@ -444,7 +475,7 @@
         </h3>
         <ul>
           <li>Basic Card Payment is expected to be published as a Group Note in
-          Q4 2017.
+          Q1 2018.
           </li>
         </ul>
       </div>
@@ -504,6 +535,13 @@
             For Web architecture reviews.
           </dd>
           <dt>
+            <a href="https://www.w3.org/2017/vc/WG/">Verifiable Claims Working
+            Group</a>
+          </dt>
+          <dd>
+            For discussion of identity requirements.
+          </dd>
+          <dt>
             <a href="http://www.w3.org/2011/webappsec/">Web Application
             Security</a>
           </dt>
@@ -539,8 +577,7 @@
           </dt>
           <dd>
             EMVCo administers many specifications known collectively as EMV,
-            including specifications about card tokenization and secure remote
-            commerce.
+            including specifications about network tokenization and 3D secure.
           </dd>
           <dt>
             <a href="http://httpwg.org/">The IETF HTTP Working Group</a>
