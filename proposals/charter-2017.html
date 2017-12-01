@@ -142,7 +142,7 @@
         <h2 id="scope">
           Scope
         </h2>
-        <h3>
+        <h3 id="continued-work">
           Continued Work
         </h3>
         <p>
@@ -193,14 +193,14 @@
           </li>
         </ul>
         <p>
-          The Working Group will also look at enabling re-use of the Payment 
-          Request API data model in out-of-browser payments. One approach may 
-          be to define the model in a binding- and encoding-neutral way. For 
+          The Working Group will also look at enabling re-use of the Payment
+          Request API data model in out-of-browser payments. One approach may
+          be to define the model in a binding- and encoding-neutral way. For
           early work on this topic, see <a href=
           "https://www.w3.org/TR/webpayments-http-messages/">HTTP Messages
           1.0</a>.
         </p>
-        <h3>
+        <h3 id="under-consideration">
           Formal Adoption of Work Under Consideration
         </h3>
         <p>
@@ -222,13 +222,15 @@
           </li>
           <li>Distributed ledger Payments
           </li>
+          <li>An encryption module for one or more payment methods
+          </li>
         </ul>
         <p>
           The Working Group will account for exception handling in the design
           of payment method specifications. These include, but are not limited
           to, authorization failures and network failures.
         </p>
-        <h3>
+        <h3 id="new-topics">
           New Topics
         </h3>
         <p>
@@ -236,8 +238,6 @@
           topics and anticipates discussion will continue:
         </p>
         <ul>
-          <li>Encryption of payment method data
-          </li>
           <li>The relationship of Payment Request API to EMVCo 3D Secure
           </li>
         </ul>
@@ -267,7 +267,7 @@
           each topic, for example through modifications to Payment Request API,
           through a payment method specification, or some other specification.
         </p>
-        <h3>
+        <h3 id="curation">
           Curation of Working Group Resources
         </h3>
         <p>
@@ -275,7 +275,9 @@
           has published:
         </p>
         <ul>
-          <li>Test suites for the above specifications.
+          <li>Test suites for the above specifications. <strong>Note:</strong>
+          To promote interoperability, all changes made to specifications
+          should have tests.
           </li>
           <li>
             <a href=
@@ -296,7 +298,7 @@
           The Working Group may publish similar resources deemed important for
           the successful deployment of its other deliverables.
         </p>
-        <h3>
+        <h3 id="discontinued">
           Discontinued Deliverables
         </h3>
         <p>
@@ -309,7 +311,7 @@
             HTTP API 1.0</a>
           </li>
         </ul>
-        <h3>
+        <h3 id="out-of-scope">
           Out of Scope
         </h3>
         <p>
@@ -373,7 +375,7 @@
         <h2 id="deliverables">
           Deliverables
         </h2>
-        <h3>
+        <h3 id="rec-track-milestones">
           Recommendation Track Milestones
         </h3>
         <table class="roadmap">
@@ -381,7 +383,8 @@
             <tr>
               <td colspan="5" rowspan="1">
                 Note: The group will document significant changes from this
-                initial schedule on the group home page.
+                initial schedule on the group home page. See below for <a href=
+                "#ref-drafts">information about reference drafts</a>.
               </td>
             </tr>
           </tfoot>
@@ -473,29 +476,7 @@
             </tr>
           </tbody>
         </table>
-        <h4>
-          Most Recent Reference Drafts
-        </h4>
-        <ul>
-          <li>
-            <a href=
-            "https://www.w3.org/TR/2017/CR-payment-request-20170914/">14
-            September 2017 Payment Request API</a>
-          </li>
-          <li>
-            <a href=
-            "https://www.w3.org/TR/2017/CR-payment-method-id-20170914/">14
-            September 2017 Payment Method Identifiers</a>
-          </li>
-          <li>
-            <a href=
-            "https://www.w3.org/TR/2017/WD-payment-handler-20170518/">19 May
-            2017 Payment Handler API</a>
-          </li>
-          <li>@@Add Payment Method Manifest
-          </li>
-        </ul>
-        <h3>
+        <h3 id="non-rec-track-milestones">
           Non-Recommendation Track Milestones
         </h3>
         <ul>
@@ -503,6 +484,20 @@
           Q1 2018.
           </li>
         </ul>
+        <h3 id="rechartering">
+          On Rechartering
+        </h3>
+        <p>
+          Under this charter, the Working Group intends to deliver
+          specifications for the topics listed in the sections on <a href=
+          "#rec-track-milestones">Recommendation track milestones</a>, <a href=
+          "#non-rec-track-milestones">Non-Recommendation track milestones</a>,
+          and <a href="#under-consideration">topics under consideration</a>.
+        </p>
+        <p>
+          The Working Group would otherwise expect to recharter for other new
+          Recommendation-track deliverables.
+        </p>
       </div>
       <div class="dependencies">
         <h2 id="coordination">
@@ -540,7 +535,7 @@
             Internationalization and localization review.
           </dd>
           <dt>
-            <a href="http://www.w3.org/Privacy/">Privacy Interest Group</a>
+            <a href="/Privacy/">Privacy Interest Group</a>
           </dt>
           <dd>
             For privacy reviews.
@@ -567,32 +562,32 @@
             For discussion of identity requirements.
           </dd>
           <dt>
-            <a href="http://www.w3.org/2011/webappsec/">Web Application
-            Security</a>
+            <a href="/2011/webappsec/">Web Application Security</a>
           </dt>
           <dd>
-            For security reviews. If the Working Group perceives the need for
-            IETF review, W3C will arrange discussion through its IETF liaison.
+            For review of security APIs and features.
           </dd>
           <dt>
-            <a href="http://www.w3.org/2008/webapps/">Web Platform Working
+            <a href="https://www.w3.org/Webauthn/">Web Authentication Working
             Group</a>
+          </dt>
+          <dd>
+            For discussion of strong authentication.
+          </dd>
+          <dt>
+            <a href="/2008/webapps/">Web Platform Working Group</a>
           </dt>
           <dd>
             For review of JavaScript APIs and manifest usage.
           </dd>
           <dt>
-            <a href="http://www.w3.org/Security/wiki/IG">Web Security Interest
-            Group</a>
+            <a href="/Security/wiki/IG">Web Security Interest Group</a>
           </dt>
           <dd>
-            For security reviews.
+            For security reviews. If the Working Group perceives the need for
+            IETF review, W3C will arrange discussion through its IETF liaison.
           </dd>
         </dl>
-        <p>
-          This group will also collaborate with future W3C Working Groups
-          developing authentication protocols.
-        </p>
         <h3 id="groups-outside-w3c">
           Groups Outside W3C
         </h3>
@@ -640,9 +635,9 @@
         </h2>
         <p>
           To be successful, the Web Payments Working Group is expected to have
-          10 active participants for its duration. Effective participation in
-          Web Payments Working Group may consume .1 FTE for each participant;
-          for editors this commitment may be higher.
+          a minimum of 10 active participants for its duration. Effective
+          participation in Web Payments Working Group may consume .1 FTE for
+          each participant; for editors this commitment may be higher.
         </p>
       </div>
       <div class="communication">
@@ -692,10 +687,10 @@
         </h2>
         <p>
           This Working Group operates under the <a href=
-          "http://www.w3.org/Consortium/Patent-Policy/">W3C Patent Policy</a>.
-          To promote the widest adoption of Web standards, W3C seeks to issue
-          Recommendations that can be implemented, according to this policy, on
-          a Royalty-Free basis.
+          "/Consortium/Patent-Policy/">W3C Patent Policy</a>. To promote the
+          widest adoption of Web standards, W3C seeks to issue Recommendations
+          that can be implemented, according to this policy, on a Royalty-Free
+          basis.
         </p>
         <p>
           For more information about disclosure obligations for this group,
@@ -709,8 +704,8 @@
         </h2>
         <p>
           This Working Group will use the <a href=
-          'http://www.w3.org/Consortium/Legal/copyright-software'>W3C Software
-          and Document license</a> for all its deliverables.
+          '/Consortium/Legal/copyright-software'>W3C Software and Document
+          license</a> for all its deliverables.
         </p>
       </div>
       <h2 id="about">
@@ -791,6 +786,83 @@
           </tr>
         </tbody>
       </table>
+      <h3 id="ref-drafts">
+        Reference Drafts as of this Charter
+      </h3>
+      <p>
+        The following information related to the W3C Patent Policy is provided
+        as a convenience.
+      </p>
+      <dl>
+        <dt id="1292" class='spec'>
+          <a href='https://www.w3.org/TR/payment-request/' rel=
+          'versionof'>Payment Request API</a><br>
+          Latest publication: <a href=
+          'https://www.w3.org/TR/2017/CR-payment-request-20170921/'>21
+          September 2017</a>
+        </dt>
+        <dd>
+          Reference Draft: <a href=
+          'https://www.w3.org/TR/2017/CR-payment-request-20170914/'>https://www.w3.org/TR/2017/CR-payment-request-20170914/</a><br>
+
+          associated <a href=
+          'https://lists.w3.org/Archives/Member/member-cfe/2017Sep/0006.html'>Call
+          for Exclusion</a> on 14 September 2017 ended on 13 November 2017<br>
+          Produced under Working Group Charter:
+          /Payments/WG/charter-201510.html
+        </dd>
+        <dt id="1293" class='spec'>
+          <a href='https://www.w3.org/TR/payment-method-id/' rel=
+          'versionof'>Payment Method Identifiers</a><br>
+          Latest publication: <a href=
+          'https://www.w3.org/TR/2017/CR-payment-method-id-20170914/'>14
+          September 2017</a>
+        </dt>
+        <dd>
+          Reference Draft: <a href=
+          'https://www.w3.org/TR/2017/CR-payment-method-id-20170914/'>https://www.w3.org/TR/2017/CR-payment-method-id-20170914/</a><br>
+
+          associated <a href=
+          'https://lists.w3.org/Archives/Member/member-cfe/2017Sep/0006.html'>Call
+          for Exclusion</a> on 14 September 2017 ended on 13 November 2017<br>
+          Produced under Working Group Charter:
+          /Payments/WG/charter-201510.html
+        </dd>
+        <dt id="1330" class='spec'>
+          <a href='https://www.w3.org/TR/webpayments-http-messages/' rel=
+          'versionof'>Web Payments HTTP Messages 1.0</a><br>
+          Latest publication: <a href=
+          'https://www.w3.org/TR/2016/WD-webpayments-http-messages-20160915/'>15
+          September 2016</a>
+        </dt>
+        <dd>
+          Reference Draft: <a href=
+          'https://www.w3.org/TR/2016/WD-webpayments-http-messages-20160915/'>https://www.w3.org/TR/2016/WD-webpayments-http-messages-20160915/</a><br>
+
+          associated <a href=
+          'https://lists.w3.org/Archives/Member/member-cfe/2016Sep/0008.html'>Call
+          for Exclusion</a> on 16 September 2016 ended on 12 February 2017<br>
+          Produced under Working Group Charter:
+          /Payments/WG/charter-201510.html
+        </dd>
+        <dt id="1363" class='spec'>
+          <a href='https://www.w3.org/TR/payment-handler/' rel=
+          'versionof'>Payment Handler API</a><br>
+          Latest publication: <a href=
+          'https://www.w3.org/TR/2017/WD-payment-handler-20171129/'>29 November
+          2017</a>
+        </dt>
+        <dd>
+          Reference Draft: <a href=
+          'https://www.w3.org/TR/2017/WD-payment-handler-20170518/'>https://www.w3.org/TR/2017/WD-payment-handler-20170518/</a><br>
+
+          associated <a href=
+          'https://lists.w3.org/Archives/Member/member-cfe/2017May/0007.html'>Call
+          for Exclusion</a> on 18 May 2017 ended on 15 October 2017<br>
+          Produced under Working Group Charter:
+          /Payments/WG/charter-201510.html
+        </dd>
+      </dl>
       <hr>
       <address>
         Adrian Hope-Bailie, Ian Jacobs, Nick Telford-Reed
