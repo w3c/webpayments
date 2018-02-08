@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Interledger Payment Method
+    </title>
+    <meta charset='utf-8'>
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' async
+    class='remove'></script>
+    <script class='remove'>
+      const respecConfig = {
+        editors: [
+          {   
+            name:       "Adrian Hope-Bailie",
+            url:        "https://github.com/adrianhopebailie",
+            company:    "Ripple",
+            companyURL: "https://ripple.com",
+            w3cid:      42590
+          },
+        ],
+        github: "https://github.com/w3c/webpayments/proposals/interledger",
+        // previousMaturity: "FPWD",
+        // previousPublishDate: "",
+        specStatus: "unofficial",
+        wg: "Web Payments Working Group",
+        wgPatentURI: "https://www.w3.org/2004/01/pp-impl/83744/status",
+        wgURI: "https://www.w3.org/Payments/WG/",
+        localBiblio:  {
+              "interledger-protocol": {
+                  title:    "The Interledger Protocol"
+                  ,   href:     "https://interledger.org/rfcs/0003-interledger-protocol/"
+                  ,   authors:  [
+                      "Evan Schwartz",
+                      "Stefan Thomas",
+                      "Ben Sharafian"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+              "interledger-addresses": {
+                  title:    "Interledger Addresses"
+                  ,   href:     "https://interledger.org/rfcs/0015-ilp-addresses/"
+                  ,   authors:  [
+                      "Evan Schwartz",
+                      "Stefan Thomas",
+                      "Adrian Hope-Bailie"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+              "payment-pointers": {
+                  title:    "Payment Pointers"
+                  ,   href:     "https://interledger.org/rfcs/0026-payment-pointers/"
+                  ,   authors:  [
+                      "Adrian Hope-Bailie",
+                      "Ben Sharafian"
+                  ]
+                  ,   status:   "Interledger RFC"
+              },
+              "simple-payment-setup-protocol": {
+                title:    "Simple Payment Setup Protocol"
+                ,   href:     "https://interledger.org/rfcs/0009-simple-payment-setup-protocol/"
+                ,   authors:  [
+                    "Evan Schwartz",
+                    "Ben Sharafian"
+                ]
+                ,   status:   "Interledger RFC"
+              },          
+          },
+      };
+    </script>
+    <style>
+    dt { margin-top: 0.75em; }
+    table { margin-top: 0.75em; border-collapse:collapse; border-style:hidden hidden none hidden }
+    table thead { border-bottom:solid }
+    table tbody th:first-child { border-left:solid }
+    table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+    li { margin-top: 0.5em; margin-bottom: 0.5em;}
+    </style>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+        This specification describes data structures and formats, and a simple
+        processing model, to facilitate payments on the Web using the standards
+        defined by the <a href="https://interledger.org">Interledger
+        Protocol</a> [[!interledger-protocol]].
+      </p>
+    </section>
+    <section id='sotd'>
+      <p>
+        The working group maintains <a href=
+        "https://github.com/w3c/webpayments/issues">a list of all bug reports
+        that the group has not yet addressed</a>. Pull requests with proposed
+        specification text for outstanding issues are strongly encouraged.
+      </p>
+      <p>
+        This specification was contributed by the <a href=
+        "https://www.w3.org/community/interledger/">Interledger Payments
+        Community Group</a>.
+      </p>
+      <div class="note">
+        <p>
+          <strong>Sending comments on this document</strong>
+        </p>
+        <p>
+          If you wish to make comments regarding this document, please raise
+          them as <a href="https://github.com/w3c/webpayments/issues">GitHub
+          issues</a>. Only send comments by email if you are unable to raise
+          issues on GitHub (see links below). All comments are welcome.
+        </p>
+      </div>
+    </section>
+    <section class='informative'>
+      <h2>
+        Introduction
+      </h2>
+      <p>
+        This specification defines the "interledger" payment method for use,
+        for instance, with the <a data-cite="payment-request">Payment Request
+        API</a>. With it, merchants can request a payment that follows the
+        Interledger standards.
+      </p>
+      <p>
+        The <dfn>Interledger Protocol</dfn> defines a number of standards that
+        can be universally applied to all payments, irrespective of the network
+        used to initiate or receive the payment. These include a universal
+        addressing scheme for any destination account, a two-phase
+        request/response orchestration for payment authorization, and a
+        standard message "signature" scheme using simple SHA-256 hash digests.
+      </p>
+    </section>
+    <section id="method-id">
+      <h2>
+        Payment Method Identifier
+      </h2>
+      <p>
+        The <dfn data-cite=
+        "!payment-method-id#standardized-payment-method-identifiers">standardized
+        payment method identifier</dfn> for this specification is
+        "<code><dfn>interledger</dfn></code>".
+      </p>
+    </section>
+    <section>
+      <h2>
+        Model
+      </h2>
+      <p>
+        This section defines concepts used in this specification.
+      </p>
+      <section>
+        <h2>
+          Interledger Addresses
+        </h2>
+        <p>
+          An <dfn>Interledger Address</dfn> is an address for any account on
+          any payment network that can be the target of a payment. This
+          includes traditional payment accounts like bank accounts (identified
+          by an IBAN or account number), or card accounts (identified by a
+          PAN), but also accounts on newer networks such as distributed ledgers
+          and crypto-currency systems. It is defined in the
+          [[!interledger-addresses]] specification.
+        </p>
+        <p>
+          The scheme is a hierarchical addressing scheme where addresses are
+          expressed as case-sensitive, ASCII strings containing one or more
+          segments delimited by the period character. Their hierarchical nature
+          makes them well-suited for routing payments while their large allowed
+          size means that new addresses can be created per payment and
+          reference data included in the suffix.
+        </p>
+      </section>
+      <section>
+        <h2>
+          Conditions, Fulfillments and Errors
+        </h2>
+        <p>
+          The <dfn>Condition</dfn> is a 32-byte number that is the result of
+          performing the one-way SHA-256 hash operation on the 32-byte
+          <dfn>Fulfillment</dfn>. The <a>Condition</a> is provided by the payer
+          in an Interledger payment. The <a>Fulfillment</a> is returned by the
+          payee in an Interledger payment.
+        </p>
+        <p>
+          In the case of a failed payment an error will be returned with an
+          appropriate <dfn>Interledger Error Code</dfn> to indicate the cause
+          of the failure.
+        </p>
+        <p>
+          More details on the role of conditions and fulfillments and details
+          of the different error codes can be found in the
+          [[!interledger-protocol]] specification.
+        </p>
+      </section>
+      <section>
+        <h2 data-cite="!payment-pointers#" data-dfn-for="Payment Pointer"
+        data-link-for="Payment Pointer">
+          Payment Pointer
+        </h2>
+        <p>
+          A <dfn>Payment Pointer</dfn> is an identifer, that can be used to
+          resolve and discover the details of a payment. It may resolve to the
+          details of an entity or a specific obligation that can be paid (such
+          as an invoice).
+        </p>
+        <p>
+          Specifically, a <a>Payment Pointer</a> is resolved to a <dfn>payment
+          setup protocol receiver endpoint</dfn> as defined in the
+          [[!payment-pointers]] specification.
+        </p>
+      </section>
+      <section>
+        <h2>
+          Flow
+        </h2>
+        <p>
+          An Interledger payment is initiated by the payer upon receipt of a
+          <a>Payment Pointer</a> from the payee. The payer (or their agent)
+          uses this to resolve a <a>payment setup protocol receiver
+          endpoint</a> which it queries for the details of the payment.
+        </p>
+        <p>
+          The payer then completes an Interledger payment and returns the
+          <a>Interledger Address</a> and <a>Fulfillment</a> to the payee to
+          allow them to verify the payment has been completed successfully.
+        </p>
+      </section>
+    </section>
+    <section data-dfn-for="InterledgerRequest" data-link-for=
+    "InterledgerRequest">
+      <h2>
+        <dfn>InterledgerRequest</dfn> dictionary
+      </h2>
+      <pre class="idl">
+        dictionary InterledgerRequest {
+          DOMString payee;
+        };
+      </pre>
+      <p>
+        The <a>InterledgerRequest</a> dictionary contains the following
+        members:
+      </p>
+      <dl>
+        <dt>
+          <dfn>payee</dfn>
+        </dt>
+        <dd>
+          A <a>Payment Pointer</a> that MUST be used to resolve the details of
+          the payee and the payment.
+        </dd>
+      </dl>
+    </section>
+    <section data-link-for="InterledgerRequest">
+      <h2>
+        Interfacing with a payment handler
+      </h2>
+      <p>
+        The <dfn>steps to complete a payment with a payment handler</dfn> with
+        <a>InterledgerRequest</a> <var>data</var> are given by the following
+        algorithm. If the end user successfully completes the payment the
+        algorithm returns an <a>Interledger Address</a> and a
+        <a>Fulfillment</a> in an <a>InterledgerResponse</a>.
+      </p>
+      <ol class="algorithm" data-link-for="InterledgerRequest">
+        <li>Let <var>response</var> be an <a>InterledgerResponse</a>.
+        </li>
+        <li>Perform the steps defined in [[!payment-pointers]] to resolve the
+        payment details from the <a>Payment Pointer</a> at
+        <var>data</var>["<a>payee</a>"].
+        </li>
+        <li>Complete a payment to the <a>Interledger Address</a> derived from
+        those payment details.
+        </li>
+        <li data-link-for="InterledgerResponse">Set
+        <var>response</var>["<a>payeeAddress</a>"] to the <a>Interledger
+        Address</a> the payment was sent to.
+        </li>
+        <li data-link-for="InterledgerResponse">If the payment was successful
+        set <var>response</var>["<a>fulfillment</a>"] to the <a>Fulfillment</a>
+        returned upon completing the payment.
+        </li>
+        <li data-link-for="InterledgerResponse">Else, let <var>error</var> be
+        an <a>InterledgerError</a> and:
+          <ol>
+            <li data-link-for="InterledgerError">Set
+            <var>error</var>["<a>errorCode</a>"] to the <a>Interledger Error
+            Code</a> returned in the failed payment.
+            </li>
+            <li data-link-for="InterledgerError">Set
+            <var>error</var>["<a>triggeredBy</a>"] to the <a>Interledger
+            Address</a> indicated in the failed payment as the source of the
+            error.
+            </li>
+            <li data-link-for="InterledgerResponse">Set
+            <var>response</var>["<a>error</a>"] to <var>error</var>.
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>response</var>.
+        </li>
+      </ol>
+    </section>
+    <section data-dfn-for="InterledgerResponse" data-link-for=
+    "InterledgerResponse">
+      <h3>
+        <dfn>InterledgerResponse</dfn>
+      </h3>
+      <pre class="idl">
+        interface InterledgerError {
+          attribute DOMString errorCode;
+          attribute DOMString triggeredBy;
+        };
+
+        dictionary InterledgerResponse {
+          DOMString payeeAddress;
+          DOMString? fulfillment;
+          InterledgerError? error;
+        };
+      </pre>
+      <p>
+        The <code>InterledgerResponse</code> dictionary contains the following
+        fields:
+      </p>
+      <dl>
+        <dt>
+          <dfn><code>payeeAddress</code></dfn>
+        </dt>
+        <dd>
+          The <code>payeeAddress</code> field contains the ILP Address of the
+          payee.
+        </dd>
+        <dt>
+          <dfn><code>fulfillment</code></dfn>
+        </dt>
+        <dd>
+          The <code>fulfillment</code> field contains the <a>Fulfillment</a>
+          that was returned by the payee during the Interledger payment. The
+          32-bytes are returned as a Base64 encoded string per [[!RFC4648]].
+        </dd>
+        <dt>
+          <dfn><code>error</code></dfn>
+        </dt>
+        <dd>
+          The <code>error</code> field will contain an <a>InterledgerError</a>
+          if there was an error processing the payment.
+        </dd>
+      </dl>
+      <section data-dfn-for="InterledgerError" data-link-for=
+      "InterledgerError">
+        <h4>
+          <dfn>InterledgerError</dfn>
+        </h4>
+        <p>
+          The <code>InterledgerError</code> interface contains the following
+          attributes:
+        </p>
+        <dl>
+          <dt>
+            <dfn><code>errorCode</code></dfn>
+          </dt>
+          <dd>
+            The <code>errorCode</code> is an <a>Interledger Error Code</a>.
+          </dd>
+          <dt>
+            <dfn><code>triggeredBy</code></dfn>
+          </dt>
+          <dd>
+            The <code>triggeredBy</code> member contains the <a>Interledger
+            Address</a> of the entities that originally emitted the error.
+          </dd>
+        </dl>
+      </section>
+    </section>
+    <section id="conformance">
+      <p>
+        There is only one class of product that can claim conformance to this
+        specification: a <dfn>payment handler</dfn>.
+      </p>
+      <p>
+        A conforming <a>payment handler</a> MUST:
+      </p>
+      <ul>
+        <li>when queried, claim to support the "<a>interledger</a>"
+        <a>standardized payment method identifier</a>.
+        </li>
+        <li>return <a>InterledgerResponse</a>s whose members are formatted as
+        per their definition in this specification.
+        </li>
+      </ul>
+    </section>
+    <section id="security">
+      <h2>
+        Security and Privacy Considerations
+      </h2>
+      <p>
+        Web sites using the Interledger protocol should understand the security
+        implications of sharing the <a>Fulfillment</a> prematurely and that
+        doing so may put them at risk of non-delivery of funds.
+      </p>
+    </section>
+  </body>
+</html>
