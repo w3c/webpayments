@@ -54,7 +54,7 @@ Example:
 
 A receiver whose account has the ILP Address `g.coinbase.145b3dEskk1a7Uw4gWBdpa8NFEwbfz2MgT` could request a sender to send to `g.coinbase.145b3dEskk1a7Uw4gWBdpa8NFEwbfz2MgT.12345`. This payment will be routed to the receiver who will be able to infer contextual information from the address suffix (`12345`).
 
-More details on addressing can be found in [ILP RFC 15 - Interledger Addresses](https://interledger.org/rfcs/0015-ilp-addresses/)
+More details on addressing can be found in [ILP RFC 15 - Interledger Addresses](https://interledger.org/rfcs/0015-ilp-addresses/draft-2.html)
 
 ### Invoices, Receipts and Reconciliation
 
@@ -85,7 +85,7 @@ Interledger defines an orchestration that can be applied over any funding source
 
 The Interledger payment method leverages **Payment Pointers**, a standard for payee identifiers that can be resolved to an HTTPS endpoint where payers are able to discover information about a payment.
 
-More information about payment pointers can be found in [ILP RFC 26 - Payment Pointers](https://interledger.org/rfcs/0026-payment-pointers/).
+More information about payment pointers can be found in [ILP RFC 26 - Payment Pointers](https://interledger.org/rfcs/0026-payment-pointers/draft-1.html).
 
 ## Flow
 
