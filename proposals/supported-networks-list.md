@@ -1,6 +1,6 @@
 # Proposal to Manage Card Network Identifiers Separate from Basic Card Spec
 
-Proposed by @ibjacobs. On 5 Jan 2017 the WPWG [resolved](https://www.w3.org/2017/01/05-wpwg-minutes#item03) to adopt this approach, pending discussion of the trademark issue.
+Proposed by @ibjacobs. On 5 Jan 2017 the WPWG [resolved](https://www.w3.org/2017/01/05-wpwg-minutes#item03) to adopt this approach, pending discussion of the trademark issue. See the [published list](https://www.w3.org/Payments/card-network-ids).
 
 Todo: Ian to confirm W3C ok with this.
 
