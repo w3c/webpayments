@@ -7,13 +7,13 @@
 
 **Summary**
 
-The [Payment Handler API] is one of several technologies (along with the [Payment Request API]) designed to streamline Web payments and make them more secure.
+The https://w3c.github.io/payment-handler[Payment Handler API] is one of several technologies (along with the https://w3c.github.io/payment-request[Payment Request API]) designed to streamline Web payments and make them more secure.
 
-It is an important design goal that the [Payment Handler API] not introduce new vulnerabilities that an attacker can exploit to infringe on a user’s privacy. This document describes a threat model for evaluating the design choices of the Payment Handler API against this privacy goal.
+It is an important design goal that the Payment Handler API not introduce new vulnerabilities that an attacker can exploit to infringe on a user’s privacy. This document describes a threat model for evaluating the design choices of the Payment Handler API against this privacy goal.
 
 **Document Status**
 
-This is a living document that aims to capture an up-to-date view of the privacy threat model to drive discussion of mitigations. It will be updated regularly to match the current state of [Payment Request API] and [Payment Handler API].
+This is a living document that aims to capture an up-to-date view of the privacy threat model to drive discussion of mitigations. It will be updated regularly to match the current state of Payment Request API and Payment Handler API.
 
 toc::[]
 
