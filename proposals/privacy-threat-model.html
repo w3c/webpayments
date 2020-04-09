@@ -1,526 +1,1745 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<title>Payment Handler Privacy Threat Model</title>
-<script src="https://www.w3.org/Tools/respec/respec-w3c" class=
-"remove"></script>
-<script class='remove'>
-var respecConfig = {
-  status: "MEMBER-SUB",
-  editors: [{
-    name: "Danyao Wang",
-  }, {
-    name: "Ian Jacobs",
-  }],
-  format: "markdown",
-};
-</script>
-
-<section id="abstract">
-The [Payment Handler API](https://w3c.github.io/payment-handler) is one of several technologies (along with the [Payment Request API](https://w3c.github.io/payment-request)) designed to streamline Web payments and make them more secure.
-
-It is an important design goal that the Payment Handler API not introduce new vulnerabilities that an attacker can exploit to infringe on a user’s privacy. This document describes a threat model for evaluating the design choices of the Payment Handler API against this privacy goal.
-</section>
-
-<section id="sotd">
-This is a living document that aims to capture an up-to-date view of the privacy threat model to drive discussion of mitigations. It will be updated regularly to match the current state of Payment Request API and Payment Handler API.
-</section>
-
-## Terminology
-
-- An [origin](https://html.spec.whatwg.org/multipage/origin.html#concept-origin) is the tuple of a scheme, host, and port that provides the main security boundary on the web. [1]
-- A **context** is a set of resources (e.g. websites, applications) that are controlled by the same party or jointly controlled by a set of parties. [1]
-- **Tracking** is the collection of data regarding a particular user’s identity or activity across one or more contexts and the retention, use, or sharing of data derived from that activity outside the context in which it occurred. [1]
-- A **first party** for a user action is the party that controls the origin of the top-most browsing context or application under which the action happened. [1]
-- **Cross-site tracking** is tracking by a third-paty across multiple first-party contexts. [3]
-- **Fingerprinting** is using the properties of the user’s behavior and/or computing environment to generate a persistent unique identifier without the need for explicit client-side storage. [3]
-- **Super-cookie **is using fingerprinting to recreate state and track users, even after a user has expunged their browsing history and storage.
-- A **payment handler** is a web or native application that handles requests for payment. A payment handler can be implemented in different ways:
-  - As a Service Worker that implements the Payment Handler API [5]; we call this a “Web-based payment handler”.
-  - As a native mobile app that integrates with a browser [6][7].
-  - As a built-in capability of a user agent.
-- A **merchant** is a website requests payment credentials via, for example, the Payment Request API [8].
-
-## Assumptions
-
-- Users who wish to maintain distinct payment identities on the Web use browser or operating system profiles. For example, if a user does not want a payment handler or other parties to know that two cards (e.g., business and personal) belong to the same individual, the user should make use of two profiles.
-- Most browsers are moving in the direction of double-keyed partitioning, whatever the storage mechanism.
-- A new user agent capability that allows seamless data sharing across origins will tend to be abused.
-
-## Principles
-
-We use the following principles to help evaluate the quality of design decisions.
-
-**User consent**. Without seeking to precisely define “user consent” in this document, users should have control over the sharing of information. User control may manifest itself in a variety of ways, including:
-
-- The ability to identify the parties they are interacting with;
-- Understanding the privacy implications of their choices;
-- Deliberate expression of intent to interact and consent to share data. By extension, an origin that the user has not interacted with explicitly should not be able to get data about the user without explicit consent;
-- The ability to review and set sensible defaults.
-  **Least power**. The protocols should not disclose private details of the user’s' identity or other sensitive information unless required for operational purposes or by legal or jurisdictional rules.
-
-**Minimal friction. **In general, we seek to minimize friction in the user experience. However, “minimal” does not always mean “none,” especially in the pursuit of user privacy and security.
-
-- See also [priority of constituencies](https://dev.w3.org/html5/html-design-principles/#priority-of-constituencies)
-  - **No regression**. The payments APIs should provide privacy and security protection that is at least on par with --and in general better than-- existing approaches.
-
-## Scope
-
-### In Scope
-
-This threat model focuses on the following privacy threats that a merchant, a payment handler, or both in collusion, may exploit against a user:
-
-- **Cross-site tracking** enabled by the joining of [user IDs](https://w3cping.github.io/privacy-threat-model/#user-id) from multiple contexts that are not previously known to belong to the same user.
-- **Fingerprinting** enabled by the exposure of new properties of a user’s computing environment that can be used as “global static identifiers” [4].
-- **Secondary use** [1] enabled by the collection of sensitive information (e.g. address, contact information) without the user’s understanding and deliberate consent or by promiscuous sharing of a user’s activity (e.g., before user commits to a transaction).
-- **Unnecessary information sharing**? e.g., the ability to infer user’s demographics or other information (e.g. socioeconomic class) based on availability of credit cards.
-  - E.g., The merchant does not need to know all the cards in a user’s wallet in order for that person to complete a payment.
-
-### Out of Scope
-
-- Merchants and payment handlers may prefer to limit data sharing with each other. As long as the data shared does not pertain to the user, the prevention or reduction of such sharing is outside the scope of this document.
-- Attacks with the explicit goal to steal identity or money from a user or defraud a merchant are considered security threats. They are discussed separately in the Payment Handler Security Threat Model (TODO).
-
-## Capability Review
-
-The Payment Request API and Payment Handler API (and how they are implemented in Chrome) currently give the following capabilities to merchants and payment handlers.
-
-### Installation
-
-#C1: A merchant can cause a web-based payment handler from a specific origin to be [installed just-in-time](https://github.com/w3c/payment-handler/issues/240) into a user’s browser
-
-- Use case: seamless distribution of handlers for new payment method
-- Note: the service worker is only installed (1) upon request.show() followed by (2) user selection of this payment handler for this payment request.
-  * #C2: A first-party website can install a service worker without any user gesture or visible UI --an existing capability of [Service Workers](https://www.w3.org/TR/service-workers/#navigator-service-worker-register)-- and register it as a payment handler.
-- Use case: allows seamless distribution of payment handlers of new payment methods.
-
-### Communication between origins
-
-. =C3: A merchant can send arbitrary data to an installed payment handler (either web-based or native Android) without any user action or visible UI, via [method-specific data](https://w3c.github.io/payment-request/#dom-paymentmethoddata-data) and request.hasEnrolledInstrument()
-
-- Use case for method-specific data: For some payment methods, a payment handler may need information from the merchant in order to complete the payment. In addition, payment methods may define “capabilities” that the browser can use to determine whether a payment handler is a “match” for the merchant and should be shown to the user.
-- Use case for request.hasEnrolledInstrument(): pass payment method specific parameters to a payment handler to determine if the user has enrolled instrument that allows them to complete payment without any friction. Merchant uses this signal to determine whether they should show a particular payment handler’s flow, or fall back to alternatives such as forms.
-  * #C4: A merchant can receive arbitrary data from an installed payment handler (either web-based or native Android) after request.show(), either repeatedly via [method-specific details](https://w3c.github.io/payment-request/#dom-paymentmethodchangeevent-methoddetails) or the final PaymentResponse.
-- Use case: receive payment method specific details, e.g. credentials that enable a merchant’s payment service provider to complete a payment, or a status code associated with a push payment.
-
-### Merchant knowledge of user environment
-
-. #C5: A merchant can know that payment handlers (corresponding to https://www.w3.org/TR/payment-method-id/#dfn-pmi[payment method identifiers] selected by the merchant) are installed or just-in-time installable in the user’s browser without any user gesture or visible UI, by calling [request.canMakePayment()](https://w3c.github.io/payment-request/#canmakepayment-method).
-
-- Use case: This capability allows a merchant to fall back seamlessly to alternatives (e.g., forms) if the user doesn’t have any payment handler for the payment methods the merchant accepts.
-  * #C6: A merchant can check whether the user has at least one enrolled instrument for a given set of payment methods without any user gesture or visible UI, by calling [request.hasEnrolledInstrument()](https://w3c.github.io/payment-request/#hasenrolledinstrument-method). For a web-based payment handler, this triggers a [CanMakePaymentEvent](https://w3c.github.io/payment-handler/#the-canmakepaymentevent) (to be renamed to HasEnrolledInstrumentEvent) in the service worker.
-- Use case: allows a merchant to selectively show support for a payment method if and only if the user is highly likely to have a seamless experience (i.e., user has an instrument ready to pay)
-- Note: Chrome currently throttles this call to 1 every 30 minutes per merchant origin.
-- Note: The corresponding capability is not currently provided for native Android payment handlers.
-
-### Payment Handler browsing context (and its capabilities)
-
-. #C7: Following request.show(), a web-based payment handler can create a [new top-level browsing context](https://w3c.github.io/payment-handler/#dfn-open-window-algorithm) (a.k.a. “payment handler window”), typically presented as a modal overlay over the merchant context, that prevents the user from interacting with the merchant context until the overlay is dismissed.
-
-- Use case: allows payment handler to present an “in-context” user experience for the user to complete the payment. We believe the experience of maintaining the checkout context under the modal window is superior to a redirect.
-- See discussion in https://github.com/w3c/payment-handler/issues/351
-  * #C8: A payment handler (both web-based and native Android) can complete a payment request without showing any user interface.
-- Possible use case: Merchant has a card on file. For a given transaction, merchant seeks a new cryptogram for that card via a payment handler. Because the user has selected the card via the merchant site, the payment handler only needs to communicate with a token service provider (without additional user interaction).
-- Use case: not an intentional choice; it’s a consequence of allowing but not mandating that a payment handler should show UI. It may be impossible to mandate for native Android payment apps.
-  * #C9: Inside its “payment handler window” a web-based payment handler can access most Web APIs that are available in a top-level context, including storage (e.g. IndexedDB, but not document.cookies), navigating its payment handler window to any origin, embedding iframes, and triggering APIs such as WebAuthn, geolocation, etc.
-  _ Use case: allows a payment handler to compose other web experiences, such as a redirect-based OAuth flow inside a payment handler.
-  _ Note:
-  _ Some functionalities are limited: e.g. window.open is ignored.
-  _ There is also a proposal in https://github.com/w3c/payment-handler/issues/351 to limit storage access of both the service worker and the payment handler window to 3P by default, with browser discretion to grant 1P access to the payment handler window up launching if the user has previously granted consent to this payment handler.
-
-## Attack Analysis
-
-### Cross Site Tracking
-
-#### Web-based payment handler as a zero-click tracker
-
-. badph.example hosts a badph.js file that does the following:
-
-- Creates a PaymentRequest that specifies badph.example as a supported method
-- Adds the full URL, i.e. location.href, to the method-specific data of the request (#C3)
-- Calls request.hasEnrolledInstrument()
-  * badph.example convinces merchant1.example and merchant2.example to serve badph.js via a &lt;script> tag
-  * User visits badph.example, which installs its service worker and registers it as a payment handler (#C2)
-- The service worker records a user ID in IndexedDB
-  * User visits merchant1.example. The code from badph.js runs, and request.hasEnrolledInstrument() causes a CanMakePaymentEvent to be triggered in badph.example’s service worker (#C5)
-  * The service worker extracts the full URL from CanMakePaymentEvent.methodData (#C3), and sends that and the user ID from IndexedDB (#C9) to badph.example server.
-  * Similarly, when a user visits merchant2.example, badph.example can reidentify the same user.
-
-Failure points:
-
-. merchant1.example is able to send data to a third party, badph.example, without a clear intention for the user to interact with badph.example. **#OpaqueDataTransfer**
-. badph.example’s service worker is able to access its global storage without receiving clear user consent to interact. **#1PStorageAccess**
-. A user cannot be reasonably expected to know that their visit to badph.example enables badph.example to record their history across colluding websites, which can be a large set. badph.example can be masquerade itself behind other useful utility that a merchant may want to include: e.g. socialnetwork.example, usefullibrary.example. **#SilentPersistentStorage**
-. Payment Request API is used when no clear payment intention is established. **#NonPaymentUsage**
-
-Mitigations:
-
-- Chrome already implements the following limits on hasEnrolledInstrument():
-  - CanMakePaymentEvent is not triggered in incognito mode
-  - hasEnrolledInstrument() is throttled to 1 call per 30 minutes per merchant origin
-    \*\*\* But this breaks a legitimate use case: a merchant wants to show payment buttons from two legitimate payment methods side-by-side.
-  - Chrome setting that allows user to opt-into short-circuiting hasEnrolledInstrument() for all payment handlers
-- Require user to opt-in for each payment handler that wants to respond to hasEnrolledInstrument() as part of explicit payment handler installation experience
-  - This should eliminate most non-payment websites from being able to exploit Payment Request API.
-  - Still won’t be able to prevent real payment handlers to track user’s browsing history on shopping websites.
-- Remove hasEnrolledInstrument()
-  - Breaks legitimate use case of showing payment buttons. The fundamental tension is that the data passed between merchant and payment handler is not standardized (and may be hard to) and is opaque to the browser, so it is very difficult for the browser to determine which calls are only passing legitimate data and which ones are sneaking in tracking data.
-- Service worker can only access 3P storage before request.show(), which requires a user gesture which may serve as an intent to interact
-  - Breaks legitimate use case of showing payment buttons because hasEnrolledInstrument() no longer has access to a user ID that it can use to check instrument availability.
-- Per-method quota
-  - See Fingerprint attack
-- Prompt user on hasEnrolledInstrument, e.g. “merchant.example wants to check if you can pay with ph.example: Allow Once, Disallow, Always Allow on merchant.example, Always Disallow on merchant.example”
-  - Very intrusive. May discourage the use of hasEnrolledInstrument() [which may not be a bad thing]
-- Browser uses telemetry to detect origins that call hasEnrolledInstrument() but never call request.show() and black list known bad behaviors
-  - Caveat: easy to blacklist merchant\*.example but harder to blacklist badph.example because telemetry records main resource origin, not subresource origin.
-
-#### Native Android app based payment handler as a zero-click tracker
-
-Same steps as [web-based payment handler as a zero-click track attack](#6-1-1-web-based-payment-handler-as-a-zero-click-tracker), except:
-
-. User installs an Android app published by badph.example (possibly masquerading as a useful tool, a game, etc.)
-. The hasEnrolledInstrument() call triggers an IS_READY_TO_PAY intent to badph.example’s Android app.
-. The Android app links the full URL and user identity within the app, and either saves it locally or sends to badph.example server.
-
-Failure points:
-
-. A locally installed Android app acts as its own global storage across contexts **#NativeAppAs1PStorage**
-. A user cannot be reasonably expected to know that any Android app can be a tracker of their web browsing activities. **#SilentPersistentStorage**
-
-Mitigations:
-
-- Require explicit user opt-in for native Android app to act as payment handler in browser
-  - This should eliminate most non-payment apps from being able to exploit Payment Request API
-  - Remaining gap: payment apps can still track users across shopping websites.
-
-#### One-click tracking by payment handler
-
-The steps below illustrate the attack assuming a web-based payment handler. The same attack can be performed by a native Android app-based payment handler:
-
-. badph.example hosts a badph.js file that does the following:
-
-- Creates a PaymentRequest that specifies badph.example as a supported method
-- Adds the full URL, i.e. location.href, to the method-specific data of the request (#C3)
-- Creates a button that calls request.show() when clicked
-  * badph.example convinces merchant1.example and merchant2.example to serve badph.js via a &lt;script> tag
-  * User visits merchant1.example and clicks on the button created by badph.js. This triggers request.show() which triggers the following:
-- A web-based payment handler from badph.example to be installed (#C1)
-- A [PaymentRequestEvent](https://w3c.github.io/payment-handler/#the-paymentrequestevent) to be triggered in badph.example’s service worker
-  * The service worker reads a user ID from IndexedDB (#C9), or writes a new one if there isn’t already one.
-  * The service worker extracts the full URL from PaymentRequestEvent.methodData (#C3), and sends that and the user ID to badph.example server.
-  * User visits merchant2.example and click on the badph.js button again.
-- badph.example service worker reads user ID from IndexedDB (#C9), identifies the user, and records the new merchant2.example URL in this user’s profile.
-
-This attack is less dangerous than [web-based payment handler as a zero-click track attack](#6-1-1-web-based-payment-handler-as-a-zero-click-tracker) because it requires tricking the user to click on something. On the other hand, request.show() is not subject to throttling like hasEnrolledInstrument().
-
-Failure points:
-
-- The click target may not reveal anything related to badph.example. **#NonPaymentUsage**
-- A user cannot be reasonably expected to know that a simple click can enable tracking by a third party, especially that no UI from badph.example is ever shown to the user. **#SilentPersistentStorage**
-- The service worker has access to 1P storage without a user’s clear intent to interact. **#1PStorageAccess**
-
-Mitigations:
-
-- **Storage access mitigation: **only grant 1P storage access to payment handler service worker after running the [openWindow algorithm](https://github.com/w3c/payment-handler/issues/351#issuecomment-566642121), which implicitly requests [Storage Access](https://developer.mozilla.org/en-US/docs/Web/API/Storage_Access_API):
-  - This increases the likelihood of user suspicion: user clicks on something and a window pops up. If browsers do a good job explaining what this UI is meant for (e.g. by add a “What is this?” info to the UI), and potentially offer the user an option to report surprises, then it should disincentivize the use of this attack.
-- Insert browser UI to ask the user, “Do you want to proceed to pay with ph.example?” with option to “Don’t ask me again for ph.example”
-
-#### One-click tracking by web-based payment handler under Storage Access Mitigation
-
-. Same steps 1-3 as [one-click tracking by web-based payment handler](#6-1-3-one-click-tracking-by-payment-handler)
-
-- Because of the storage access mitigation, badph.example’s service worker only has access to 3P storage at this point.
-  * badph.example’s service worker calls paymentrequestevent.openWindow() (#C7) to request 1P access. Browser has the discretion to grant this without explicit prompting, depending on prior settings (e.g. user did not opt-out of “stay signed in” when badph.example’s payment handler was installed).
-  * badph.example’s service worker looks up user’s 1P ID from IndexedDB (#C9) and links it to data sent by badph.js, e.g. full URL of the current merchant1.example page user is visiting.
-  * badph.example’s service worker quickly closes the payment handler window. So the user only sees a flash.
-  * User visits merchant2.example and sees a quick flash because badph.example uses the same technique to gain access to 1P storage and records user’s merchant2.example full URL.
-
-Failure points:
-
-- badph.example’s service worker is able to close a payment handler window without user interaction. This is against the purpose of the payment handler window which is to offer user an opportunity to interact. **#(Near)SilentPersistentStorage**
-
-Mitigation:
-
-- Require a user interaction before closing a payment handler window.
-
-#### Zero-click joining of stable IDs between merchant and payment handler
-
-. badph.example convinces merchant.example to host a badph.js (see [web-based payment handler as a zero-click track attack](#6-1-1-web-based-payment-handler-as-a-zero-click-tracker) above).
-. User visits merchant.example, which runs badph.js that:
-. Inserts user’s ID in merchant.example domain to method-specific data (#C3)
-. Transfers it to badph.example’s service worker via request.hasEnrolledInstrument()
-. badph.example’s service worker reads badph.example ID for the user from IndexedDB (#C9), and sends that and the merchant.example domain ID to badph.example server.
-. A party with access to the server logs of both merchant.example and badph.example can link the two sets of activities together.
-
-This attack is a minor variation of [web-based payment handler as a zero-click track attack](#6-1-1-web-based-payment-handler-as-a-zero-click-tracker) and is less severe because it requires that the attacker to also have access to the server logs of both badph.example and merchant.example. The same mitigation strategies from before are also effective.
-
-### Secondary Use
-
-#### Zero-click collection of user activity by legitimate payment handlers
-
-. Legitimate digital wallet provider, wallet.example, integrates with merchant.example, which sources a wallet.js from wallet.example.
-. merchant.example enables one-click purchases via wallet.js as follows:
-
-- wallet.js creates a PaymentRequest with no information about the product or total payment amounts (assuming merchant.example and wallet.example both follow best practices)
-- wallet.js calls request.hasEnrolledInstrument() to determine if the user is able to complete a seamless transaction.
-- If hasEnrolledInstrument() returns true, wallet.js renders a “Buy now with wallet.example” button.
-  * When the user browses to a product page on merchant.example:
-- wallet.example’s service worker receives the CanMakePaymentEvent triggered by hasEnrolledInstrument()
-  ... It learns that user is browsing merchant.example origin (though it doesn’t have access to the full URL)
-  ... It extracts merchant.example origin from [CanMakePaymentEvent.topOrigin](https://w3c.github.io/payment-handler/#the-canmakepaymentevent) and sends it to wallet.example’s backend to determine if this is a legitimate merchant that it should support.
-- User decides to not proceed with the purchase. Nevertheless, wallet.example knows that the user considered something on merchant.example.
-
-The same attack can be performed by a native Android app based payment handler.
-
-Failure points:
-
-- merchant.example origin is shared with wallet.example in CanMakePaymentEvent **#OpaqueDataTransfer**
-  - However, this is required for origin-based merchant validation
-
-Mitigations:
-
-- Reduce the amount of data that is shared with the payment handler.
-
-#### One-click collection of detailed user information without UI
-
-The steps below assumes a web-based payment handler, but the same attack can be performed by a native Android app based payment handler.
-
-. A user creates an account with wallet.example and enters personal information.
-. merchant.example accepts a payment method for which wallet.example can be used.
-. User visits merchant.example and clicks on “get a quote”, which in fact creates a PaymentRequest:
-
-- merchant.example [requests shipping and contact information](https://w3c.github.io/payment-request/#dom-paymentoptions)
-- merchant.example calls request.show()
-  * If “skip-the-sheet” conditions are met (i.e. only one URL-based payment method is requested and a payment handler is already installed), wallet.example’s service worker receives PaymentRequestEvent:
-- The service worker looks up user ID from IndexedDB and fetches user information from wallet.example’s backend, e.g. name, address, etc.
-  * wallet.example’s service worker sends user information back to merchant.example via PaymentHandlerResponse (#C4) without opening a payment handler window (#C8)
-- This step can also be accomplished by the service worker sending data back via PaymentMethodChangeEvent (#C4)
-  * merchant.example completes the payment using user’s payment information.
-
-Failure points:
-
-- A user cannot be reasonably expected to know that a single click can enable wallet.example to send sensitive information to merchant.example as there may not be any visible indication that wallet.example is involved at all. **#InvisibleTransaction**
-
-Mitigation:
-
-- Insert browser UI upon request.show() to ask “Do you want to proceed to pay with wallet.example?” with option to “Don’t ask in the future for wallet.example”
-  - This works for both web-based and native Android app based payment handlers.
-- Require a user interaction inside of a payment handler window before returning data (e.g. via PaymentMethodChangeEvent or PaymentHandlerResponse). Reject the request otherwise.
-  - This doesn’t work for native Android app based payment handlers because the browser cannot mandate UI by a native app.
-
-### Fingerprinting
-
-#### Zero-click collection of of payment method / instrument support as fingerprinting bits
-
-. merchant.example iterates over each known payment method and method-specific instrument filter. For each configuration, creates a PaymentRequest and calls request.hasEnrolledInstrument().
-. merchant.example builds a bitvector using results from the previous step and use it as additional signals to fingerprint the user.
-
-The effectiveness of this attack to uniquely identify a user depends on three factors:
-
-- The number of bits that can be collected, which is a function of the existing payment methods and filter configurations (e.g. filter by credit card networks)
-- The speed of collection, which depends on browser’s throttling of hasEnrolledInstrument() calls.
-- The population size of PaymentRequest users: fewer users means a given bitvector is more uniquely identifying.
-
-At the time of writing, the total number of configurations that exists today is C = M \* N + P, where:
-
-- M = # of payment methods backed by credit cards = 3 (i.e. basic-card, https://google.com/pay, https://apple.com/apple-pay)
-- N = # of credit card networks ~= 8 ([list](https://source.chromium.org/chromium/chromium/src/+/master:components/payments/core/payment_request_data_util.cc;l=100-102))
-- P = # of non-credit-card backed payment methods ~= 0
-
-This gives a rough estimate of C = 24, i.e. merchant.example can build a 24-bit vector to fingerprint the user, as an upper bound. The actual information should be less because:
-
-- Some bits are correlated: e.g. basic-card and https://apple.com/apple-pay bits are mutually exclusive due to browser support. So M in practice is likely 2
-- The credit card network bits probably correlate strongly with country, so actual unique networks per country is probably N ~= 3-4 (e.g. visa, mastercard, amex, discover)
-
-So a more realistic estimate may be C = 8 bits of actual information. C will also grow as more payment methods become available (e.g. src, other URL-based payment methods), i.e. increasing P value.
-
-#### Identifying power as a function of population size and C
-
-The table below is a model of the “identifying power” of this fingerprinting vector, measured by the number of uses per bucket, as a function of C and Payment Request API user population size (P):
-
-|=========================================
-| 3+| Payment Request API Unique Users (P)
-| | P = 100K | P = 1M | P = 100M
-| C = 8 (today) | 400 | 4000 | 400K
-| C = 9 (e.g. +1 new payment mehtod) | 200 | 2000 | 200K
-| C = 10 | 100 | 1000 | 100K
-| C = 11 | 50 | 500 | 50K
-|=========================================
-
-This means that today, when Payment Request API is not yet widely used, with C = 8, hasEnrolledInstrument() can narrow users down to 400-person buckets. This may be small enough to be worrisome.
-
-#### Effect of throttling
-
-Chrome throttles hasEnrolledInstrument() to 1 call every 30 minutes per merchant origin. This makes the attack not very useful for websites that a user only visits occasionally because they wouldn’t be able to build up a full bitvector without reasonable amount time.
-
-Time required to build a full bitvector:
-
-- If the user stays on a website: 128 hours = 5 days
-- If the user visits a website for 1 hour/day: 128 days
-- If the user visits a website for 2 hours/day: 64 days
-
-Adding more payment methods will make the bitvector longer, increasing its identifying power for a given population size, but increases the time required to build up the vector.
-
-**Conclusion:** as is, hasEnrolledInstrument() is not a very useful fingerprinting tool.
-
-#### Effect of per-method quota for hasEnrolledInstrument()
-
-The hasEnrolledInstrument() quota creates a problem for merchants: if a legitimate merchant wants to offer a “Buy now with wallet1.example” button side by side with a “Buy now with wallet2.example” button, the quota will cause one of the calls to reject and hence not display the button. A proposed solution is to change the quota to allow 1 call per payment method per 30 minutes per merchant origin. Currently page visibility is not used as part of the time quota, so a user who leaves a tab open in the background is prone to this attack.
-
-With per method quota, the limiting factor for a merchant to collect all the bits is only N, which is \~4 in a given country (because M & P can be computed in parallel). Time required to build a full bitvector of equivalent identifying power as C=8 above:
-
-- If user stays on a website: 4 bits / ( 1 bit / 0.5 hours) \~= 2 hours
-- If user visits a website for 1 hour/day: 2 days
-- If user visits a website for 2 hours/day: 1 day
-
-A possible attack:
-
-- merchant.example sees a new user (i.e. no merchantUserID in local storage), assigns merchantUserID and starts iterating over the bits
-- After 4 days, merchant.example looks up bitvector in their DB and found 400 users with the same bitvector. So merchantUserID is likely one of the 400 users.
-- If the user clears their local storage, merchant.example can reidentify the user to within a 400-people group after 4 days.
-
-#### Failure Points
-
-- hasEnrolledInstrument() reveals identifying bits about a user without user gesture or any visible UI.
-- The payment handler is able to persist data points across multiple visits. **#SilentPersistentStorage**
-
-#### Mitigations
-
-- Prevent a payment handler from persisting data to storage when it has not been explicitly selected by the user.
-
-## Threat Surface
-
-The attack vectors enumerated above reveal a few common threat surfaces:
-
-. #SilentPersistentStorage
-
-- This refers to the ability of the payment handler to persist data into local or remote storage without explicit user consent to interact with this payment handler, i.e. during hasEnrolledInstrument and canMakePayment.
-  * #OpaqueDataTransfer
-- This is especially bad when combined with #SilentPersistentStorage or #InvisibleTransaction.
-  * #1PStorageAccess
-  * #InvisibleTransaction
-- This refers to the payment handler’s ability to complete a transaction without explicit user confirmation.
-- Adrian: can be a feature. Maybe only bad if coupled with “skip-the-sheet”
-  _ Also consider cross-device payment sheet
-  _ Risk is lower if user explicitly allowed “no-UI flow” at some point
-  * #NativeAppAs1PStorage
-- TODO: investigate if native app can push some data to the browser so that browser can use this to answer HEI and CMP w/o sending intent to native app.
-  * #NonPaymentUsage
-- A successful exploit of this surface requires the merchant to phish a user gesture without revealing to the user that a payment request is triggered.
-- See [“explicit cross-origin interaction context” idea](https://docs.google.com/document/d/11N2uAUOU3qOaPkv2HQSjSwiZ31rU0ODllzWu1BBYjts/edit)
-
-### User awareness of hasEnrolledInstrument
-
-The user might consent to hasEnrolledInstrument:
-
-. At registration time.
-. When hasEnrolledInstrument called.
-
-In each case, the browser can request user consent for “silent” calls in the future. This might be further refined to be “for this site” or “for all sites.”
-
-Even if the user has consented to allowing hasEnrolledInstrument, the browser may want to make the user aware of potential abuse, for example:
-
-. If the merchant calls hasEnrolledInstrument multiple times within a given time period, the browser can alert the user, and ask the user whether they are ok with this behavior (and want to allow it silently in the future, for this origin or all origins)
-. If an embedded origin calls hasEnrolledInstrument within different top-level origins, the browser might inform the user.
-
-### User awareness of payment handler activity with or without windows
-
-Payment handlers can do the following:
-
-. Open no window
-. Open a window and close it without user interaction. (How to say this using [transient activation](https://html.spec.whatwg.org/multipage/interaction.html#transient-activation) definition?)
-. Open a window and only close it with user interaction
-
-We should harmonize behavior for cases 1 and 2. For example:
-
-. The browser can detect that a payment handler from a given origin is exhibiting behavior 1 or 2.
-. Whether or not the payment handler from that origin has ever exhibited behavior 3, the browser does not allow behaviors 1 or 2 without explicit user consent.
-. Thus, the browser prompts the user, displaying the origin of the payment handler, a friendly message, and requires confirmation of the behavior or cancel. The browser also offers an option not to be prompted in the future.
-. Perhaps there are some contexts (private browsing?) there the browser asks for confirmation in all cases.
-
-### Questions & responses to be organized
-
-**Q: Who can install a payment handler without user interaction?**
-
-A: The origin that hosts a payment handler (e.g. ph.example) can install a service worker and register it as payment handler when a user visits ph.example as a first party. See [#C6](#bookmark=id.rcsxcjsgipg9)
-
-Mitigation:
-
-- Introduce friction at payment handler registration time to mitigate zero- and 1-click concerns named above.
-
-**Q: Can origin X trigger payment handler installation from origin Y without user awareness?**
-
-A: Yes, in the current implementation of Chrome:
-
-- X creates a PaymentRequest that only requests supportedMethod=Y
-- Browser just-in-time implementation crawls payment method manifest at Y, and finds a payment handler hosted at Y
-- User clicks on something in X, that triggers request.show()
-- Y payment handler is now installed [skip the sheet] and can complete the request without showing UI
-
-Mitigation:
-
-- Skip-the-sheet should only work on installed payment handlers, not available to JIT PH.
-- Specification note: We should either standardize skip-the-sheet and JIT behavior, or at least provide developer guidance in the specifications.
-
-**Q: How can illegitimate seamlessly-installed payment handlers be filtered out?**
-
-A: It’ll be hard. So current thought is to move away from seamlessly installed payment handlers and rely on user’s brand recognition to filter out most of illegitimate payment handlers. Longer term, we can also imagine using a safe-browsing type approach: filter out any known bad origins, and use telemetry to detect likely bad actors (e.g. high trigger frequency with zero completion rate, never showing UI, etc.)
-
-TODO: Definition of illegitimate PH, possibly based on behavior that falls within the identified scope.
-
-**Q: Are there payment handlers where canmakepayment is always true (and thus**
-
-**should not ping the payment handler)? are there cases where it only**
-
-**depends on the user (not the merchant)? vice-versa?**
-
-A: In Chrome there are currently two cases where the payment handler is not pinged and canmakepayment event returns true:
-
-- User is browsing in incognito mode
-- User disables “Allow sites to check if you have payment methods saved” in chrome://settings. The default is enabled, and we don’t currently advertise this setting so most users probably don’t know how to use this.
-
-![images/Payment-Handler0.png image]
-
-Going forward, it may be useful to allow user to configure this per payment handler (perhaps as part of the onboarding process) and make this setting more visible.
-
-**Q: Can there be a distinction made between payment handlers that can share**
-
-**sensitive information (e.g. address) vs those that can't? those that can**
-
-**without user interaction and those that can't?**
-
-A: Possibly. The shipping delegation feature adds ability for payment handler to declare that they handle shipping addresses and/or contact information. But there are two challenges: 1) ultimately all payment information is sensitive 2) a uncooperating payment handler can hide arbitrary data using the method-specific data blob, which is opaque to the browser.
-
-**Q: Does iframe introduce new attack vectors not enumerated?**
-
-TBD
-
-## Next Steps
-
-- Organize mitigations to identity themes / features that should be implemented
-- Come up with a list of best practices for PH & merchant developers
-- Document assumptions about current state of affairs with data sharing: e.g. how can a user achieve account separation today?
-
-## Mitigation Proposals
-
-### Before request.show(), limit capabilities
-
-- [Read-only storage access before show()](https://docs.google.com/document/d/1novDOVYqgrSjBLKwZX3rUEixQvyxFcfr0O58k6qu6sA/edit#)
-
-### Once payment handler launched, limit capabilities
-
-- window.open(): noop when called from inside a PH window.
-  - Should we also print error to DevTool console?
-- window.close(): noop when called from inside a PH window: https://crbug.com/1049249
-- download attribute of &lt;a> is ignored: https://crbug.com/1046957
-
-## References
-
-* [Target Privacy Threat Model](https://w3cping.github.io/privacy-threat-model)
-* [WebKit Tracking Prevention Policy](https://webkit.org/tracking-prevention-policy/)
-* [Mozilla Security/Anti tracking policy](https://wiki.mozilla.org/Security/Anti_tracking_policy)
-* [A Potential Privacy Model for the Web](https://github.com/michaelkleber/privacy-model)
-* [Payment Handler API](https://w3c.github.io/payment-handler/)
-* [Android app as a payment handler](https://developers.google.com/web/fundamentals/payments/payment-apps-developer-guide/android-payment-apps)
-* [Apple Pay on the Web](https://developer.apple.com/documentation/apple_pay_on_the_web/)
-* [Payment Request API](https://w3c.github.io/payment-request/)
-* [Who Left Open the Cookie Jar](https://wholeftopenthecookiejar.com/static/tpc-paper.pdf)
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>
+      Payment Handler Privacy Threat Model
+    </title>
+    <script src="https://www.w3.org/Tools/respec/respec-w3c-common" class=
+    "remove"></script>
+    <script src="utils.js" class="remove"></script>
+    <script class='remove'>
+      var respecConfig = {
+          status: "MEMBER-SUB",
+          maxTocLevel: 3,
+          editors: [{
+              name: "Danyao Wang",
+          }, {
+              name: "Ian Jacobs",
+          }],
+      };
+    </script>
+    <style type="text/css">
+      td { text-align: right !important; }
+      .cap { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <section id="abstract">
+      The Payment Handler API [[payment-handler]] is one of several
+      technologies (along with the Payment Request API [[payment-request]])
+      designed to streamline Web payments and make them more secure. It is an
+      important design goal that the Payment Handler API not introduce new
+      vulnerabilities that an attacker can exploit to infringe on a user’s
+      privacy. This document describes a threat model for evaluating the design
+      choices of the Payment Handler API against this privacy goal.
+    </section>
+    <section id="sotd">
+      This is a living document that aims to capture an up-to-date view of the
+      privacy threat model to drive discussion of mitigations, for example
+      within the <a href="/Payments/WG/">Web Payments Working Group</a>. It
+      will be updated regularly to match the current state of Payment Request
+      API and Payment Handler API.
+    </section>
+    <section>
+      <h2>
+        Terminology
+      </h2>
+      <p>
+        These definitions are imported from other sources.
+      </p>
+      <dl>
+        <dt>
+          origin
+        </dt>
+        <dd>
+          An <a>origin</a> is the tuple of a scheme, host, and port that
+          provides the main security boundary on the web.
+        </dd>
+        <dt>
+          context
+        </dt>
+        <dd>
+          A <a>context</a> is a set of resources (e.g. websites, applications)
+          that are controlled by the same party or jointly controlled by a set
+          of parties.
+        </dd>
+        <dt>
+          user ID
+        </dt>
+        <dd>
+          A <a>user ID</a> is a pair of a site and a (potentially-large)
+          integer allocated by that site that is used to identify a user on
+          that site.
+        </dd>
+        <dt>
+          first party
+        </dt>
+        <dd>
+          A <a>first party</a> for a user action is the party that controls the
+          origin of the top-most browsing context or application under which
+          the action happened.
+        </dd>
+        <dt>
+          tracking
+        </dt>
+        <dd>
+          <a>Tracking</a> is the collection of data regarding a particular
+          user’s identity or activity across one or more contexts and the
+          retention, use, or sharing of data derived from that activity outside
+          the context in which it occurred.
+        </dd>
+        <dt>
+          cross-site tracking
+        </dt>
+        <dd>
+          <dfn>Cross-site tracking</dfn> is tracking by a third-party across
+          multiple first-party contexts.
+        </dd>
+        <dt>
+          browser fingerprinting
+        </dt>
+        <dd>
+          <a>Browser fingerprinting</a> is the capability of a site to identify
+          or re-identify a visiting user, user agent or device via
+          configuration settings or other observable characteristics.
+        </dd>
+        <dt>
+          super-cookie
+        </dt>
+        <dd>
+          A <a>super-cookie</a> uses fingerprinting to recreate state and track
+          users, even after a user has expunged their browsing history and
+          storage.
+        </dd>
+        <dt>
+          payment handler
+        </dt>
+        <dd>
+          A <a>payment handler</a> is a web or native application that handles
+          requests for payment. A payment handler can be implemented in
+          different ways:
+          <ul>
+            <li>As a Service Worker that implements the Payment Handler API; we
+            call this a “Web-based payment handler”.
+            </li>
+            <li>As a native mobile app that integrates with a browser.
+            </li>
+            <li>As a built-in capability of a user agent.
+            </li>
+          </ul>
+        </dd>
+        <dt>
+          merchant
+        </dt>
+        <dd>
+          A <dfn>merchant</dfn> is a website requests payment credentials via,
+          for example, the Payment Request API.
+        </dd>
+      </dl>
+    </section>
+    <section>
+      <h2>
+        Assumptions
+      </h2>
+      <ul>
+        <li>Users who wish to maintain distinct payment identities on the Web
+        use browser or operating system profiles. For example, if a user does
+        not want a payment handler origin or other parties to know that two
+        cards (e.g., business and personal) belong to the same individual, the
+        user should make use of two profiles.
+        </li>
+        <li>Most browsers are moving in the direction of double-keyed
+        partitioning, whatever the storage mechanism.
+        </li>
+        <li>Any user agent capability that allows seamless data sharing across
+        origins will tend to be abused.
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h2>
+        Principles
+      </h2>
+      <p>
+        We use the following principles to help evaluate the quality of design
+        decisions.
+      </p>
+      <section>
+        <h3>
+          User Consent
+        </h3>
+        <p>
+          Without seeking to precisely define “user consent” in this document,
+          users should have control over the sharing of information. User
+          control may manifest itself in a variety of ways, including:
+        </p>
+        <ul>
+          <li>The ability to identify the parties they are interacting with;
+          </li>
+          <li>Understanding the privacy implications of their choices;
+          </li>
+          <li>Deliberate expression of intent to interact and consent to share
+          data. By extension, an origin that the user has not interacted with
+          explicitly should not be able to get data about the user without
+          explicit consent;
+          </li>
+          <li>The ability to review and set sensible defaults.
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h3>
+          Least Power
+        </h3>
+        <p>
+          The protocols should not disclose private details of the user’s
+          identity or other sensitive information unless required for
+          operational purposes or by legal or jurisdictional rules.
+        </p>
+      </section>
+      <section>
+        <h3>
+          Minimal Friction
+        </h3>
+        <p>
+          In general, we seek to minimize friction in the user experience.
+          However, “minimal” does not always mean “none,” especially in the
+          pursuit of user privacy and security.
+        </p>
+      </section>
+      <section>
+        <h3>
+          Priority of Constituencies
+        </h3>
+        <p>
+          See <a href=
+          "https://dev.w3.org/html5/html-design-principles/#priority-of-constituencies">
+          priority of constituencies</a>.
+        </p>
+      </section>
+      <section>
+        <h3>
+          No Regression
+        </h3>
+        <p>
+          The payments APIs should provide privacy and security protection that
+          is at least on par with —and in general better than— existing
+          approaches.
+        </p>
+      </section>
+    </section>
+    <section>
+      <h3>
+        Scope
+      </h3>
+      <section>
+        <h4>
+          In Scope Scenarios
+        </h4>
+        <p>
+          This threat model focuses on the following privacy threats that a
+          merchant, a payment handler, or both in collusion, may exploit
+          against a user:
+        </p>
+        <ul>
+          <li>
+            <a>Cross-site tracking</a> enabled by the joining of <a>user
+            IDs</a> from multiple contexts that are not previously known to
+            belong to the same user.
+          </li>
+          <li>
+            <a>Browser fingerprinting</a> enabled by the exposure of new
+            properties of a user’s computing environment that can be used as
+            <a>global static identifiers</a>.
+          </li>
+          <li>
+            <a>Secondary use</a> enabled by the collection of sensitive
+            information (e.g. address, contact information) without the user’s
+            understanding and deliberate consent or by promiscuous sharing of a
+            user’s activity (e.g., before user commits to a transaction).
+          </li>
+          <li>Unnecessary information sharing, such as the ability to infer
+          user’s demographics or other information (e.g. socioeconomic class)
+          based on availability of credit cards. For example, a merchant does
+          not need to know all the cards in a user’s wallet in order for that
+          person to complete a payment.
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h4>
+          In Scope Technologies
+        </h4>
+        <p>
+          Although this document focused primarily on Web-based payment
+          handlers, it does include some discussion of native payment handlers
+          as well (specifically, on Android).
+        </p>
+      </section>
+      <section>
+        <h4>
+          Out of Scope
+        </h4>
+        <p>
+          This threat model does not address the following:
+        </p>
+        <ul>
+          <li>How merchants and payment handlers share data with one another
+          that does not pertain to the user.
+          </li>
+          <li>Security threats, including attacks with the explicit goal to
+          steal identity or money from a user or defraud a merchant.
+          <strong>Note:</strong> We anticipate working on a security analysis
+          distinct from the current document. See also <a href=
+          "https://github.com/w3c/payment-request/issues/903">security analysis
+          findings</a> from a master's thesis.
+          </li>
+        </ul>
+      </section>
+    </section>
+    <section>
+      <h2>
+        Capability Review
+      </h2>
+      <p>
+        The Payment Request API and Payment Handler API provide a set of
+        capabilities to merchants and payment handlers. The Chrome
+        implementation provides additional capabilities. In the descriptions
+        below we label the former "Spec" and the latter "Chrome".
+      </p>
+      <section>
+        <h3>
+          Installation
+        </h3>
+        <dl>
+          <dt>
+            Use Case(s)
+          </dt>
+          <dd>
+            <ul>
+              <li>The provider of a new payment method wants to make it as easy
+              as possible for a user to access a <a>payment handler</a>. The
+              browser can facilitate "just-in-time installation" of a payment
+              handler during a transaction, making the installation process
+              seamless.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Capabilities (Chrome)
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <span id="C1" class="cap">C1</span>: A merchant can cause a
+                web-based payment handler from a specific origin to be
+                just-in-time installed. In this case, the service worker is
+                only installed (1) upon request.show() followed by (2) user
+                selection of this payment handler for this payment request.
+              </li>
+              <li>
+                <span id="C2" class="cap">C2</span>: A first-party website can
+                install a service worker without any user gesture or visible UI
+                —an existing capability of <a href=
+                "https://www.w3.org/TR/service-workers/#navigator-service-worker-register">
+                Service Workers</a>— and register it as a payment handler.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Discussion
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <a href=
+                "https://github.com/w3c/payment-handler/issues/240">Just-in-time
+                payment handler install</a>
+              </li>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1bzhh14E1DuJGYrueFhg87decGwvpPQz7D9mLzW8Yif4/edit?usp=sharing">
+                Payment Handler Just In Time Installation proposal</a>
+              </li>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1nd-zwf4YHxYsNjw5e2wfc4OTa6f-UCmjBxN0cwqr638/edit">
+                Explicit Consent for Payment Handler proposal</a>
+              </li>
+              <li>
+                <a href=
+                "https://github.com/w3c/payment-handler/wiki/2020-Mar-proposed-changes#mandatory-user-interaction-with-payment-handler-window">
+                Mandatory user interaction with payment handler window</a>
+              </li>
+            </ul>
+          </dd>
+        </dl>
+      </section>
+      <section>
+        <h3>
+          Communication between origins
+        </h3>
+        <dl>
+          <dt>
+            Use Case(s)
+          </dt>
+          <dd>
+            <ul>
+              <li>Each payment method defines a data model, including
+              information provided by the merchant to the payment handler, and
+              response data from the payment handler to the merchant (e.g.,
+              card information, a status report after a credit transfer). In
+              addition, payment methods may include data used by the browser as
+              part of determining whether a payment handler can be used for a
+              particular set of merchant conditions.
+              </li>
+              <li>For many merchants, the decision to use Payment Request API
+              for a particular transaction will depend in part on knowing
+              whether the user is "ready to pay" with a minimum of friction.
+              Merchants may choose to fall back to forms or other techniques if
+              they cannot determine that the Payment Request path will likely
+              result in successful payment.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Capabilities (Spec)
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <span id="C3" class="cap">C3</span>: A merchant can send
+                arbitrary data to an installed payment handler (either
+                Web-based or native Android) without any user action or visible
+                UI, via <a href=
+                "https://w3c.github.io/payment-request/#dom-paymentmethoddata-data">
+                method-specific data</a> and <a href=
+                "https://w3c.github.io/payment-request/#hasenrolledinstrument-method">
+                hasEnrolledInstrument</a>
+              </li>
+              <li>
+                <span id="C4" class="cap">C4</span>: A merchant can receive
+                arbitrary data from an installed payment handler (either
+                web-based or native Android) after request.show(), either
+                repeatedly via <a href=
+                "https://w3c.github.io/payment-request/#dom-paymentmethodchangeevent-methoddetails">
+                method-specific details</a> or the final PaymentResponse.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Discussion
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1C_xH-6sJb9UedrvifsvqS_2k_We0IlPSfWFo8Kg54ps/edit">
+                Payment Handler Availability Clarified Proposal</a>
+              </li>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1i9ntZ1lEGyrzCAj1FnR9837u_rBU6vNoG0OZpiILKy0/edit">
+                Cross-origin awareness proposal</a>
+              </li>
+            </ul>
+          </dd>
+        </dl>
+      </section>
+      <section>
+        <h3>
+          Merchant knowledge of user environment
+        </h3>
+        <dl>
+          <dt>
+            Use Case(s)
+          </dt>
+          <dd>
+            <ul>
+              <li>As mentioned above, merchants may choose to fall back to
+              forms or other techniques if they cannot determine that the
+              Payment Request path will likely result in successful payment.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Capabilities
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <span id="C5" class="cap">C5</span>: A merchant can know that
+                payment handlers (matching the <a>payment method
+                identifiers</a> provided by the merchant) are installed or
+                just-in-time installable in the user’s browser without any user
+                gesture or visible UI, by calling <a href=
+                "https://w3c.github.io/payment-request/#canmakepayment-method">request.canMakePayment()</a>.
+                <strong>Note:</strong> canMakePayment() is a specification
+                capability; just-in-time installation is a Chrome capability.
+              </li>
+              <li>
+                <span id="C6" class="cap">C6</span>: A merchant can check
+                whether the user has at least one enrolled instrument for a
+                given set of <a>payment method identifiers</a> without any user
+                gesture or visible UI, by calling <a href=
+                "https://w3c.github.io/payment-request/#hasenrolledinstrument-method">
+                request.hasEnrolledInstrument()</a>. For a web-based payment
+                handler, this triggers a <a href=
+                "https://w3c.github.io/payment-handler/#the-canmakepaymentevent">
+                canMakePaymentEvent</a> in the service worker (to be renamed to
+                "hasEnrolledInstrumentEvent"). <strong>Note</strong>:
+                hasEnrolledInstrument() is a specification capability. The
+                corresponding capability is not currently provided for native
+                Android payment handlers.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Discussion
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1C_xH-6sJb9UedrvifsvqS_2k_We0IlPSfWFo8Kg54ps/edit">
+                Payment Handler Availability Clarified Proposal</a>
+              </li>
+            </ul>
+          </dd>
+        </dl>
+      </section>
+      <section>
+        <h3>
+          Payment Handler browsing context (and its capabilities)
+        </h3>
+        <dl>
+          <dt>
+            Use Case(s)
+          </dt>
+          <dd>
+            <ul>
+              <li>The redirection of users to other Web sites during a
+              transaction is cited as one reason for cart abandonment. Thus,
+              there is a desire to facilitate payment without "leaving the
+              merchant context."
+              </li>
+              <li>Payment handlers can, but are not required to, provide for
+              user input. Use cases such as micropayments or seeking a
+              cryptogram from a token service provider for a card-on-file
+              payment may not necessitate user interaction.
+              </li>
+              <li>Payment handler distributors will want to leverage all or
+              most capabilities of the Web platform, including access to device
+              capabilities, Web authentication, OAUTH, iframes, redirects,
+              etc..
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Capabilities (Spec)
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <span id="C7" class="cap">C7</span>: Following request.show(),
+                a web-based payment handler can create a new <a>top-level
+                browsing context</a>, presented in Chrome as a modal overlay
+                over the merchant context called the <dfn>payment handler
+                window</dfn>. This window prevents the user from interacting
+                with the merchant context until the overlay is dismissed.
+                <strong>Note:</strong> We believe the experience of maintaining
+                the checkout context under the modal window is superior to a
+                redirect.
+              </li>
+              <li>
+                <span id="C8" class="cap">C8</span>: A payment handler (both
+                web-based and native Android) can complete a payment request
+                without showing any user interface. <strong>Note:</strong> It
+                may be impossible to mandate that a native Android payment app
+                show a user interface.
+              </li>
+              <li>
+                <span id="C9" class="cap">C9</span>: Inside its <a>payment
+                handler window</a> a web-based payment handler can access most
+                Web APIs that are available in a top-level context, including
+                storage (e.g. IndexedDB, but not document.cookies), navigating
+                its payment handler window to any origin, embedding iframes,
+                and triggering APIs such as WebAuthn, geolocation, etc.
+                <strong>Note:</strong> Some functionalities are limited: e.g.
+                window.open is ignored.
+              </li>
+            </ul>
+          </dd>
+          <dt>
+            Discussion
+          </dt>
+          <dd>
+            <ul>
+              <li>
+                <a href=
+                "https://docs.google.com/document/d/1novDOVYqgrSjBLKwZX3rUEixQvyxFcfr0O58k6qu6sA/edit#">
+                Read-only before show() proposal</a>
+              </li>
+              <li>
+                <a href=
+                "https://github.com/w3c/payment-handler/wiki/2020-3p-context">Proposal
+                that payment handlers open with 3p context by default</a>
+              </li>
+              <li>
+                <a href="https://crbug.com/1049249">window.open(): noop</a>
+                when called from inside a PH window. Should we also print error
+                to DevTool console?
+              </li>
+              <li>
+                <a href="https://crbug.com/1046957">Download attribute of
+                <code>a</code> element ignored</a>
+              </li>
+            </ul>
+          </dd>
+        </dl>
+      </section>
+    </section>
+    <section>
+      <h2>
+        Attack Analysis
+      </h2>
+      <p>
+        The attack vectors enumerated below can be grouped into several themes:
+      </p>
+      <dl>
+        <dt id="SilentPersistentStorage">
+          SilentPersistentStorage
+        </dt>
+        <dd>
+          This refers to the ability of the payment handler to persist data
+          into local or remote storage without explicit user consent to
+          interact with this payment handler, i.e. during hasEnrolledInstrument
+          and canMakePayment.
+        </dd>
+        <dt id="OpaqueDataTransfer">
+          OpaqueDataTransfer
+        </dt>
+        <dd>
+          This is especially bad when combined with <a href=
+          "#SilentPersistentStorage">SilentPersistentStorage</a> or <a href=
+          "#InvisibleTransaction">InvisibleTransaction</a>.
+        </dd>
+        <dt id="_1PStorageAccess">
+          1PStorageAccess
+        </dt>
+        <dd>
+          This refers to the risks associated with opening a payment handler by
+          default in a first party context.
+        </dd>
+        <dt id="InvisibleTransaction">
+          InvisibleTransaction
+        </dt>
+        <dd>
+          This refers to the payment handler’s ability to complete a
+          transaction without explicit user confirmation. This is particularly
+          harmful if coupled with skip-the-sheet.
+          <p>
+            <strong>Note:</strong>Risk may be lower if user explicitly allowed
+            “no-UI flow” for some use cases. Also consider cross-device payment
+            sheet.
+          </p>
+        </dd>
+        <dt id="NativeAppAs1PStorage">
+          NativeAppAs1PStorage
+        </dt>
+        <dd>
+          TODO: investigate if native app can push some data to the browser so
+          that browser can use this to answer HEI and CMP w/o sending intent to
+          native app.
+        </dd>
+        <dt id="NonPaymentUsage">
+          NonPaymentUsage
+        </dt>
+        <dd>
+          A successful exploit of this surface requires the merchant to phish a
+          user gesture without revealing to the user that a payment request is
+          triggered. See <a href=
+          "https://docs.google.com/document/d/11N2uAUOU3qOaPkv2HQSjSwiZ31rU0ODllzWu1BBYjts/edit">
+          ideas for payment handlers from Adrian Hope-Bailie</a>.
+        </dd>
+      </dl>
+      <p>
+        In the detailed analysis below we relate the threats to these themes.
+      </p>
+      <section>
+        <h3 id="cross-site-tracking">
+          Cross-Site Tracking
+        </h3>
+        <section>
+          <h4 id="zero-click-track-web">
+            Web-based payment handler as a zero-click tracker
+          </h4>
+          <p>
+            badph.example hosts a badph.js file that does the following:
+          </p>
+          <ul>
+            <li>Creates a PaymentRequest that specifies badph.example as a
+            supported method
+            </li>
+            <li>Adds the full URL, i.e. location.href, to the method-specific
+            data of the request (<a href="#C3">C3</a>)
+            </li>
+            <li>Calls request.hasEnrolledInstrument()
+              <ul>
+                <li>badph.example convinces merchant1.example and
+                merchant2.example to serve badph.js via a &lt;script&gt; tag
+                </li>
+                <li>User visits badph.example, which installs its service
+                worker and registers it as a payment handler (<a href=
+                "#C2">C2</a>)
+                </li>
+              </ul>
+            </li>
+            <li>The service worker records a user ID in IndexedDB
+              <ul>
+                <li>User visits merchant1.example. The code from badph.js runs,
+                and request.hasEnrolledInstrument() causes a
+                CanMakePaymentEvent to be triggered in badph.example’s service
+                worker (<a href="#C5">C5</a>)
+                </li>
+                <li>The service worker extracts the full URL from
+                CanMakePaymentEvent.methodData (<a href="#C3">C3</a>), and
+                sends that and the user ID from IndexedDB (<a href=
+                "#C9">C9</a>) to badph.example server.
+                </li>
+                <li>Similarly, when a user visits merchant2.example,
+                badph.example can reidentify the same user.
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>merchant1.example is able to send data to a third party,
+              badph.example, without a clear intention for the user to interact
+              with badph.example. (<a href=
+              "#OpaqueDataTransfer">OpaqueDataTransfer</a>)
+              </li>
+              <li>badph.example’s service worker is able to access its global
+              storage without receiving clear user consent to interact.
+              (<a href="#_1PStorageAccess">1PStorageAccess</a>)
+              </li>
+              <li>A user cannot be reasonably expected to know that their visit
+              to badph.example enables badph.example to record their history
+              across colluding websites, which can be a large set.
+              badph.example can be masquerade itself behind other useful
+              utility that a merchant may want to include: e.g.
+              socialnetwork.example, usefullibrary.example. (<a href=
+              "#SilentPersistentStorage">SilentPersistentStorage</a>)
+              </li>
+              <li>Payment Request API is used when no clear payment intention
+              is established. (<a href="#NonPaymentUsage">NonPaymentUsage</a>)
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigations
+            </h5>
+            <p>
+              Chrome already implements the following limits on
+              hasEnrolledInstrument():
+            </p>
+            <ul>
+              <li>CanMakePaymentEvent is not triggered in incognito mode
+              </li>
+              <li>hasEnrolledInstrument() is throttled to 1 call per 30 minutes
+              per merchant origin. However, this breaks a legitimate use case:
+              a merchant wants to show payment buttons from two legitimate
+              payment methods side-by-side.
+              </li>
+              <li>Chrome offers a setting that allows user to opt-into
+              short-circuiting hasEnrolledInstrument() for all payment handlers
+              </li>
+            </ul>
+            <p>
+              Additional strategy ideas:
+            </p>
+            <ul>
+              <li>Require user to opt-in for each payment handler that wants to
+              respond to hasEnrolledInstrument() as part of explicit payment
+              handler installation experience
+                <ul>
+                  <li>This should eliminate most non-payment websites from
+                  being able to exploit Payment Request API.
+                  </li>
+                  <li>Still won’t be able to prevent real payment handlers to
+                  track user’s browsing history on shopping websites.
+                  </li>
+                </ul>
+              </li>
+              <li>Remove hasEnrolledInstrument()
+                <ul>
+                  <li>Breaks legitimate use case of showing payment buttons.
+                  The fundamental tension is that the data passed between
+                  merchant and payment handler is not standardized (and may be
+                  hard to) and is opaque to the browser, so it is very
+                  difficult for the browser to determine which calls are only
+                  passing legitimate data and which ones are sneaking in
+                  tracking data.
+                  </li>
+                </ul>
+              </li>
+              <li>Service worker can only access 3P storage before
+              request.show(), which requires a user gesture which may serve as
+              an intent to interact
+                <ul>
+                  <li>Breaks legitimate use case of showing payment buttons
+                  because hasEnrolledInstrument() no longer has access to a
+                  user ID that it can use to check instrument availability.
+                  </li>
+                </ul>
+              </li>
+              <li>Per-method quota
+                <ul>
+                  <li>See <a href="#browser-fingerprinting">browser
+                  fingerprinting</a>
+                  </li>
+                </ul>
+              </li>
+              <li>Prompt user on hasEnrolledInstrument, e.g. “merchant.example
+              wants to check if you can pay with ph.example: Allow Once,
+              Disallow, Always Allow on merchant.example, Always Disallow on
+              merchant.example”
+                <ul>
+                  <li>Very intrusive. May discourage the use of
+                  hasEnrolledInstrument()
+                  </li>
+                </ul>
+              </li>
+              <li>Browser uses telemetry to detect origins that call
+              hasEnrolledInstrument() but never call request.show() and black
+              list known bad behaviors
+                <ul>
+                  <li>Caveat: easy to blacklist merchant\*.example but harder
+                  to blacklist badph.example because telemetry records main
+                  resource origin, not subresource origin.
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h4 id="zero-click-track-native">
+            Native Android app based payment handler as a zero-click tracker
+          </h4>
+          <p>
+            Same steps as for a web-based payment handler regarding a <a href=
+            "#zero-click-track-web">Web-based zero-click track attack</a>,
+            except:
+          </p>
+          <ul>
+            <li>User installs an Android app published by badph.example
+            (possibly masquerading as a useful tool, a game, etc.)
+            </li>
+            <li>The hasEnrolledInstrument() call triggers an IS_READY_TO_PAY
+            intent to badph.example’s Android app.
+            </li>
+            <li>The Android app links the full URL and user identity within the
+            app, and either saves it locally or sends to badph.example server.
+            </li>
+          </ul>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>A locally installed Android app acts as its own global
+              storage across contexts (<a href=
+              "#NativeAppAs1PStorage">NativeAppAs1PStorage</a>)
+              </li>
+              <li>A user cannot be reasonably expected to know that any Android
+              app can be a tracker of their web browsing activities.
+                (<a href="#SilentPersistentStorage">SilentPersistentStorage</a>)
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigations
+            </h5>
+            <ul>
+              <li>Require explicit user opt-in for native Android app to act as
+              payment handler in browser
+                <ul>
+                  <li>This should eliminate most non-payment apps from being
+                  able to exploit Payment Request API
+                  </li>
+                  <li>Remaining gap: payment apps can still track users across
+                  shopping websites.
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h4 id="one-click-track">
+            One-click tracking by payment handler
+          </h4>
+          <p>
+            badph.example hosts a badph.js file that does the following:
+          </p>
+          <ul>
+            <li>Creates a PaymentRequest that specifies badph.example as a
+            supported method
+            </li>
+            <li>Adds the full URL, i.e. location.href, to the method-specific
+            data of the request (<a href="#C3">C3</a>)
+            </li>
+            <li>Creates a button that calls request.show() when clicked
+            </li>
+          </ul>
+          <p>
+            badph.example convinces merchant1.example and merchant2.example to
+            serve badph.js via a &lt;script&gt; tag. Then:
+          </p>
+          <ul>
+            <li>User visits merchant1.example and clicks on the button created
+            by badph.js. This triggers request.show() which causes the
+            following to happen:
+              <ul>
+                <li>A web-based payment handler from badph.example to be
+                installed (<a href="#C1">C1</a>)
+                </li>
+                <li>A <a href=
+                "https://w3c.github.io/payment-handler/#the-paymentrequestevent">
+                  PaymentRequestEvent</a> to be triggered in badph.example’s
+                  service worker. The service worker reads a user ID from
+                  IndexedDB (#C9), or writes a new one if there isn’t already
+                  one. The service worker extracts the full URL from
+                  PaymentRequestEvent.methodData (<a href="#C3">C3</a>)), and
+                  sends that and the user ID to badph.example server.
+                </li>
+              </ul>
+            </li>
+            <li>User visits merchant2.example and click on the badph.js button
+            again.
+            </li>
+            <li>badph.example service worker reads user ID from IndexedDB
+            (<a href="#C9">C9</a>), identifies the user, and records the new
+            merchant2.example URL in this user’s profile.
+            </li>
+          </ul>
+          <p>
+            This attack is less dangerous than a <a href=
+            "#zero-click-track-web">Web-based zero-click track attack</a>
+            because it requires tricking the user to click on something. On the
+            other hand, request.show() is not subject to throttling like
+            hasEnrolledInstrument().
+          </p>
+          <p>
+            <strong>Note:</strong> The steps above refer to a Web-based payment
+            handler, but the same attack can be performed with a native Android
+            payment handler.
+          </p>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>The click target may not reveal anything related to
+              badph.example. (<a href="#NonPaymentUsage">NonPaymentUsage</a>)
+              </li>
+              <li>A user cannot be reasonably expected to know that a simple
+              click can enable tracking by a third party, especially that no UI
+              from badph.example is ever shown to the user. (<a href=
+              "#SilentPersistentStorage">SilentPersistentStorage</a>)
+              </li>
+              <li>The service worker has access to 1P storage without a user’s
+              clear intent to interact. (<a href=
+              "#_1PStorageAccess">1PStorageAccess</a>)
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigations
+            </h5>
+            <ul>
+              <li>Storage access mitigation: only grant 1P storage access to
+              payment handler service worker after running the <a href=
+              "https://github.com/w3c/payment-handler/issues/351#issuecomment-566642121">
+                open window algorithm</a>, which implicitly requests <a href=
+                "https://developer.mozilla.org/en-US/docs/Web/API/Storage_Access_API">
+                Storage Access</a>.
+                <ul>
+                  <li>This increases the likelihood of user suspicion: user
+                  clicks on something and a window pops up. If browsers do a
+                  good job explaining what this UI is meant for (e.g. by add a
+                  “What is this?” info to the UI), and potentially offer the
+                  user an option to report surprises, then it should
+                  disincentivize the use of this attack.
+                  </li>
+                </ul>
+              </li>
+              <li>Insert browser UI to ask the user, “Do you want to proceed to
+              pay with ph.example?” with option to “Don’t ask me again for
+              ph.example”
+              </li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h4 id="one-click-track-storage">
+            One-click tracking by web-based payment handler under Storage
+            Access Mitigation
+          </h4>
+          <p>
+            Same steps 1-3 as <a href="#one-click-track">one-click tracking by
+            a payment handler</a>. Because of the storage access mitigation,
+            badph.example’s service worker only has access to 3P storage at
+            this point. Then:
+          </p>
+          <ul>
+            <li>badph.example’s service worker calls
+            paymentrequestevent.openWindow() (<a href="#C7">C7</a>) to request
+            1P access. Browser has the discretion to grant this without
+            explicit prompting, depending on prior settings (e.g. user did not
+            opt-out of “stay signed in” when badph.example’s payment handler
+            was installed).
+            </li>
+            <li>badph.example’s service worker looks up user’s 1P ID from
+            IndexedDB (<a href="#C9">C9</a>) and links it to data sent by
+            badph.js, e.g. full URL of the current merchant1.example page user
+            is visiting.
+            </li>
+            <li>badph.example’s service worker quickly closes the payment
+            handler window. So the user only sees a flash.
+            </li>
+            <li>User visits merchant2.example and sees a quick flash because
+            badph.example uses the same technique to gain access to 1P storage
+            and records user’s merchant2.example full URL.
+            </li>
+          </ul>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>badph.example’s service worker is able to close a payment
+              handler window without user interaction. This is against the
+              purpose of the payment handler window which is to offer user an
+              opportunity to interact. (<a href=
+              "#SilentPersistentStorage">SilentPersistentStorage</a> or nearly
+              so)
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigation
+            </h5>
+            <ul>
+              <li>Require a user interaction before closing a payment handler
+              window.
+              </li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h4 id="zero-click-join">
+            Zero-click joining of stable IDs between merchant and payment
+            handler
+          </h4>
+          <ul>
+            <li>badph.example convinces merchant.example to host a badph.js
+            (see <a href="#zero-click-track-web">Web-based payment handler as a
+            zero-click tracker</a>).
+            </li>
+            <li>User visits merchant.example, which runs badph.js that:
+              <ul>
+                <li>Inserts user’s ID in merchant.example domain to
+                method-specific data (<a href="#C3">C3</a>)
+                </li>
+                <li>Transfers it to badph.example’s service worker via
+                request.hasEnrolledInstrument()
+                </li>
+              </ul>
+            </li>
+            <li>badph.example’s service worker reads badph.example ID for the
+            user from IndexedDB (<a href="#C9">C9</a>), and sends that and the
+            merchant.example domain ID to badph.example server.
+            </li>
+            <li>A party with access to the server logs of both merchant.example
+            and badph.example can link the two sets of activities together.
+            </li>
+          </ul>
+          <p>
+            This attack is a minor variation of <a href=
+            "#zero-click-track-web">Web-based payment handler as a zero-click
+            tracker</a> and is less severe because it requires that the
+            attacker to also have access to the server logs of both
+            badph.example and merchant.example. The same mitigation strategies
+            are also effective.
+          </p>
+        </section>
+      </section>
+      <section>
+        <h3 id="secondary-use">
+          Secondary Use
+        </h3>
+        <section>
+          <h4 id="zero-click-collection">
+            Zero-click collection of user activity by legitimate payment
+            handlers
+          </h4>
+          <ul>
+            <li>Legitimate digital wallet provider, wallet.example, integrates
+            with merchant.example, which sources a wallet.js from
+            wallet.example.
+            </li>
+            <li>merchant.example enables one-click purchases via wallet.js as
+            follows:
+              <ul>
+                <li>wallet.js creates a PaymentRequest with no information
+                about the product or total payment amounts (assuming
+                merchant.example and wallet.example both follow best practices)
+                </li>
+                <li>wallet.js calls request.hasEnrolledInstrument() to
+                determine if the user is able to complete a seamless
+                transaction.
+                </li>
+                <li>If hasEnrolledInstrument() returns true, wallet.js renders
+                a “Buy now with wallet.example” button.
+                </li>
+              </ul>
+            </li>
+            <li>When the user browses to a product page on merchant.example:
+              <ul>
+                <li>wallet.example’s service worker receives the
+                CanMakePaymentEvent triggered by hasEnrolledInstrument(). It
+                learns that user is browsing merchant.example origin (though it
+                doesn’t have access to the full URL)It extracts
+                merchant.example origin from <a href=
+                "https://w3c.github.io/payment-handler/#the-canmakepaymentevent">
+                  CanMakePaymentEvent.topOrigin</a> and sends it to
+                  wallet.example’s backend to determine if this is a legitimate
+                  merchant that it should support.
+                </li>
+                <li>User decides to not proceed with the purchase.
+                Nevertheless, wallet.example knows that the user considered
+                something on merchant.example.
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <p>
+            The same attack can be performed by a native Android app based
+            payment handler.
+          </p>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>merchant.example origin is shared with wallet.example in
+              CanMakePaymentEvent (<a href=
+              "#OpaqueDataTransfer">OpaqueDataTransfer</a>)
+              </li>
+              <li>However, this is required for origin-based merchant
+              validation
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigations
+            </h5>
+            <ul>
+              <li>Reduce the amount of data that is shared with the payment
+              handler.
+              </li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h4 id="one-click-no-ui">
+            One-click collection of detailed user information without UI
+          </h4>
+          <ul>
+            <li>A user creates an account with wallet.example and enters
+            personal information.
+            </li>
+            <li>merchant.example accepts a payment method for which
+            wallet.example can be used.
+            </li>
+            <li>User visits merchant.example and clicks on “get a quote”, which
+            in fact creates a PaymentRequest.
+            </li>
+            <li>merchant.example <a href=
+            "https://w3c.github.io/payment-request/#dom-paymentoptions">requests
+            shipping and contact information</a>.
+            </li>
+            <li>merchant.example calls request.show()
+            </li>
+            <li>If “skip-the-sheet” conditions are met (i.e. only one URL-based
+            payment method is requested and a payment handler is already
+            installed), wallet.example’s service worker receives
+            PaymentRequestEvent
+            </li>
+            <li>The service worker looks up user ID from IndexedDB and fetches
+            user information from wallet.example’s backend, e.g. name, address,
+            etc.
+            </li>
+            <li>wallet.example’s service worker sends user information back to
+            merchant.example via PaymentHandlerResponse (#C4) without opening a
+            payment handler window (<a href="#C8">C8</a>). This step can also
+            be accomplished by the service worker sending data back via
+            PaymentMethodChangeEvent (<a href="#C4">C4</a>).
+            </li>
+            <li>merchant.example completes the payment using user’s payment
+            information.
+            </li>
+          </ul>
+          <p>
+            <strong>Note:</strong> The steps above refer to a Web-based payment
+            handler, but the same attack can be performed with a native Android
+            payment handler.
+          </p>
+          <section>
+            <h5>
+              Failure points
+            </h5>
+            <ul>
+              <li>A user cannot be reasonably expected to know that a single
+              click can enable wallet.example to send sensitive information to
+              merchant.example as there may not be any visible indication that
+              wallet.example is involved at all. (<a href=
+              "#InvisibleTransaction">InvisibleTransaction</a>)
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigation
+            </h5>
+            <ul>
+              <li>Insert browser UI upon request.show() to ask “Do you want to
+              proceed to pay with wallet.example?” with option to “Don’t ask in
+              the future for wallet.example”. This works for both web-based and
+              native Android app based payment handlers.
+              </li>
+              <li>Require a user interaction inside of a payment handler window
+              before returning data (e.g. via PaymentMethodChangeEvent or
+              PaymentHandlerResponse). Reject the request otherwise. This
+              doesn’t work for native Android app based payment handlers
+              because the browser cannot mandate UI by a native app.
+              </li>
+            </ul>
+          </section>
+        </section>
+      </section>
+      <section>
+        <h3 id="browser-fingerprinting">
+          Browser Fingerprinting
+        </h3>
+        <section>
+          <h4 id="zero-click-fingerprint">
+            Zero-click collection of of payment method / instrument support as
+            fingerprinting bits
+          </h4>
+          <ul>
+            <li>merchant.example iterates over each known payment method and
+            method-specific instrument filter. For each configuration, creates
+            a PaymentRequest and calls request.hasEnrolledInstrument().
+            </li>
+            <li>merchant.example builds a bitvector using results from the
+            previous step and use it as additional signals to fingerprint the
+            user.
+            </li>
+          </ul>
+          <p>
+            The effectiveness of this attack to uniquely identify a user
+            depends on three factors:
+          </p>
+          <ol>
+            <li>The number of bits that can be collected, which is a function
+            of the existing payment methods and filter configurations (e.g.
+            filter by credit card networks)
+            </li>
+            <li>The speed of collection, which depends on browser’s throttling
+            of hasEnrolledInstrument() calls.
+            </li>
+            <li>The population size of PaymentRequest users: fewer users means
+            a given bitvector is more uniquely identifying.
+            </li>
+          </ol>
+          <p>
+            At the time of writing, the total number of configurations that
+            exists today is C = M \* N + P, where:
+          </p>
+          <ul>
+            <li>
+              <b>M</b> = # of payment methods backed by credit cards = 3 (i.e.
+              basic-card, https://google.com/pay, https://apple.com/apple-pay)
+            </li>
+            <li>
+              <b>N</b> = # of credit card networks ~= 8 (See <a href=
+              "https://source.chromium.org/chromium/chromium/src/+/master:components/payments/core/payment_request_data_util.cc;l=100-102">
+              list</a>.)
+            </li>
+            <li>
+              <b>P</b> = # of non-credit-card backed payment methods ~= 0
+            </li>
+          </ul>
+          <p>
+            This gives a rough estimate of C = 24, i.e. merchant.example can
+            build a 24-bit vector to fingerprint the user, as an upper bound.
+            The actual information should be less because:
+          </p>
+          <ul>
+            <li>Some bits are correlated: e.g. basic-card and
+            https://apple.com/apple-pay bits are mutually exclusive due to
+            browser support. So M in practice is likely 2
+            </li>
+            <li>The credit card network bits probably correlate strongly with
+            country, so actual unique networks per country is probably N ~= 3-4
+            (e.g. visa, mastercard, amex, discover)
+            </li>
+          </ul>
+          <p>
+            So a more realistic estimate may be C = 8 bits of actual
+            information. C will also grow as more payment methods become
+            available (e.g. src, other URL-based payment methods), i.e.
+            increasing P value.
+          </p>
+          <section>
+            <h5>
+              Identifying power as a function of population size and C
+            </h5>
+            <p>
+              The table below is a model of the “identifying power” of this
+              fingerprinting vector, measured by the number of uses per bucket,
+              as a function of C and Payment Request API user population size
+              (P):
+            </p>
+            <table border='1'>
+              <caption>
+                Payment Request API Unique Users (P)
+              </caption>
+              <tr>
+                <th></th>
+                <th>
+                  P = 100K
+                </th>
+                <th>
+                  P = 1M
+                </th>
+                <th>
+                  P = 100M
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  C = 8 (today)
+                </td>
+                <td>
+                  400
+                </td>
+                <td>
+                  4000
+                </td>
+                <td>
+                  400K
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  C = 9
+                </td>
+                <td>
+                  200
+                </td>
+                <td>
+                  2000
+                </td>
+                <td>
+                  200K
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  C = 10
+                </td>
+                <td>
+                  100
+                </td>
+                <td>
+                  1000
+                </td>
+                <td>
+                  100K
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  C = 11
+                </td>
+                <td>
+                  50
+                </td>
+                <td>
+                  500
+                </td>
+                <td>
+                  50K
+                </td>
+              </tr>
+            </table>
+            <p>
+              This means that today, when Payment Request API is not yet widely
+              used, with C = 8, hasEnrolledInstrument() can narrow users down
+              to 400-person buckets. This may be small enough to be worrisome.
+            </p>
+          </section>
+        </section>
+        <section>
+          <h4 id="throttling">
+            Impact of throttling on fingerprinting
+          </h4>
+          <p>
+            Chrome throttles hasEnrolledInstrument() to 1 call every 30 minutes
+            per merchant origin. This makes the attack not very useful for
+            websites that a user only visits occasionally because they wouldn’t
+            be able to build up a full bitvector without reasonable amount
+            time.
+          </p>
+          <p>
+            Time required to build a full bitvector:
+          </p>
+          <ul>
+            <li>If the user stays on a website: 128 hours = 5 days
+            </li>
+            <li>If the user visits a website for 1 hour/day: 128 days
+            </li>
+            <li>If the user visits a website for 2 hours/day: 64 days
+            </li>
+          </ul>
+          <p>
+            Adding more payment methods will make the bitvector longer,
+            increasing its identifying power for a given population size, but
+            increases the time required to build up the vector.
+          </p>
+          <p>
+            Our conclusion is that, as is, hasEnrolledInstrument() is not a
+            very useful fingerprinting tool.
+          </p>
+        </section>
+        <section>
+          <h4>
+            Impact of per-method quota for hasEnrolledInstrument()
+          </h4>
+          <p>
+            The hasEnrolledInstrument() quota creates a problem for merchants:
+            if a legitimate merchant wants to offer a “Buy now with
+            wallet1.example” button side by side with a “Buy now with
+            wallet2.example” button, the quota will cause one of the calls to
+            reject and hence not display the button. A proposed solution is to
+            change the quota to allow 1 call per payment method per 30 minutes
+            per merchant origin. Currently page visibility is not used as part
+            of the time quota, so a user who leaves a tab open in the
+            background is prone to this attack.
+          </p>
+          <p>
+            With per method quota, the limiting factor for a merchant to
+            collect all the bits is only N, which is ~4 in a given country
+            (because M & P can be computed in parallel). Time required to build
+            a full bitvector of equivalent identifying power as C=8 above:
+          </p>
+          <ul>
+            <li>If user stays on a website: 4 bits / ( 1 bit / 0.5 hours) ~= 2
+            hours
+            </li>
+            <li>If user visits a website for 1 hour/day: 2 days
+            </li>
+            <li>If user visits a website for 2 hours/day: 1 day
+            </li>
+          </ul>
+          <p>
+            A possible attack:
+          </p>
+          <ul>
+            <li>merchant.example sees a new user (i.e. no merchantUserID in
+            local storage), assigns merchantUserID and starts iterating over
+            the bits
+            </li>
+            <li>After 4 days, merchant.example looks up bitvector in their DB
+            and found 400 users with the same bitvector. So merchantUserID is
+            likely one of the 400 users.
+            </li>
+            <li>If the user clears their local storage, merchant.example can
+            reidentify the user to within a 400-people group after 4 days.
+            </li>
+          </ul>
+          <section>
+            <h5>
+              Failure Points
+            </h5>
+            <ul>
+              <li>hasEnrolledInstrument() reveals identifying bits about a user
+              without user gesture or any visible UI.
+              </li>
+              <li>The payment handler is able to persist data points across
+              multiple visits. (<a href=
+              "#SilentPersistentStorage">SilentPersistentStorage</a>)<?li>
+              </li>
+            </ul>
+          </section>
+          <section>
+            <h5>
+              Mitigations
+            </h5>
+            <ul>
+              <li>Prevent a payment handler from persisting data to storage
+              when it has not been explicitly selected by the user.
+              </li>
+            </ul>
+          </section>
+        </section>
+      </section>
+    </section>
+    <section id="faq">
+      <h2>
+        FAQ
+      </h2>
+      <section>
+        <h3>
+          Who can install a payment handler without user interaction?
+        </h3>
+        <p>
+          The origin that hosts a payment handler (e.g. ph.example) can install
+          a service worker and register it as payment handler when a user
+          visits ph.example as a first party. See <a href="#C6">C6</a>.
+        </p>
+        <p>
+          Mitigation:<?p>
+        </p>
+        <ul>
+          <li>Introduce friction at payment handler registration time to
+          mitigate zero- and 1-click concerns named above.
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h3>
+          Can origin X trigger payment handler installation from origin Y
+          without user awareness?
+        </h3>
+        <p>
+          Yes, in the current implementation of Chrome:
+        </p>
+        <ul>
+          <li>X creates a PaymentRequest that only requests supportedMethod=Y
+          </li>
+          <li>Browser just-in-time implementation crawls payment method
+          manifest at Y, and finds a payment handler hosted at Y
+          </li>
+          <li>User clicks on something in X, that triggers request.show()
+          </li>
+          <li>Y payment handler is now installed [skip the sheet] and can
+          complete the request without showing UI
+          </li>
+        </ul>
+        <p>
+          Mitigation:
+        </p>
+        <ul>
+          <li>Skip-the-sheet should only work on installed payment handlers,
+          not available to JIT PH.
+          </li>
+          <li>See the <a href=
+          "https://bit.ly/PaymentRequestSkipTheSheet">skip-the-sheet
+          proposal</a>
+          </li>
+        </ul>
+        <p>
+          <strong>Note:</strong> At their <a href=
+          "https://www.w3.org/2020/04/01-wpwg-minutes.html#item01">1 April 2020
+          meeting</a>, WPWG participants expressed strong support for providing
+          consistent skip-the-sheet behavior across browsers.
+        </p>
+      </section>
+      <section>
+        <h3>
+          How can illegitimate seamlessly-installed payment handlers be
+          filtered out?
+        </h3>
+        <p>
+          With some difficulty. So current thought is to move away from
+          seamlessly installed payment handlers and rely on user’s brand
+          recognition to filter out most of illegitimate payment handlers.
+          Longer term, we can also imagine using a safe-browsing type approach:
+          filter out any known bad origins, and use telemetry to detect likely
+          bad actors (e.g. high trigger frequency with zero completion rate,
+          never showing UI, etc.)
+        </p>
+        <p>
+          <strong>TODO:</strong> Definition of illegitimate PH, possibly based
+          on behavior that falls within the identified scope.
+        </p>
+      </section>
+      <section>
+        <h3>
+          Are there payment handlers where canMakePayment is always true?
+        </h3>
+        <p>
+          In Chrome there are currently two cases where the payment handler is
+          not pinged and canmakepayment event returns true:
+        </p>
+        <ul>
+          <li>User is browsing in incognito mode
+          </li>
+          <li>User disables “Allow sites to check if you have payment methods
+          saved” in chrome://settings. The default is enabled, and we don’t
+          currently advertise this setting so most users probably don’t know
+          how to use this.
+          </li>
+        </ul>
+        <p>
+          Going forward, it may be useful to allow user to configure this per
+          payment handler (perhaps as part of the onboarding process) and make
+          this setting more visible. See the <a href=
+          "https://docs.google.com/document/d/1C_xH-6sJb9UedrvifsvqS_2k_We0IlPSfWFo8Kg54ps/edit">
+          payment handler availability clarified proposal</a>.
+        </p>
+      </section>
+      <section>
+        <h3>
+          Can there be a distinction made between payment handlers that can
+          share sensitive info and those that cannot?
+        </h3>
+        <p>
+          Possibly. The shipping delegation feature adds ability for payment
+          handler to declare that they handle shipping addresses and/or contact
+          information. But there are two challenges: 1) ultimately all payment
+          information is sensitive 2) a uncooperating payment handler can hide
+          arbitrary data using the method-specific data blob, which is opaque
+          to the browser.
+        </p>
+      </section>
+    </section>
+    <section id="dependencies">
+      <h2>
+        Dependencies
+      </h2>
+      <dl>
+        <dt>
+          Target Privacy Threat Model
+        </dt>
+        <dd>
+          <a href="https://w3cping.github.io/privacy-threat-model">Target
+          Privacy Threat Model</a> defines the following: <dfn data-lt=
+          "user IDs"><a href=
+          "https://w3cping.github.io/privacy-threat-model/#user-id">user
+          ID</a></dfn>, <dfn><a href=
+          "https://w3cping.github.io/privacy-threat-model/#hl-recognition-same-site">
+          super-cookie</a></dfn>, <dfn><a href=
+          "https://w3cping.github.io/privacy-threat-model/#secondary-use">secondary
+          use</a></dfn>.
+        </dd>
+        <dt>
+          Tracking Preference Expression (DNT)
+        </dt>
+        <dd>
+          [[tracking-dnt]] defines the following: <dfn data-cite=
+          "tracking-dnt#dfn-context">context</dfn>, <dfn data-cite=
+          "tracking-dnt#dfn-first-party">first party</dfn>, <dfn data-cite=
+          "tracking-dnt#dfn-tracking">tracking</dfn>.
+        </dd>
+        <dt>
+          HTML
+        </dt>
+        <dd>
+          [[html]] defines the following: <dfn data-cite=
+          "html#origin">origin</dfn>, <dfn data-cite=
+          "html#top-level-browsing-context">top-level browsing context</dfn>.
+        </dd>
+        <dt>
+          Mitigating Browser Fingerprinting in Web Specifications
+        </dt>
+        <dd>
+          [[fingerprinting-guidance]] defines the following: <dfn data-cite=
+          "fingerprinting-guidance//#browser-fingerprinting">browser
+          fingerprinting</dfn>.
+        </dd>
+        <dt>
+          Payment Method Identifiers
+        </dt>
+        <dd>
+          [[payment-method-id]] defines the following: <dfn data-lt=
+          "payment-method-identifiers" data-cite=
+          "payment-method-id#payment-method-identifiers-pmis">payment method
+          identifier</dfn>.
+        </dd>
+        <dt>
+          Payment Handler API
+        </dt>
+        <dd>
+          [[payment-handler]] defines the following: <dfn data-cite=
+          "payment-handler#payment-handler">payment handler</dfn>.
+        </dd>
+        <dt>
+          A Potential Privacy Model for the Web
+        </dt>
+        <dd>
+          <a href="https://github.com/michaelkleber/privacy-model">A Potential
+          Privacy Model for the Web</a> defines the following: <dfn data-lt=
+          "global static identifiers"><a href=
+          "https://github.com/michaelkleber/privacy-model">global static
+          identifier</a></dfn>.
+        </dd>
+      </dl>
+    </section>
+    <section id="resources">
+      <h2>
+        Additional Resources
+      </h2>
+      <ul>
+        <li>
+          <a href="https://webkit.org/tracking-prevention-policy/">WebKit
+          Tracking Prevention Policy</a>
+        </li>
+        <li>
+          <a href=
+          "https://wiki.mozilla.org/Security/Anti_tracking_policy">Mozilla
+          Security/Anti tracking policy</a>
+        </li>
+        <li>
+          <a href="https://github.com/michaelkleber/privacy-model">A Potential
+          Privacy Model for the Web</a>
+        </li>
+        <li>
+          <a href=
+          "https://developers.google.com/web/fundamentals/payments/payment-apps-developer-guide/android-payment-apps">
+          Android app as a payment handler</a>
+        </li>
+        <li>
+          <a href=
+          "https://developer.apple.com/documentation/apple_pay_on_the_web/">Apple
+          Pay on the Web</a>
+        </li>
+        <li>
+          <a href=
+          "https://wholeftopenthecookiejar.com/static/tpc-paper.pdf">Who Left
+          Open the Cookie Jar</a>
+        </li>
+        <li>
+          <a href=
+          "https://www.w3.org/blog/wpwg/2020/01/17/working-with-canmakepayment-and-hasenrolledinstrument/">
+          Working with canMakePayment and hasEnrolledInstrument</a>
+        </li>
+      </ul>
+    </section>
+  </body>
+</html>
