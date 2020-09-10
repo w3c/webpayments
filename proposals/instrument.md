@@ -91,15 +91,17 @@ One goal is to define a minimal payment credential data model that can be used a
 * Authentication credentials
   * credentialID(s). This might be WebAuthn credential IDs. But see below for notes on supporting other authentication protocols.
 
-## Payment Credential Storage Design Considerations
+## Design Considerations
+
+### Payment Credential Storage 
 
 * The party that owns the payment credential must be able to delete it when the user is in a 1p context.
 
 * The party that owns the payment credential must be able to update it when the user is in a 1p context.
 
-## SPC Design Considerations
+## SPC 
 
-Some of these considerations have arisen through discussion of payment credential selection.
+Some of these considerations have arisen through discussion of payment credential selection. These may be more about SPC authentication than instrument selection.
 
 * The system should support use cases where there is no authentication after selection of an instrument.
 
