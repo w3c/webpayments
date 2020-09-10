@@ -19,11 +19,12 @@ The current document intends to support discussion of how to re-introduce paymen
 ## Storage Scenarios
 
 Different parties, in different flows, may wish to store payment credentials.
-The expectation is that during Payment Request API, the browser would display payment credentials (matching the payment methods accepted by the merchant) from all of these sources.
+During Payment Request API, the browser would display payment credentials (matching the payment methods accepted by the merchant) from all of these sources.
 
 ### Payment App
 
-In these use cases, the payment app registers a payment credential with the browser (e.g., through the Payment Handler API). Benefits of this approach:
+In these use cases, the payment app registers a payment credential
+with the browser. Benefits of this approach:
 
 * Payment apps can add, update, or delete payment credentials when the user is interacting with the app.
 * Payment apps can communicate with servers (e.g., to fetch a nonce for authentication).
@@ -95,9 +96,11 @@ One goal is to define a minimal payment credential data model that can be used a
 
 ### Payment Credential Storage 
 
-* The party that owns the payment credential must be able to delete it when the user is in a 1p context.
+* Any origin can register a payment credential. Ideally, the same API could be used by payment apps and merchants (and thus, the capability might not belong in the Payment Handler API).
 
-* The party that owns the payment credential must be able to update it when the user is in a 1p context.
+* The origin that registered the credential can delete or update it when the user is in a 1p context.
+
+
 
 ## SPC 
 
