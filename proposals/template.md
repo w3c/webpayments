@@ -56,7 +56,11 @@ enumerate them here. This section may be fleshed out as your design progresses a
 
 ## Assumptions
 
+[What assumptions about the market, user environment, regulatory environment, or other context should be made explicit in order to help understand various perspectives?]
+
 ## Requirements and Constraints
+
+[If known, what are requirements or constraints on designs?]
 
 ## Stakeholder Feedback / Opposition
 
