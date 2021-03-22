@@ -95,7 +95,7 @@
     <p>The mission of the Web Payments Working Group is to make payments easier and more secure on the Web.</p>
 
     <p>The group is chartered to develop multiple technologies. This document describes an architecture and a set
-        of roles in that architecture that, together, faciliatate the group's mission.</p>
+        of roles in that architecture that, together, facilitate the group's mission.</p>
 
     <p>This intentionally describes components by their role, acknowledging that different implementations
         may result in multiple roles being adopted by a single system component. No specifics are defined about how
@@ -138,7 +138,7 @@
             they will never have a standardized payment experience and the majority of the time that experience is
             driven by the payee.</p>
 
-        <p>Further, there is no standardized mechanism to estabilsh a bi-directional channel of communcation between the
+        <p>Further, there is no standardized mechanism to establish a bi-directional channel of communication between the
             payer (or their service provider) and the payee (or their service provider) which could be used to exchange
             payment details and credentials in a more secure manner or negotiate the use of an entirely new payment
             method.</p>
@@ -154,7 +154,7 @@
             architecture doesn't allow for user data to be leaked to the payee system.</p>
 
         <p>To protect the payer's privacy the architecture defines the role of a <a>payment mediator</a> that sits
-            between the payer and payee mediating the initial handshake between them and conencting the requesting
+            between the payer and payee mediating the initial handshake between them and connecting the requesting
             payee system with an appropriate payer payment app.</p>
     </section>
 </section>
@@ -176,7 +176,7 @@
         <dd>A <dfn data-lt="payment request|payment requests">payment request</dfn> is a request from a payee to be paid.
             It contains the details of <em>what</em> to pay and <em>how</em> the payment can be made. <em>How</em> the
             payment can be made is specified as a list of <a>payment method identifiers</a>. The payment request MUST
-            conatin all of the <a>payment method data</a> required for each <a>payment method</a> identified in it's set
+            contain all of the <a>payment method data</a> required for each <a>payment method</a> identified in it's set
             of <em>supported payment methods</em>.
         </dd>
         <dt>Payment Response</dt>
@@ -200,7 +200,7 @@
         </dd>
         <dt>Payment Method Data</dt>
         <dd><a>Payment requests</a> and <a>payment responses</a> have a limited set of data elements that are common to
-            all payments, irresepective of the payment method. However <a>payment methods</a> can define additional
+            all payments, irrespective of the payment method. However <a>payment methods</a> can define additional
             custom data that is specific to that <a>payment method</a>. This custom data is called
             <dfn>payment method data</dfn>.
         </dd>
@@ -211,7 +211,7 @@
             that <a>payment method</a>.
         </dd>
         <dt>Payment Method Identifiers</dt>
-        <dd><dfn data-lt="payment method identifier|payment method identifiers">Payment Method Identfiers</dfn> are
+        <dd><dfn data-lt="payment method identifier|payment method identifiers">Payment Method Identifiers</dfn> are
             defined in [[!METHOD-IDENTIFIERS]]</dd>
     </dl>
 </section>
@@ -303,7 +303,7 @@
         available <a>payment apps</a> to determine which <a>payment apps</a> to offer the payer to use to process the
         <a>payment request</a>.</p>
     <p><a>Payment method identifiers</a> support distributed extensibility, meaning that there is not a central
-        machine-readable registry to discover or register <a>payment methods</a>. Rather, any perosn or entity can
+        machine-readable registry to discover or register <a>payment methods</a>. Rather, any person or entity can
         define a new <a>payment method</a> as long as they publish a <a>payment method specification</a> that defines:
     </p>
     <ol>
@@ -446,7 +446,7 @@
         </section>
         <section>
             <h3>Extension Points</h3>
-            <p>The following extension points are defined for implemntation specific processing.</p>
+            <p>The following extension points are defined for implementation specific processing.</p>
             <section>
                 <h4>Selecting a Payment Method</h4>
                 <p>
@@ -472,7 +472,7 @@
                     user interaction or communication with other systems or components. This will be defined, either
                     explicitly or implicitly, in the appropriate <a>payment method specification</a>. The payment app
                     MUST return a <a>payment response</a> that contains the appropriate <a>payment method data</a> for the
-                    <a>payment method</a> identifed by the <a>payment method identifier</a> passed as input to the process.
+                    <a>payment method</a> identified by the <a>payment method identifier</a> passed as input to the process.
                 </p>
             </section>
         </section>
@@ -514,13 +514,13 @@
                 <div class="issue" data-number="" title="Determine the correct matching algorithm for payment method
                 identifiers? ">
                     There are a number of issues open against the browser API which need to be resolved to come to a
-                    conclusion on the correct algorithm to use in mathcing payment method identifiers.
+                    conclusion on the correct algorithm to use in matching payment method identifiers.
                 </div>
             </section>
         </section>
         <section>
             <h3>Extension Points</h3>
-            <p>The following extension points are defined for implemntation specific processing.</p>
+            <p>The following extension points are defined for implementation specific processing.</p>
             <section>
                 <h4>Selection of Payment App</h4>
                 <p>Once the mediator has determined the set of <a>payment apps</a> that are able to process the
