@@ -56,6 +56,8 @@ decoration to track users:
 If browsers are applying stricter policies around the low level primitives that
 web payments depend on, how do we continue to enable payments on the web?
 
+*Continue to: [An enumeration of known Payment-related flows on the web][payment-flows]*
+
 [home]: README.md
 [fedcm-problem]: https://github.com/WICG/FedCM/blob/main/explainer/problem.md#navigational-tracking
 [safari-cookies]: https://webkit.org/blog/10218/full-third-party-cookie-blocking-and-more/
@@ -67,3 +69,4 @@ web payments depend on, how do we continue to enable payments on the web?
 [safari-bounce-tracking-principles]: https://github.com/privacycg/proposals/issues/6
 [firefox-redirect-tracking]: https://blog.mozilla.org/security/2020/08/04/firefox-79-includes-protections-against-redirect-tracking/
 [chrome-privacy-model]: https://github.com/michaelkleber/privacy-model
+[payment-flows]: payment-flows/README.md
