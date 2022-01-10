@@ -31,8 +31,8 @@ applying stricter and stricter policies around these primitives.
 >
 > 1. [Safari][safari-cookies]: third-party cookies are **already** blocked by
      **default**.
-> 1. [Firefox][firefox-cookies]: third-party cookies are **already** blocked
-     **by a blocklist**.
+> 1. [Firefox][firefox-cookies]: some third-party cookies are **already**
+     blocked **by a blocklist**.
 > 1. [Chrome][chrome-cookies]: on iOS **already** blocked **by default** and
      intends to offer **alternatives** to make them **obsolete** in the [near
      term][chrome-cookies-future].
