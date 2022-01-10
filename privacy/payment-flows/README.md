@@ -14,4 +14,7 @@ information is transmitted in them.
 * [The role of Payment Service Providers](psps.md)
 * [Miscellaneous / Uncategorized](misc.md)
 
+*Continue to: [A set of known use-cases that will be affected by privacy changes][use-cases]*
+
 [home]: ../README.md
+[use-cases]: ../use-cases/README.md
