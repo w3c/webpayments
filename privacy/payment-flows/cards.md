@@ -19,17 +19,30 @@ Most cards have a similar flow during a checkout, and have similar properties
 
 ## Common User Flows
 
-### Entering card details
+### Returning User Recognition
 
-#### Automatically restoring previously-saved card details
+Example:
 
-### Sending payment for processing
+* User logs into a merchant with whom the user has stored cards ("card on file")
+* Cookies used to store profile information (e.g., for EMV&reg; Secure Remote Commerce)
 
-### Authenticating the user
+### Instrument selection
 
-#### Frictionless authentication
+Examples:
 
-### Indicating successful transaction to the Merchant
+* Choosing from a card on file
+* Entering card details, possibly assisted by autofill.
+* Choosing a card from a payment handler.
+
+### Authentication
+
+Examples:
+
+* EMV&reg; 3-D secure frictionless and challenge flows.
+
+### Authorization
+
+Note: W3C discussions have not focused on authorization, as this phase typically happens in the background (and not on the Web).
 
 [home]: ../README.md
 [payment-flows]: README.md
