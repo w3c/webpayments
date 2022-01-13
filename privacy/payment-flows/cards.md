@@ -21,7 +21,7 @@ Most cards have a similar flow during a checkout, and have similar properties
 
 ### Returning User Recognition
 
-Example:
+Examples:
 
 * User logs into a merchant with whom the user has stored cards ("card on file")
 * Cookies used to store profile information (e.g., for EMV&reg; Secure Remote Commerce)
@@ -33,6 +33,7 @@ Examples:
 * Choosing from a card on file
 * Entering card details, possibly assisted by autofill.
 * Choosing a card from a payment handler.
+* Choosing a card from a EMV&reg; Secure Remote Commerce selector.
 
 ### Authentication
 
