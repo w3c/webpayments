@@ -13,6 +13,7 @@ affect payments.
 * [Payment Buttons](payment-buttons.md)
 * [Secure Payment Confirmation enrollment status](spc.md)
 * [Anti-Fraud measures](anti-fraud.md)
+* [EMV&reg; Secure Remote Commerce user recognition](anti-fraud.md)
 
 [home]: ../README.md
 [fedcm-navigational-tracking]: https://github.com/WICG/FedCM/blob/main/explainer/problem.md#navigational-tracking
