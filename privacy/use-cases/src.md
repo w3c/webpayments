@@ -16,12 +16,12 @@ See more [information about EMV&reg;SRC](https://www.emvco.com/emv-technologies/
 
 The desired user experience is that the user pushes the Click-to-Pay button and is presented with a list of registered cards.
 
-This user recognition by SRC systems happens in a third-party
-context. If third-party cookies are unavailable, an SRC system will
-not be able to recognize the user across different merchant
-sites. This means that the user will need to enter the SRC identity
-(e.g., via a form field) and possibly other information on each
-merchant site.
+This experience today relies on user recognition by SRC systems 
+in a third-party context. If third-party cookies are unavailable, an
+SRC system will not be able to recognize the user across different
+merchant sites. This means that the user will need to enter the SRC
+identity (e.g., via a form field) and possibly other information on
+each merchant site.
 
 ### Possible Alternatives
 
