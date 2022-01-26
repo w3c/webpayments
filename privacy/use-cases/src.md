@@ -5,7 +5,7 @@ See more [information about EMV&reg;SRC](https://www.emvco.com/emv-technologies/
 
 ## Overview of Click-to-Pay Flow
 
-* During an enrollment phase, the user registers a card with an SRC System; thusthe SRC System has a relationship and uses cookies to recognize returning users.
+* During an enrollment phase, the user registers a card with an SRC System; thus the SRC System has a relationship and uses cookies to recognize returning users.
 * At transaction time, the user pushes the Click-to-Pay button on a merchant site. This is typically provided by another party, the SRC Initiator (SRC-I), in a 3p context.
 * The SRC-I interacts with each SRC system (by dispatching SRC system cookies to their servers) to establish whether this is a returning user, and if so, to retrieve registered cards.
 * The SRC-I aggregates the responses into a candidate card list (i.e., cards registered in SRC systems under that user identity).
@@ -16,7 +16,12 @@ See more [information about EMV&reg;SRC](https://www.emvco.com/emv-technologies/
 
 The desired user experience is that the user pushes the Click-to-Pay button and is presented with a list of registered cards.
 
-If third-party cookies are unavailable, an SRC-I will not recognize the user across different merchant sites. This means that the user will need to enter the SRC identity (e.g., via a form field) and possibly other information on each merchant site.
+This user recognition by SRC systems happens in a third-party
+context. If third-party cookies are unavailable, an SRC system will
+not be able to recognize the user across different merchant
+sites. This means that the user will need to enter the SRC identity
+(e.g., via a form field) and possibly other information on each
+merchant site.
 
 ### Possible Alternatives
 
