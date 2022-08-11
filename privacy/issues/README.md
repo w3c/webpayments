@@ -145,7 +145,7 @@ The feasibility of this attack very much depends on the cost to install a
 payment app, as it requires installing enough bits of entropy to track users.
 Removing `PaymentInstruments.set()` would go a long way to mitigating it, as it
 allows for silent installation. JIT-installed payment apps are much 'louder', as
-it requires a user-activation per show() call, as well as user-visible
+it requires a user-activation per `show()` call, as well as user-visible
 interaction (see below), so it may be OK to not act in that case.
 
 Further mitigations here could involve some sort of 'trust' model around payment
