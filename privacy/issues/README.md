@@ -17,10 +17,10 @@ difficult ones.
 
 | Privacy issue | Mitigation and open questions |
 | --------------| ------------------------------|
-| `"canmakepayment"`/`IS\_READY\_TO\_PAY` event fields | Remove concerning data fields. |
+| `"canmakepayment"`/`IS_READY_TO_PAY` event fields | Remove concerning data fields. |
 | Tracking via `PaymentInstruments.set()`/`get()` | Remove `PaymentInstruments` API. |
 | Using `canMakePayment()` to build UUID by querying multiple apps | Remove `PaymentInstruments` API, add some sort of trust model or user controls? |
-| Timing attacks on `"canmakepayment"` / `IS\_READY\_TO\_PAY` | Change to push model? |
+| Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY` | Change to push model? |
 | Payment Handlers not required to show UI | Enforce UI for payment apps. |
 
 ## Privacy model assumptions / notes
@@ -55,7 +55,7 @@ difficult ones.
 
 ## Privacy Concerns
 
-### `"canmakepayment"` and `IS\_READY\_TO\_PAY`
+### `"canmakepayment"` and `IS_READY_TO_PAY`
 
 When a Payment Request is constructed, the Payment Handler specification
 [requires the user-agent to fire a `"canmakepayment"` event](https://w3c.github.io/payment-handler/#handling-a-canmakepaymentevent)[^event]
@@ -70,10 +70,10 @@ the event and return (via
     `hasEnrolledInstrument()` instead.
 
 To support native Android apps, Chrome also
-[fires an `IS\_READY\_TO\_PAY` intent](https://web.dev/android-payment-apps-developers-guide/)
+[fires an `IS_READY_TO_PAY` intent](https://web.dev/android-payment-apps-developers-guide/)
 to the matching installed native applications.
 
-The `"canmakepayment"` event (and `IS\_READY\_TO\_PAY` intent)
+The `"canmakepayment"` event (and `IS_READY_TO_PAY` intent)
 [currently conveys](https://w3c.github.io/payment-handler/#canmakepaymenteventinit-dictionary)
 the following information to the Payment App:
 
@@ -93,7 +93,7 @@ Remove the `topOrigin`, `paymentRequestOrigin`, and `methodData` fields from
 knowledge (e.g., checking 1p data for this user), but that knowledge is
 compressed into only one bit for the merchant to consume (`true`/`false`).
 
-### Tracking via `PaymentInstruments.set()`/get()
+### Tracking via `PaymentInstruments.set()`/`get()`
 
 The
 [`PaymentInstruments.set()`](https://w3c.github.io/payment-handler/#paymentinstruments-interface)
@@ -163,10 +163,10 @@ respond with `true`/`false` to build up the UUID.
 To mitigate this, we are likely to restrict the number of payment methods that a
 single Android application can claim to handle.
 
-### Timing attacks on `"canmakepayment"` / `IS\_READY\_TO\_PAY`
+### Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY`
 
 Even if we tackle the above concerns around `"canmakepayment"` /
-`IS\_READY\_TO\_PAY`, there is still a timing attack possible.
+`IS_READY_TO_PAY`, there is still a timing attack possible.
 
 In such an attack, the colluding website (https://site.example) first fires a
 server-call to the tracker (https://tracker.example), informing the tracker that
@@ -194,7 +194,7 @@ to the browser for future `"canmakepayment"` events. Then, when a Payment
 Request is constructed, the browser just uses the cached value rather than call
 into the Service Worker.
 
-A final option would be to remove `"canmakepayment"`/`IS\_READY\_TO\_PAY`
+A final option would be to remove `"canmakepayment"`/`IS_READY_TO_PAY`
 entirely, although we have not yet determined whether that is feasible. (It
 certainly seems like it would break use-cases.)
 
