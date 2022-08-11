@@ -1,8 +1,7 @@
 # Privacy in Web Payment APIs
 
-Author: [Rouslan Solomakhin](https://github.com/rsolomakhin)
-
-Author: [Stephen McGruer](https://github.com/stephenmcgruer)
+Authors: [Rouslan Solomakhin](https://github.com/rsolomakhin),
+         [Stephen McGruer](https://github.com/stephenmcgruer)
 
 Last update: Aug 11, 2022
 
