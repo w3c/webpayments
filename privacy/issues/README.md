@@ -50,7 +50,7 @@ difficult ones.
  - [Payment Method Manifest spec](https://w3c.github.io/payment-method-manifest/):
    defines a way for Web-based payment handlers to be “just in time” (JIT)
    installed during a purchase (during
-   [PaymentRequest.show()](https://w3c.github.io/payment-request/#show-method))
+   [`PaymentRequest.show()`](https://w3c.github.io/payment-request/#show-method))
    via a manifest file.
 
 ## Privacy Concerns
