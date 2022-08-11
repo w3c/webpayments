@@ -148,7 +148,8 @@ payment app, as it requires installing enough bits of entropy to track users.
 Removing `PaymentInstruments.set()` would go a long way to mitigating it, as it
 allows for silent installation. JIT-installed payment apps are much 'louder', as
 it requires a user-activation per `show()` call, as well as user-visible
-interaction (see below), so it may be OK to not act in that case.
+interaction ([see below](#payment-handlers-not-required-to-show-ui)), so it may
+be OK to not act in that case.
 
 Further mitigations here could involve some sort of 'trust' model around payment
 apps, but it has not been explored significantly.
@@ -167,18 +168,20 @@ single Android application can claim to handle.
 
 ### Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY`
 
-Even if we tackle the above concerns around `"canmakepayment"` /
-`IS_READY_TO_PAY`, there is still a timing attack possible.
+Even if we tackle the [above concerns](#canmakepayment-and-is_ready_to_pay)
+around `"canmakepayment"` / `IS_READY_TO_PAY`, there is still a timing attack
+possible.
 
 In such an attack, the colluding website (https://site.example) first fires a
 server-call to the tracker (https://tracker.example), informing the tracker that
 it is about to construct a Payment Request. The colluding website then does so,
 and a `"canmakepayment"` event is fired to the tracker's (already-installed)
-payment app. Whilst this event contains no user data after the above
-mitigations, the service worker (or native application) still has 1p context and
-so can message its own server with its concept of the user's identity. The
-https://tracker.example server then attempts to match up the initial server-call
-with the canmakepayment event, and thus track the user.
+payment app. Whilst this event contains no user data after the
+[above mitigations](#canmakepayment-and-is_ready_to_pay), the service worker
+(or native application) still has 1p context and so can message its own server
+with its concept of the user's identity. The https://tracker.example server then
+attempts to match up the initial server-call with the canmakepayment event, and
+thus track the user.
 
 #### Possible Mitigations
 
@@ -202,9 +205,10 @@ certainly seems like it would break use-cases.)
 
 ### Payment Handlers not required to show UI
 
-The Payment Handler specification currently does not require the Payment Handler
-to show any visible UI to the user. Since the Payment Handler service worker
-runs in a 1p context, this allows for invisible tracking of the user:
+The Payment Handler specification currently
+[does not require](https://w3c.github.io/payment-handler/#windows) the Payment
+Handler to show any visible UI to the user. Since the Payment Handler service
+worker runs in a 1p context, this allows for invisible tracking of the user:
 
 1. A colluding website (https://site.example) gets a user click (e.g., on a next
    button on the website UX).
@@ -213,8 +217,8 @@ runs in a 1p context, this allows for invisible tracking of the user:
 1. The tracker 'payment app' is JIT-installed (or was installed earlier via
    `PaymentInstrument.set()`), and receives a
    [PaymentRequestEvent](https://w3c.github.io/payment-handler/#the-paymentrequestevent).
-    1. This event can contain arbitrary information from the colluding website,
-       and the app is running in a 1p context.
+    - This event can contain arbitrary information from the colluding website,
+      and the app is running in a 1p context.
 1. The tracker 'payment app' **does not** call `openWindow()`. Instead, it reads
    its 1p state and sends the user information to its server (possibly along
    with shared information from the colluding website) and calls `respondWith()`
