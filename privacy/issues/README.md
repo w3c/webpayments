@@ -17,7 +17,7 @@ difficult ones.
 
 | Privacy issue | Mitigation and open questions |
 | --------------| ------------------------------|
-| `"canmakepayment"`/`IS_READY_TO_PAY` event fields | Remove concerning data fields. |
+| [`"canmakepayment"`/`IS_READY_TO_PAY` event fields](#canmakepayment-and-is_ready_to_pay) | Remove concerning data fields. |
 | Tracking via `PaymentInstruments.set()`/`get()` | Remove `PaymentInstruments` API. |
 | Using `canMakePayment()` to build UUID by querying multiple apps | Remove `PaymentInstruments` API, add some sort of trust model or user controls? |
 | Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY` | Change to push model? |
