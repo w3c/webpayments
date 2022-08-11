@@ -64,7 +64,7 @@ the event and return (via
 [respondWith](https://w3c.github.io/payment-handler/#respondwith-method)) either
 `true` or `false`.
 
-[^event]:  Not to be confused with the `canMakePayment()` **method** of the
+[^event]: Not to be confused with the `canMakePayment()` **method** of the
     Payment Request API. The `"canmakepayment"` event is fired at> construction
     time, not in response to a `canMakePayment()` call, and is used to answer
     `hasEnrolledInstrument()` instead.
@@ -114,9 +114,10 @@ API[^instruments], we propose to remove PaymentInstruments entirely. Another
 approach might be to restrict where `get()` can be called (e.g., only within the
 Service Worker).
 
-[^instruments]`PaymentInstruments` was designed with the belief that the browser
-    would know about individual payment methods (e.g., credit cards) rather than
-    payment apps, hence the need to store/retrieve arbitrary information.
+[^instruments]: `PaymentInstruments` was designed with the belief that the
+    browser would know about individual payment methods (e.g., credit cards)
+    rather than payment apps, hence the need to store/retrieve arbitrary
+    information.
 
 ### `canMakePayment()` building UUID by querying multiple apps
 
