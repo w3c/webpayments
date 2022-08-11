@@ -1,4 +1,4 @@
-=Privacy in Web Payment APIs=
+# Privacy in Web Payment APIs
 
 Author: [Rouslan Solomakhin](https://github.com/rsolomakhin)
 
@@ -6,7 +6,7 @@ Author: [Stephen McGruer](https://github.com/stephenmcgruer)
 
 Last update: Aug 11, 2022
 
-==Summary==
+## Summary
 
 This document is an overview of potential privacy issues in Web Payment APIs
 (primarily [Payment Request](https://w3c.github.io/payment-request/) and
@@ -24,14 +24,14 @@ difficult ones.
 | Timing attacks on `"canmakepayment"` / `IS\_READY\_TO\_PAY` | Change to push model? |
 | Payment Handlers not required to show UI | Enforce UI for payment apps. |
 
-==Privacy model assumptions / notes==
+## Privacy model assumptions / notes
 
  - 'Merchant websites' and 'payment apps' may be malicious, and may collude.
  - A user agent acts on behalf of the user.
 
-==Background on Web Payments APIs==
+## Background on Web Payments APIs
 
-===Types of Payment Apps===
+### Types of Payment Apps
 
  - Browser-integrated payment apps - out of scope.
  - Web-based payment handlers, as defined by the
@@ -42,7 +42,7 @@ difficult ones.
    - We generally assume that native applications run in what would be
      considered a 1p context, albeit this is technically platform-specific.
 
-===Installing Payment Apps===
+### Installing Payment Apps
 
  - Built into the browser or pre-installed in some way - out of scope.
  - [Payment Handler spec](https://w3c.github.io/payment-handler): allows a
@@ -54,22 +54,21 @@ difficult ones.
    [PaymentRequest.show()](https://w3c.github.io/payment-request/#show-method))
    via a manifest file.
 
-==Privacy Concerns==
+## Privacy Concerns
 
-===`"canmakepayment"` and `IS\_READY\_TO\_PAY`===
+### `"canmakepayment"` and `IS\_READY\_TO\_PAY`
 
 When a Payment Request is constructed, the Payment Handler specification
-[requires the user-agent to fire a `"canmakepayment"` event](https://w3c.github.io/payment-handler/#handling-a-canmakepaymentevent)
+[requires the user-agent to fire a `"canmakepayment"` event](https://w3c.github.io/payment-handler/#handling-a-canmakepaymentevent)[^event]
 to any matching installed Service Workers. The Service Worker is able to handle
 the event and return (via
 [respondWith](https://w3c.github.io/payment-handler/#respondwith-method)) either
 `true` or `false`.
 
->  The `"canmakepayment"` event is not to be confused with the
-> `canMakePayment()` **method** of the Payment Request API. The
-> `"canmakepayment"` event is fired at> construction time, not in response to a
-> `canMakePayment()` call, and is used to answer `hasEnrolledInstrument()`
-> instead.
+[^event]:  Not to be confused with the `canMakePayment()` **method** of the
+    Payment Request API. The `"canmakepayment"` event is fired at> construction
+    time, not in response to a `canMakePayment()` call, and is used to answer
+    `hasEnrolledInstrument()` instead.
 
 To support native Android apps, Chrome also
 [fires an `IS\_READY\_TO\_PAY` intent](https://web.dev/android-payment-apps-developers-guide/)
@@ -88,14 +87,14 @@ The transfer of this information is invisible to the user and without consent
 UI might be shown). Because Payment Apps run in a 1p context, it could be used
 to track the user.
 
-====Proposed Mitigation====
+####Proposed Mitigation
 
 Remove the `topOrigin`, `paymentRequestOrigin`, and `methodData` fields from
 `"canmakepayment"` event. The payment app may still respond based on its own
 knowledge (e.g., checking 1p data for this user), but that knowledge is
 compressed into only one bit for the merchant to consume (`true`/`false`).
 
-===Tracking via `PaymentInstruments.set()`/get()===
+### Tracking via `PaymentInstruments.set()`/get()
 
 The
 [`PaymentInstruments.set()`](https://w3c.github.io/payment-handler/#paymentinstruments-interface)
@@ -108,18 +107,19 @@ visits https://site.example, which opens an iframe for https://tracker.example.
 That iframe calls `PaymentInstruments.get(key)` and can retrieve the UUID, thus
 allowing https://tracker.example to know which user it is.
 
-====Proposed Mitigation====
+####Proposed Mitigation
 
 Given the lack of uptake in `PaymentInstruments.set()`, versus the more common
-JIT-install path, as well as the overly powerful nature of the API, we propose
-to remove PaymentInstruments entirely. Another approach might be to restrict
-where `get()` can be called (e.g., only within the Service Worker).
+JIT-install path, as well as the overly powerful nature of the
+API[^instruments], we propose to remove PaymentInstruments entirely. Another
+approach might be to restrict where `get()` can be called (e.g., only within the
+Service Worker).
 
-> `PaymentInstruments` was designed with the belief that the browser would know
-> about individual payment methods (e.g., credit cards) rather than payment
-> apps, hence the need to store/retrieve arbitrary information.
+[^instruments]`PaymentInstruments` was designed with the belief that the browser
+    would know about individual payment methods (e.g., credit cards) rather than
+    payment apps, hence the need to store/retrieve arbitrary information.
 
-===`canMakePayment()` building UUID by querying multiple apps===
+### `canMakePayment()` building UUID by querying multiple apps
 
 The
 [`PaymentRequest.canMakePayment()`](https://www.w3.org/TR/payment-request/#canmakepayment-method)
@@ -139,7 +139,7 @@ later construct a Payment Request for, and call `canMakePayment()` on each app
 in turn. By checking whether the method returns `true` or `false`, the website
 can build up the original UUID and thus allow tracking.
 
-====Proposed Mitigation====
+####Proposed Mitigation
 
 The feasibility of this attack very much depends on the cost to install a
 payment app, as it requires installing enough bits of entropy to track users.
@@ -151,7 +151,7 @@ interaction (see below), so it may be OK to not act in that case.
 Further mitigations here could involve some sort of 'trust' model around payment
 apps, but it has not been explored significantly.
 
-====Android Variant====
+####Android Variant
 
 Not technically in scope for Web Payment APIs, but sharing for transparency ---
 there is a variant of the above attack where a single Android application lists
@@ -163,7 +163,7 @@ respond with `true`/`false` to build up the UUID.
 To mitigate this, we are likely to restrict the number of payment methods that a
 single Android application can claim to handle.
 
-===Timing attacks on `"canmakepayment"` / `IS\_READY\_TO\_PAY`===
+### Timing attacks on `"canmakepayment"` / `IS\_READY\_TO\_PAY`
 
 Even if we tackle the above concerns around `"canmakepayment"` /
 `IS\_READY\_TO\_PAY`, there is still a timing attack possible.
@@ -178,7 +178,7 @@ so can message its own server with its concept of the user's identity. The
 https://tracker.example server then attempts to match up the initial server-call
 with the canmakepayment event, and thus track the user.
 
-====Possible Mitigations====
+####Possible Mitigations
 
 One option would be to partition the Service Worker's storage, which would
 remove its ability to access the 1p user information when handling the
@@ -198,7 +198,7 @@ A final option would be to remove `"canmakepayment"`/`IS\_READY\_TO\_PAY`
 entirely, although we have not yet determined whether that is feasible. (It
 certainly seems like it would break use-cases.)
 
-===Payment Handlers not required to show UI===
+### Payment Handlers not required to show UI
 
 The Payment Handler specification currently does not require the Payment Handler
 to show any visible UI to the user. Since the Payment Handler service worker
@@ -221,7 +221,7 @@ runs in a 1p context, this allows for invisible tracking of the user:
 This attack is similar to opening and closing a pop-up window (or doing a bounce
 redirect).
 
-====Potential Mitigation====
+####Potential Mitigation
 
 Mitigating this attack is likely to be up to the user agent. We intend to force
 UI to be shown when `show()` is called. That makes sure that the user is aware
