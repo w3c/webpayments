@@ -36,7 +36,7 @@ difficult ones.
  - Web-based payment handlers, as defined by the
    [Payment Handler specification](https://w3c.github.io/payment-handler/#dfn-payment-handler):
    - These are 1p service-workers which are invoked to handle Payment Request
-     APIs (including at construction time and for show()).
+     APIs (including at construction time and for `show()`).
  - Native payment apps (e.g., Android apps):
    - We generally assume that native applications run in what would be
      considered a 1p context, albeit this is technically platform-specific.
