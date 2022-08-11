@@ -86,7 +86,7 @@ The transfer of this information is invisible to the user and without consent
 UI might be shown). Because Payment Apps run in a 1p context, it could be used
 to track the user.
 
-####Proposed Mitigation
+#### Proposed Mitigation
 
 Remove the `topOrigin`, `paymentRequestOrigin`, and `methodData` fields from
 `"canmakepayment"` event. The payment app may still respond based on its own
@@ -106,7 +106,7 @@ visits https://site.example, which opens an iframe for https://tracker.example.
 That iframe calls `PaymentInstruments.get(key)` and can retrieve the UUID, thus
 allowing https://tracker.example to know which user it is.
 
-####Proposed Mitigation
+#### Proposed Mitigation
 
 Given the lack of uptake in `PaymentInstruments.set()`, versus the more common
 JIT-install path, as well as the overly powerful nature of the
@@ -139,7 +139,7 @@ later construct a Payment Request for, and call `canMakePayment()` on each app
 in turn. By checking whether the method returns `true` or `false`, the website
 can build up the original UUID and thus allow tracking.
 
-####Proposed Mitigation
+#### Proposed Mitigation
 
 The feasibility of this attack very much depends on the cost to install a
 payment app, as it requires installing enough bits of entropy to track users.
@@ -151,7 +151,7 @@ interaction (see below), so it may be OK to not act in that case.
 Further mitigations here could involve some sort of 'trust' model around payment
 apps, but it has not been explored significantly.
 
-####Android Variant
+#### Android Variant
 
 Not technically in scope for Web Payment APIs, but sharing for transparency ---
 there is a variant of the above attack where a single Android application lists
@@ -178,7 +178,7 @@ so can message its own server with its concept of the user's identity. The
 https://tracker.example server then attempts to match up the initial server-call
 with the canmakepayment event, and thus track the user.
 
-####Possible Mitigations
+#### Possible Mitigations
 
 One option would be to partition the Service Worker's storage, which would
 remove its ability to access the 1p user information when handling the
@@ -221,7 +221,7 @@ runs in a 1p context, this allows for invisible tracking of the user:
 This attack is similar to opening and closing a pop-up window (or doing a bounce
 redirect).
 
-####Potential Mitigation
+#### Potential Mitigation
 
 Mitigating this attack is likely to be up to the user agent. We intend to force
 UI to be shown when `show()` is called. That makes sure that the user is aware
