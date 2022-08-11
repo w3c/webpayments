@@ -18,10 +18,10 @@ difficult ones.
 | Privacy issue | Mitigation and open questions |
 | --------------| ------------------------------|
 | [`"canmakepayment"`/`IS_READY_TO_PAY` event fields](#canmakepayment-and-is_ready_to_pay) | Remove concerning data fields. |
-| Tracking via `PaymentInstruments.set()`/`get()` | Remove `PaymentInstruments` API. |
-| Using `canMakePayment()` to build UUID by querying multiple apps | Remove `PaymentInstruments` API, add some sort of trust model or user controls? |
-| Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY` | Change to push model? |
-| Payment Handlers not required to show UI | Enforce UI for payment apps. |
+| [Tracking via `PaymentInstruments.set()`/`get()`](#tracking-via-paymentinstrumentssetget) | Remove `PaymentInstruments` API. |
+| [Using `canMakePayment()` to build UUID by querying multiple apps](#canmakepayment-building-uuid-by-querying-multiple-apps) | Remove `PaymentInstruments` API, add some sort of trust model or user controls? |
+| [Timing attacks on `"canmakepayment"` / `IS_READY_TO_PAY`](#timing-attacks-on-canmakepayment--is_ready_to_pay) | Change to push model? |
+| [Payment Handlers not required to show UI](#payment-handlers-not-required-to-show-ui) | Enforce UI for payment apps. |
 
 ## Privacy model assumptions / notes
 
@@ -77,14 +77,16 @@ The `"canmakepayment"` event (and `IS_READY_TO_PAY` intent)
 [currently conveys](https://w3c.github.io/payment-handler/#canmakepaymenteventinit-dictionary)
 the following information to the Payment App:
 
- - `topOrigin` - e.g. https://merchant.example (browser-determined)
- - `paymentRequestOrigin` - e.g. https://psp-iframe.example (browser-determined)
- - `methodData` - a sequence of arbitrary method data (merchant-supplied)
+ - `topOrigin` - e.g., https://merchant.example (browser-determined)
+ - `paymentRequestOrigin` - e.g., https://psp-iframe.example (browser-determined)
+ - `methodData` - a sequence of arbitrary
+    [method data](https://www.w3.org/TR/payment-request/#paymentmethoddata-dictionary)
+    (merchant-supplied)
 
 The transfer of this information is invisible to the user and without consent
 (reminder that it happens on Payment Request **construction**, long before any
-UI might be shown). Because Payment Apps run in a 1p context, it could be used
-to track the user.
+UI might be shown). Because Payment Apps run
+[in a 1p context](#types-of-payment-apps), it could be used to track the user.
 
 #### Proposed Mitigation
 
